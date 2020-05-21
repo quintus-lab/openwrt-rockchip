@@ -36,5 +36,5 @@ jobs:
       run: chmod +x .github/workflows/purge_artifacts.sh
 
     - name: cleanup old action artifacts
-      run: .github/workflows/purge_artifacts.sh ${{ secrets.REPO_ACCESS_TOKEN }}
+      run: .github/workflows/purge_artifacts.sh ${{ secrets.RELEASES_TOKEN }}
 
