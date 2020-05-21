@@ -5,7 +5,7 @@
 # For NanoPi R2S org
 #=================================================
 
-name: OpenWrt R2S originfull
+name: OpenWrt R2S origin-full
 
 on:
 #  release:
