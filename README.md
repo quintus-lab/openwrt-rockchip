@@ -38,9 +38,7 @@ wget -q https://github.com/ardanzhu/Opwrt_Actions/raw/master/script/update.sh -O
 [MIT]
 
 
-#### Friendlywrt部分截圖：
-![r2sflasher](pic/R2Sflasher.jpg)
-![diskman](pic/diskman.jpg)
+#### Friendlywrt截圖：
 ![opentomcat](pic/opentomcat.png)
 
 #### Openwrt原生系統截圖：

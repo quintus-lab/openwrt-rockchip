@@ -5,7 +5,7 @@
 # For NanoPi R2S org
 #=================================================
 
-name: OpenWrt R2S origin-full
+name: OpenWrt R2S origin-slim
 
 on:
 #  release:
@@ -14,7 +14,7 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/origin-full.yml'
+      - '.github/workflows/origin-slim.yml'
       - 'step/01-prepare_package.sh'
       - 'seed/R2S.seed'
   schedule:
@@ -27,7 +27,7 @@ env:
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: false
   UPLOAD_RELEASE: true
-  CONFIG_FILE: origin-full.seed
+  CONFIG_FILE: origin-slim.seed
   TZ: Asia/Shanghai
 
 jobs:
@@ -99,16 +99,16 @@ jobs:
           mkdir -p ./artifact/
           mv openwrt/bin/targets/*/*/*.img* ./artifact/
           cd ./artifact/          
-          zip R2S-full-$(date +%Y-%m-%d)-ext4.zip *ext4-sysupgrade.img*
-          zip R2S-full-$(date +%Y-%m-%d)-squashfs.zip *squashfs-sysupgrade.img*
+          zip R2S-slim-$(date +%Y-%m-%d)-ext4.zip *ext4-sysupgrade.img*
+          zip R2S-slim-$(date +%Y-%m-%d)-squashfs.zip *squashfs-sysupgrade.img*
           rm *ext4-sysupgrade.img*
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
-          release_tag="R2S-${{ env.DATE }}-origin-full"
+          release_tag="R2S-${{ env.DATE }}-origin-slim"
           echo "##[set-output name=Release_tag;]$release_tag"
           cd ../openwrt
-          cp .config ../artifact/config-origin-full
-          ./scripts/diffconfig.sh > ../artifact/config-full.seed
+          cp .config ../artifact/config-origin-slim
+          ./scripts/diffconfig.sh > ../artifact/config-slim.seed
         
       - name: Upload artifact
         uses: actions/upload-artifact@master
