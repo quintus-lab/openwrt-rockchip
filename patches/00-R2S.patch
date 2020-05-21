@@ -1,0 +1,1971 @@
+diff -rNEZbwBdu3 a/package/boot/arm-trusted-firmware-rockchip/Makefile b/package/boot/arm-trusted-firmware-rockchip/Makefile
+--- a/package/boot/arm-trusted-firmware-rockchip/Makefile	2020-05-11 22:49:04.000000000 +0800
++++ b/package/boot/arm-trusted-firmware-rockchip/Makefile	2020-05-17 03:26:09.000000000 +0800
+@@ -8,12 +8,12 @@
+ include $(TOPDIR)/rules.mk
+ 
+ PKG_NAME:=arm-trusted-firmware-rockchip
+-PKG_VERSION:=2.3-rc0
++PKG_VERSION:=2.3
+ PKG_RELEASE:=1
+ 
+ PKG_SOURCE:=atf-v$(PKG_VERSION).tar.gz
+ PKG_SOURCE_URL:=https://github.com/atf-builds/atf/releases/download/v$(PKG_VERSION)/atf-v$(PKG_VERSION).tar.gz?
+-PKG_HASH:=8d0a2bd18adf54f9cf6fe923d10f21c1d21f42a15067757333ff8989b25f100a
++PKG_HASH:=bf352298743aed594cf2958dd588e06ab6713fc514bb6f809bf55a85a87134c1
+ 
+ PKG_LICENSE:=BSD-3-Clause
+ PKG_LICENSE_FILES:=license.md
+@@ -40,7 +40,7 @@
+ 
+ define Build/InstallDev
+ 	$(INSTALL_DIR) -p $(STAGING_DIR_IMAGE)
+-	$(CP) $(PKG_BUILD_DIR)/rk3399_bl31.elf $(STAGING_DIR_IMAGE)/bl31.elf
++	$(CP) $(PKG_BUILD_DIR)/rk*.elf $(STAGING_DIR_IMAGE)/
+ endef
+ 
+ define Package/arm-trusted-firmware-rockchip/install
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/Makefile b/package/boot/uboot-rockchip/Makefile
+--- a/package/boot/uboot-rockchip/Makefile	2020-05-11 22:49:04.000000000 +0800
++++ b/package/boot/uboot-rockchip/Makefile	2020-05-17 03:26:09.000000000 +0800
+@@ -13,6 +13,7 @@
+ 
+ include $(INCLUDE_DIR)/u-boot.mk
+ include $(INCLUDE_DIR)/package.mk
++PKG_BUILD_DEPENDS:=arm-trusted-firmware-rockchip
+ 
+ define U-Boot/Default
+   BUILD_TARGET:=rockchip
+@@ -20,27 +21,43 @@
+   HIDDEN:=1
+ endef
+ 
++define U-Boot/nanopi-r2-rk3328
++  BUILD_SUBTARGET:=armv8
++  NAME:=NanoPi R2S
++  BUILD_DEVICES:= \
++    friendlyelec_nanopi-r2-rev00
++  BL31=$(STAGING_DIR_IMAGE)/rk3328_bl31.elf
++endef
++
+ define U-Boot/rockpro64-rk3399
+   BUILD_SUBTARGET:=armv8
+   NAME:=RockPro64
+   BUILD_DEVICES:= \
+     pine64_rockpro64
+-  DEPENDS:=+PACKAGE_u-boot-rockpro64-rk3399:arm-trusted-firmware-rockchip
+-  PKG_BUILD_DEPENDS:=arm-trusted-firmware-rockchip
++  BL31=$(STAGING_DIR_IMAGE)/rk3399_bl31.elf
++endef
++
++define U-Boot/rock64-rk3328
++  BUILD_SUBTARGET:=armv8
++  NAME:=Rock64
++  BUILD_DEVICES:= \
++    pine64_rock64
++  BL31=$(STAGING_DIR_IMAGE)/rk3328_bl31.elf
+ endef
+ 
+ UBOOT_TARGETS := \
+-  rockpro64-rk3399
++  nanopi-r2-rk3328 \
++  rockpro64-rk3399 \
++  rock64-rk3328
+ 
+ UBOOT_CONFIGURE_VARS += USE_PRIVATE_LIBGCC=yes
+ 
+ UBOOT_MAKE_FLAGS += \
+-  BL31=$(STAGING_DIR_IMAGE)/bl31.elf
++  BL31=$(BL31)
+ 
+ define Build/Configure
+-	$(SED) s/subdir.*pylibfdt//g $(PKG_BUILD_DIR)/scripts/dtc/Makefile
++	 echo CONFIG_CMD_SETEXPR=y >> $(PKG_BUILD_DIR)/configs/$(UBOOT_CONFIG)_defconfig
+ 	$(call Build/Configure/U-Boot)
+-
+ 	$(SED) 's#CONFIG_MKIMAGE_DTC_PATH=.*#CONFIG_MKIMAGE_DTC_PATH="$(PKG_BUILD_DIR)/scripts/dtc/dtc"#g' $(PKG_BUILD_DIR)/.config
+ 	echo 'CONFIG_IDENT_STRING=" OpenWrt"' >> $(PKG_BUILD_DIR)/.config
+ endef
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/add-board-nanopi-r2.patch b/package/boot/uboot-rockchip/patches/add-board-nanopi-r2.patch
+--- a/package/boot/uboot-rockchip/patches/add-board-nanopi-r2.patch	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/add-board-nanopi-r2.patch	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,955 @@
++diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
++index 0127a91a..c5beaa85 100644
++--- a/arch/arm/dts/Makefile
+++++ b/arch/arm/dts/Makefile
++@@ -104,6 +104,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3308) += \
++ 
++ dtb-$(CONFIG_ROCKCHIP_RK3328) += \
++ 	rk3328-evb.dtb \
+++	rk3328-nanopi-r2-rev00.dtb \
++ 	rk3328-rock64.dtb
++ 
++ dtb-$(CONFIG_ROCKCHIP_RK3368) += \
++diff --git a/arch/arm/dts/rk3328-nanopi-r2-common.dtsi b/arch/arm/dts/rk3328-nanopi-r2-common.dtsi
++new file mode 100644
++index 00000000..bc924346
++--- /dev/null
+++++ b/arch/arm/dts/rk3328-nanopi-r2-common.dtsi
++@@ -0,0 +1,624 @@
+++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+++/*
+++ * Copyright (c) 2018 FriendlyElec Computer Tech. Co., Ltd.
+++ * (http://www.friendlyarm.com)
+++ *
+++ * Copyright (c) 2017 Fuzhou Rockchip Electronics Co., Ltd
+++ */
+++
+++/dts-v1/;
+++/*#include "rk3328-dram-default-timing.dtsi"*/
+++#include "rk3328.dtsi"
+++
+++/ {
+++	model = "FriendlyElec boards based on Rockchip RK3328";
+++	compatible = "friendlyelec,nanopi-r2",
+++		   "rockchip,rk3328";
+++
+++	aliases {
+++/*		ethernet1 = &r8153;*/
+++	};
+++
+++	chosen {
+++		bootargs = "swiotlb=1 coherent_pool=1m consoleblank=0";
+++		stdout-path = "serial2:1500000n8";
+++	};
+++
+++	gmac_clkin: external-gmac-clock {
+++		compatible = "fixed-clock";
+++		clock-frequency = <125000000>;
+++		clock-output-names = "gmac_clkin";
+++		#clock-cells = <0>;
+++	};
+++
+++	mach: board {
+++		compatible = "friendlyelec,board";
+++		machine = "NANOPI-R2";
+++		hwrev = <255>;
+++		model = "NanoPi R2 Series";
+++		nvmem-cells = <&efuse_id>, <&efuse_cpu_version>;
+++		nvmem-cell-names = "id", "cpu-version";
+++	};
+++
+++	leds: gpio-leds {
+++		compatible = "gpio-leds";
+++		pinctrl-names = "default";
+++		pinctrl-0 =<&leds_gpio>;
+++		status = "disabled";
+++
+++		led@1 {
+++			gpios = <&gpio0 RK_PA2 GPIO_ACTIVE_HIGH>;
+++			label = "status_led";
+++			linux,default-trigger = "heartbeat";
+++			linux,default-trigger-delay-ms = <0>;
+++		};
+++	};
+++
+++	sdio_pwrseq: sdio-pwrseq {
+++		compatible = "mmc-pwrseq-simple";
+++		clocks = <&rk805 1>;
+++		clock-names = "ext_clock";
+++		pinctrl-names = "default";
+++		pinctrl-0 = <&wifi_enable_h>;
+++
+++		/*
+++		 * On the module itself this is one of these (depending
+++		 * on the actual card populated):
+++		 * - SDIO_RESET_L_WL_REG_ON
+++		 * - PDN (power down when low)
+++		 */
+++		reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>;
+++	};
+++
+++/*	sdmmc_ext: dwmmc@ff5f0000 {
+++		compatible = "rockchip,rk3328-dw-mshc", "rockchip,rk3288-dw-mshc";
+++		reg = <0x0 0xff5f0000 0x0 0x4000>;
+++		clock-freq-min-max = <400000 150000000>;
+++		clocks = <&cru HCLK_SDMMC_EXT>, <&cru SCLK_SDMMC_EXT>,
+++			 <&cru SCLK_SDMMC_EXT_DRV>, <&cru SCLK_SDMMC_EXT_SAMPLE>;
+++		clock-names = "biu", "ciu", "ciu-drv", "ciu-sample";
+++		fifo-depth = <0x100>;
+++		interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
+++		status = "disabled";
+++	};*/
+++
+++	vcc_sd: sdmmc-regulator {
+++		compatible = "regulator-fixed";
+++		gpio = <&gpio0 30 GPIO_ACTIVE_LOW>;
+++		pinctrl-names = "default";
+++		pinctrl-0 = <&sdmmc0m1_gpio>;
+++		regulator-name = "vcc_sd";
+++		regulator-min-microvolt = <3300000>;
+++		regulator-max-microvolt = <3300000>;
+++		vin-supply = <&vcc_io>;
+++	};
+++
+++	vccio_sd: sdmmcio-regulator {
+++		compatible = "regulator-gpio";
+++		gpios = <&gpio1 RK_PD4 GPIO_ACTIVE_HIGH>;
+++		states = <1800000 0x1
+++			  3300000 0x0>;
+++		regulator-name = "vccio_sd";
+++		regulator-type = "voltage";
+++		regulator-min-microvolt = <1800000>;
+++		regulator-max-microvolt = <3300000>;
+++		regulator-always-on;
+++		vin-supply = <&vcc_io>;
+++		startup-delay-us = <2000>;
+++		regulator-settling-time-us = <5000>;
+++		enable-active-high;
+++		status = "disabled";
+++	};
+++
+++	vcc_sys: vcc-sys {
+++		compatible = "regulator-fixed";
+++		regulator-name = "vcc_sys";
+++		regulator-always-on;
+++		regulator-boot-on;
+++		regulator-min-microvolt = <5000000>;
+++		regulator-max-microvolt = <5000000>;
+++	};
+++
+++	vcc_phy: vcc-phy-regulator {
+++		compatible = "regulator-fixed";
+++		regulator-name = "vcc_phy";
+++		regulator-always-on;
+++		regulator-boot-on;
+++	};
+++
+++	vcc_host_vbus: host-vbus-regulator {
+++		compatible = "regulator-fixed";
+++		regulator-name = "vcc_host_vbus";
+++		regulator-always-on;
+++		regulator-boot-on;
+++		regulator-min-microvolt = <5000000>;
+++		regulator-max-microvolt = <5000000>;
+++	};
+++
+++	dfi: dfi@ff790000 {
+++		reg = <0x00 0xff790000 0x00 0x400>;
+++		compatible = "rockchip,rk3328-dfi";
+++		rockchip,grf = <&grf>;
+++		status = "disabled";
+++	};
+++
+++/*	dmc: dmc {
+++		compatible = "rockchip,rk3328-dmc";
+++		devfreq-events = <&dfi>;
+++		clocks = <&cru SCLK_DDRCLK>;
+++		clock-names = "dmc_clk";
+++		operating-points-v2 = <&dmc_opp_table>;
+++		ddr_timing = <&ddr_timing>;
+++		upthreshold = <40>;
+++		downdifferential = <20>;
+++		auto-min-freq = <786000>;
+++		auto-freq-en = <0>;
+++		#cooling-cells = <2>;
+++		status = "disabled";
+++
+++		ddr_power_model: ddr_power_model {
+++			compatible = "ddr_power_model";
+++			dynamic-power-coefficient = <120>;
+++			static-power-coefficient = <200>;
+++			ts = <32000 4700 (-80) 2>;
+++			thermal-zone = "soc-thermal";
+++		};
+++	};
+++
+++	dmc_opp_table: dmc-opp-table {
+++		compatible = "operating-points-v2";
+++
+++		rockchip,leakage-voltage-sel = <
+++			1   10    0
+++			11  254   1
+++		>;
+++		nvmem-cells = <&logic_leakage>;
+++		nvmem-cell-names = "ddr_leakage";
+++
+++		opp-786000000 {
+++			opp-hz = /bits/ 64 <786000000>;
+++			opp-microvolt = <1075000>;
+++			opp-microvolt-L0 = <1075000>;
+++			opp-microvolt-L1 = <1050000>;
+++		};
+++		opp-798000000 {
+++			opp-hz = /bits/ 64 <798000000>;
+++			opp-microvolt = <1075000>;
+++			opp-microvolt-L0 = <1075000>;
+++			opp-microvolt-L1 = <1050000>;
+++		};
+++		opp-840000000 {
+++			opp-hz = /bits/ 64 <840000000>;
+++			opp-microvolt = <1075000>;
+++			opp-microvolt-L0 = <1075000>;
+++			opp-microvolt-L1 = <1050000>;
+++		};
+++		opp-924000000 {
+++			opp-hz = /bits/ 64 <924000000>;
+++			opp-microvolt = <1100000>;
+++			opp-microvolt-L0 = <1100000>;
+++			opp-microvolt-L1 = <1075000>;
+++		};
+++		opp-1056000000 {
+++			opp-hz = /bits/ 64 <1056000000>;
+++			opp-microvolt = <1175000>;
+++			opp-microvolt-L0 = <1175000>;
+++			opp-microvolt-L1 = <1150000>;
+++		};
+++	};
+++*/};
+++
+++&cpu0 {
+++	cpu-supply = <&vdd_arm>;
+++};
+++
+++&dfi {
+++	status = "okay";
+++};
+++
+++/*&dmc {
+++	center-supply = <&vdd_logic>;
+++	status = "okay";
+++};*/
+++
+++&emmc {
+++	bus-width = <8>;
+++	cap-mmc-highspeed;
+++	max-frequency = <150000000>;
+++	mmc-hs200-1_8v;
+++	no-sd;
+++	non-removable;
+++	pinctrl-names = "default";
+++	pinctrl-0 = <&emmc_clk &emmc_cmd &emmc_bus8>;
+++	vmmc-supply = <&vcc_io>;
+++	vqmmc-supply = <&vcc18_emmc>;
+++	status = "okay";
+++};
+++
+++&gmac2phy {
+++	phy-supply = <&vcc_phy>;
+++	clock_in_out = "output";
+++	assigned-clocks = <&cru SCLK_MAC2PHY_SRC>;
+++	assigned-clock-rate = <50000000>;
+++	assigned-clocks = <&cru SCLK_MAC2PHY>;
+++	assigned-clock-parents = <&cru SCLK_MAC2PHY_SRC>;
+++	status = "disabled";
+++};
+++
+++&gmac2io {
+++	assigned-clocks = <&cru SCLK_MAC2IO>, <&cru SCLK_MAC2IO_EXT>;
+++	assigned-clock-parents = <&gmac_clkin>, <&gmac_clkin>;
+++	clock_in_out = "input";
+++	pinctrl-names = "default";
+++	pinctrl-0 = <&rgmiim1_pins>;
+++	phy-handle = <&rtl8211e>;
+++	phy-mode = "rgmii";
+++	phy-supply = <&vcc_phy>;
+++	snps,reset-active-low;
+++	snps,reset-delays-us = <0 10000 30000>;
+++	snps,reset-gpio = <&gpio1 RK_PC2 GPIO_ACTIVE_LOW>;
+++	snps,aal;
+++	snps,rxpbl = <0x4>;
+++	snps,txpbl = <0x4>;
+++	tx_delay = <0x24>;
+++	rx_delay = <0x18>;
+++	status = "okay";
+++
+++	mdio {
+++		compatible = "snps,dwmac-mdio";
+++		#address-cells = <1>;
+++		#size-cells = <0>;
+++
+++		rtl8211e: phy@0 {
+++			reg = <0>;
+++			reset-assert-us = <10000>;
+++			reset-deassert-us = <30000>;
+++			/* reset-gpios = <&gpio1 RK_PC2 GPIO_ACTIVE_LOW>; */
+++		};
+++	};
+++};
+++
+++&i2c1 {
+++	status = "okay";
+++
+++	rk805: rk805@18 {
+++		compatible = "rockchip,rk805";
+++		reg = <0x18>;
+++		interrupt-parent = <&gpio2>;
+++		interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
+++		#clock-cells = <1>;
+++		clock-output-names = "xin32k", "rk805-clkout2";
+++		gpio-controller;
+++		#gpio-cells = <2>;
+++		pinctrl-names = "default";
+++		pinctrl-0 = <&pmic_int_l>;
+++		rockchip,system-power-controller;
+++		wakeup-source;
+++
+++		vcc1-supply = <&vcc_sys>;
+++		vcc2-supply = <&vcc_sys>;
+++		vcc3-supply = <&vcc_sys>;
+++		vcc4-supply = <&vcc_sys>;
+++		vcc5-supply = <&vcc_io>;
+++		vcc6-supply = <&vcc_io>;
+++
+++		regulators {
+++			vdd_logic: DCDC_REG1 {
+++				regulator-name = "vdd_logic";
+++				regulator-init-microvolt = <1075000>;
+++				regulator-min-microvolt = <712500>;
+++				regulator-max-microvolt = <1450000>;
+++				regulator-always-on;
+++				regulator-boot-on;
+++				regulator-state-mem {
+++					regulator-on-in-suspend;
+++					regulator-suspend-microvolt = <1000000>;
+++				};
+++			};
+++
+++			vdd_arm: DCDC_REG2 {
+++				regulator-name = "vdd_arm";
+++				regulator-init-microvolt = <1225000>;
+++				regulator-min-microvolt = <712500>;
+++				regulator-max-microvolt = <1450000>;
+++				regulator-always-on;
+++				regulator-boot-on;
+++				regulator-state-mem {
+++					regulator-on-in-suspend;
+++					regulator-suspend-microvolt = <950000>;
+++				};
+++			};
+++
+++			vcc_ddr: DCDC_REG3 {
+++				regulator-name = "vcc_ddr";
+++				regulator-always-on;
+++				regulator-boot-on;
+++				regulator-state-mem {
+++					regulator-on-in-suspend;
+++				};
+++			};
+++
+++			vcc_io: DCDC_REG4 {
+++				regulator-name = "vcc_io";
+++				regulator-min-microvolt = <3300000>;
+++				regulator-max-microvolt = <3300000>;
+++				regulator-always-on;
+++				regulator-boot-on;
+++				regulator-state-mem {
+++					regulator-on-in-suspend;
+++					regulator-suspend-microvolt = <3300000>;
+++				};
+++			};
+++
+++			vcc_18: LDO_REG1 {
+++				regulator-name = "vcc_18";
+++				regulator-min-microvolt = <1800000>;
+++				regulator-max-microvolt = <1800000>;
+++				regulator-always-on;
+++				regulator-boot-on;
+++				regulator-state-mem {
+++					regulator-on-in-suspend;
+++					regulator-suspend-microvolt = <1800000>;
+++				};
+++			};
+++
+++			vcc18_emmc: LDO_REG2 {
+++				regulator-name = "vcc18_emmc";
+++				regulator-min-microvolt = <1800000>;
+++				regulator-max-microvolt = <1800000>;
+++				regulator-always-on;
+++				regulator-boot-on;
+++				regulator-state-mem {
+++					regulator-on-in-suspend;
+++					regulator-suspend-microvolt = <1800000>;
+++				};
+++			};
+++
+++			vdd_10: LDO_REG3 {
+++				regulator-name = "vdd_10";
+++				regulator-min-microvolt = <1000000>;
+++				regulator-max-microvolt = <1000000>;
+++				regulator-always-on;
+++				regulator-boot-on;
+++				regulator-state-mem {
+++					regulator-on-in-suspend;
+++					regulator-suspend-microvolt = <1000000>;
+++				};
+++			};
+++		};
+++	};
+++};
+++
+++&io_domains {
+++	status = "okay";
+++
+++	vccio1-supply = <&vcc_io>;
+++	vccio2-supply = <&vcc18_emmc>;
+++	vccio3-supply = <&vcc_io>;
+++	vccio4-supply = <&vcc_io>;
+++	vccio5-supply = <&vcc_io>;
+++	vccio6-supply = <&vcc_18>;
+++	pmuio-supply = <&vcc_io>;
+++};
+++
+++&pinctrl {
+++	pmic {
+++		pmic_int_l: pmic-int-l {
+++			rockchip,pins = <2 RK_PA6 RK_FUNC_GPIO &pcfg_pull_up>;
+++		};
+++	};
+++
+++	sdio-pwrseq {
+++		wifi_enable_h: wifi-enable-h {
+++			rockchip,pins = <3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++	};
+++
+++	sdmmc0 {
+++		sdmmc0_clk: sdmmc0-clk {
+++			rockchip,pins = <1 RK_PA6 1 &pcfg_pull_none_4ma>;
+++		};
+++
+++		sdmmc0_cmd: sdmmc0-cmd {
+++			rockchip,pins = <1 RK_PA4 1 &pcfg_pull_up_4ma>;
+++		};
+++
+++		sdmmc0_dectn: sdmmc0-dectn {
+++			rockchip,pins = <1 RK_PA5 1 &pcfg_pull_up_4ma>;
+++		};
+++
+++		sdmmc0_bus4: sdmmc0-bus4 {
+++			rockchip,pins =
+++				<1 RK_PA0 1 &pcfg_pull_up_4ma>,
+++				<1 RK_PA1 1 &pcfg_pull_up_4ma>,
+++				<1 RK_PA2 1 &pcfg_pull_up_4ma>,
+++				<1 RK_PA3 1 &pcfg_pull_up_4ma>;
+++		};
+++	};
+++
+++	sdmmc0ext {
+++		sdmmc0ext_clk: sdmmc0ext-clk {
+++			rockchip,pins = <3 RK_PA2 3 &pcfg_pull_none_2ma>;
+++		};
+++
+++		sdmmc0ext_cmd: sdmmc0ext-cmd {
+++			rockchip,pins = <3 RK_PA0 3 &pcfg_pull_up_2ma>;
+++		};
+++
+++		sdmmc0ext_bus4: sdmmc0ext-bus4 {
+++			rockchip,pins =
+++				<3 RK_PA4 3 &pcfg_pull_up_2ma>,
+++				<3 RK_PA5 3 &pcfg_pull_up_2ma>,
+++				<3 RK_PA6 3 &pcfg_pull_up_2ma>,
+++				<3 RK_PA7 3 &pcfg_pull_up_2ma>;
+++		};
+++	};
+++
+++	gmac-1 {
+++		rgmiim1_pins: rgmiim1-pins {
+++			rockchip,pins =
+++				/* mac_txclk */
+++				<1 RK_PB4 2 &pcfg_pull_none_4ma>,
+++				/* mac_rxclk */
+++				<1 RK_PB5 2 &pcfg_pull_none>,
+++				/* mac_mdio */
+++				<1 RK_PC3 2 &pcfg_pull_none_2ma>,
+++				/* mac_txen */
+++				<1 RK_PD1 2 &pcfg_pull_none_4ma>,
+++				/* mac_clk */
+++				<1 RK_PC5 2 &pcfg_pull_none_2ma>,
+++				/* mac_rxdv */
+++				<1 RK_PC6 2 &pcfg_pull_none>,
+++				/* mac_mdc */
+++				<1 RK_PC7 2 &pcfg_pull_none_2ma>,
+++				/* mac_rxd1 */
+++				<1 RK_PB2 2 &pcfg_pull_none>,
+++				/* mac_rxd0 */
+++				<1 RK_PB3 2 &pcfg_pull_none>,
+++				/* mac_txd1 */
+++				<1 RK_PB0 2 &pcfg_pull_none_4ma>,
+++				/* mac_txd0 */
+++				<1 RK_PB1 2 &pcfg_pull_none_4ma>,
+++				/* mac_rxd3 */
+++				<1 RK_PB6 2 &pcfg_pull_none>,
+++				/* mac_rxd2 */
+++				<1 RK_PB7 2 &pcfg_pull_none>,
+++				/* mac_txd3 */
+++				<1 RK_PC0 2 &pcfg_pull_none_4ma>,
+++				/* mac_txd2 */
+++				<1 RK_PC1 2 &pcfg_pull_none_4ma>,
+++
+++				/* mac_txclk */
+++				<0 RK_PB0 1 &pcfg_pull_none>,
+++				/* mac_txen */
+++				<0 RK_PB4 1 &pcfg_pull_none>,
+++				/* mac_clk */
+++				<0 RK_PD0 1 &pcfg_pull_none>,
+++				/* mac_txd1 */
+++				<0 RK_PC0 1 &pcfg_pull_none>,
+++				/* mac_txd0 */
+++				<0 RK_PC1 1 &pcfg_pull_none>,
+++				/* mac_txd3 */
+++				<0 RK_PC7 1 &pcfg_pull_none>,
+++				/* mac_txd2 */
+++				<0 RK_PC6 1 &pcfg_pull_none>;
+++		};
+++	};
+++
+++	usb {
+++		host_vbus_drv: host-vbus-drv {
+++			rockchip,pins = <0 RK_PA0 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++
+++		otg_vbus_drv: otg-vbus-drv {
+++			rockchip,pins = <3 RK_PA1 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++	};
+++
+++	gpio-leds {
+++		leds_gpio: leds-gpio {
+++			rockchip,pins = <0 RK_PA2 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++	};
+++};
+++
+++&sdmmc {
+++	bus-width = <4>;
+++	cap-mmc-highspeed;
+++	cap-sd-highspeed;
+++	disable-wp;
+++	max-frequency = <150000000>;
+++	pinctrl-names = "default";
+++	pinctrl-0 = <&sdmmc0_clk &sdmmc0_cmd &sdmmc0_dectn &sdmmc0_bus4>;
+++	vmmc-supply = <&vcc_sd>;
+++	status = "okay";
+++};
+++
+++/*&sdmmc_ext {
+++	bus-width = <4>;
+++	cap-sd-highspeed;
+++	cap-sdio-irq;
+++	disable-wp;
+++	keep-power-in-suspend;
+++	max-frequency = <100000000>;
+++	mmc-pwrseq = <&sdio_pwrseq>;
+++	non-removable;
+++	num-slots = <1>;
+++	pinctrl-names = "default";
+++	pinctrl-0 = <&sdmmc0ext_clk &sdmmc0ext_cmd &sdmmc0ext_bus4>;
+++	rockchip,default-sample-phase = <120>;
+++	supports-sdio;
+++	sd-uhs-sdr104;
+++	#address-cells = <1>;
+++	#size-cells = <0>;
+++	status = "okay";
+++
+++	brcmf: bcrmf@1 {
+++		reg = <1>;
+++		compatible = "brcm,bcm4329-fmac";
+++		interrupt-parent = <&gpio1>;
+++		interrupts = <RK_PD2 IRQ_TYPE_LEVEL_HIGH>;
+++		interrupt-names = "host-wake";
+++	};
+++};*/
+++
+++/*&tsadc {
+++	status = "okay";
+++};*/
+++
+++&uart2 {
+++	status = "okay";
+++};
+++
+++/*&u2phy {
+++	status = "okay";
+++};
+++
+++&u2phy_host {
+++	status = "okay";
+++};
+++
+++&u2phy_otg {
+++	status = "okay";
+++};
+++
+++&u3phy {
+++	vbus-supply = <&vcc_host_vbus>;
+++	status = "okay";
+++};
+++
+++&u3phy_utmi {
+++	status = "okay";
+++};
+++
+++&u3phy_pipe {
+++	status = "okay";
+++};
+++
+++&usb20_otg {
+++	status = "okay";
+++};
+++
+++&usb_host0_ehci {
+++	status = "okay";
+++};
+++
+++&usb_host0_ohci {
+++	status = "okay";
+++};
+++
+++&usbdrd3 {
+++	status = "okay";
+++};
+++
+++&usbdrd_dwc3 {
+++	status = "okay";
+++	#address-cells = <1>;
+++	#size-cells = <0>;
+++
+++	r8153: device@2 {
+++		compatible = "usbbda:8153";
+++		reg = <2>;
+++		local-mac-address = [00 00 00 00 00 00];
+++	};
+++};*/
++diff --git a/arch/arm/dts/rk3328-nanopi-r2-rev00.dts b/arch/arm/dts/rk3328-nanopi-r2-rev00.dts
++new file mode 100644
++index 00000000..c3313bdc
++--- /dev/null
+++++ b/arch/arm/dts/rk3328-nanopi-r2-rev00.dts
++@@ -0,0 +1,145 @@
+++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+++/*
+++ * Copyright (c) 2019 FriendlyElec Computer Tech. Co., Ltd.
+++ * (http://www.friendlyarm.com)
+++ */
+++
+++/dts-v1/;
+++#include <dt-bindings/input/linux-event-codes.h>
+++#include "rk3328-nanopi-r2-common.dtsi"
+++
+++/ {
+++	model = "FriendlyElec NanoPi R2S";
+++	compatible = "friendlyelec,nanopi-r2", "rockchip,rk3328";
+++
+++	gpio-keys {
+++		compatible = "gpio-keys";
+++		#address-cells = <1>;
+++		#size-cells = <0>;
+++		autorepeat;
+++
+++		pinctrl-names = "default";
+++		pinctrl-0 = <&gpio_key1>;
+++
+++		button@0 {
+++			gpios = <&gpio0 RK_PA0 GPIO_ACTIVE_LOW>;
+++			label = "reset";
+++			linux,code = <BTN_1>;
+++			linux,input-type = <1>;
+++			gpio-key,wakeup = <1>;
+++			debounce-interval = <100>;
+++		};
+++	};
+++
+++	vcc_rtl8153: vcc-rtl8153-regulator {
+++		compatible = "regulator-fixed";
+++		gpio = <&gpio2 RK_PC6 GPIO_ACTIVE_HIGH>;
+++		pinctrl-names = "default";
+++		pinctrl-0 = <&usb30_en_drv>;
+++		regulator-always-on;
+++		regulator-name = "vcc_rtl8153";
+++		regulator-min-microvolt = <5000000>;
+++		regulator-max-microvolt = <5000000>;
+++		off-on-delay-us = <5000>;
+++		enable-active-high;
+++	};
+++};
+++
+++&mach {
+++	hwrev = <0>;
+++	model = "NanoPi R2S";
+++};
+++
+++&emmc {
+++	status = "disabled";
+++};
+++
+++&i2c0 {
+++	status = "okay";
+++};
+++
+++&leds {
+++	status = "okay";
+++
+++	led@2 {
+++		gpios = <&gpio2 RK_PB7 GPIO_ACTIVE_HIGH>;
+++		label = "lan_led";
+++	};
+++
+++	led@3 {
+++		gpios = <&gpio2 RK_PC2 GPIO_ACTIVE_HIGH>;
+++		label = "wan_led";
+++	};
+++};
+++
+++&leds_gpio {
+++	rockchip,pins =
+++		<0 RK_PA2 RK_FUNC_GPIO &pcfg_pull_none>,
+++		<2 RK_PB7 RK_FUNC_GPIO &pcfg_pull_none>,
+++		<2 RK_PC2 RK_FUNC_GPIO &pcfg_pull_none>;
+++};
+++
+++/*&pwm2 {
+++	pinctrl-names = "default", "sleep";
+++	pinctrl-1 = <&pwm2_sleep_pin>;
+++	status = "okay";
+++};*/
+++
+++&rk805 {
+++	interrupt-parent = <&gpio1>;
+++	interrupts = <RK_PD0 IRQ_TYPE_LEVEL_LOW>;
+++};
+++
+++&vccio_sd {
+++	status = "okay";
+++};
+++
+++&io_domains {
+++	vccio3-supply = <&vccio_sd>;
+++};
+++
+++&sdmmc {
+++	vqmmc-supply = <&vccio_sd>;
+++	max-frequency = <150000000>;
+++	sd-uhs-sdr50;
+++	sd-uhs-sdr104;
+++	status = "okay";
+++};
+++
+++/*&sdmmc_ext {
+++	status = "disabled";
+++};*/
+++
+++&sdio_pwrseq {
+++	status = "disabled";
+++};
+++
+++&pinctrl {
+++	pmic {
+++		pmic_int_l: pmic-int-l {
+++			rockchip,pins = <1 RK_PD0 RK_FUNC_GPIO &pcfg_pull_up>;
+++		};
+++	};
+++
+++	pwm {
+++		pwm2_sleep_pin: pwm2-sleep-pin {
+++			rockchip,pins = <2 RK_PA6 RK_FUNC_GPIO &pcfg_output_low>;
+++		};
+++	};
+++
+++	rockchip-key {
+++		gpio_key1: gpio-key1 {
+++			rockchip,pins = <0 RK_PA0 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++	};
+++
+++	usb {
+++		otg_vbus_drv: otg-vbus-drv {
+++			rockchip,pins = <1 RK_PD2 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++
+++		usb30_en_drv: usb30-en-drv {
+++			rockchip,pins = <2 RK_PC6 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++	};
+++};
++diff --git a/arch/arm/dts/rk3328-nanopi-r2-rev00-u-boot.dtsi b/arch/arm/dts/rk3328-nanopi-r2-rev00-u-boot.dtsi
++new file mode 100644
++index 00000000..cf3452ea
++--- /dev/null
+++++ b/arch/arm/dts/rk3328-nanopi-r2-rev00-u-boot.dtsi
++@@ -0,0 +1,37 @@
+++// SPDX-License-Identifier: GPL-2.0+
+++/*
+++ * (C) Copyright 2018-2019 Rockchip Electronics Co., Ltd
+++ */
+++
+++#include "rk3328-u-boot.dtsi"
+++#include "rk3328-sdram-ddr4-666.dtsi"
+++/ {
+++	chosen {
+++		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &emmc;
+++	};
+++};
+++
+++&gpio0 {
+++	u-boot,dm-spl;
+++};
+++
+++&pinctrl {
+++	u-boot,dm-spl;
+++};
+++
+++&sdmmc0m1_gpio {
+++	u-boot,dm-spl;
+++};
+++
+++&pcfg_pull_up_4ma {
+++	u-boot,dm-spl;
+++};
+++
+++&usb_host0_xhci {
+++	status = "okay";
+++};
+++
+++/* Need this and all the pinctrl/gpio stuff above to set pinmux */
+++&vcc_sd {
+++	u-boot,dm-spl;
+++};
++diff --git a/configs/nanopi-r2-rk3328_defconfig b/configs/nanopi-r2-rk3328_defconfig
++new file mode 100644
++index 00000000..720b5e04
++--- /dev/null
+++++ b/configs/nanopi-r2-rk3328_defconfig
++@@ -0,0 +1,100 @@
+++CONFIG_ARM=y
+++CONFIG_ARCH_ROCKCHIP=y
+++CONFIG_SYS_TEXT_BASE=0x00200000
+++CONFIG_SPL_GPIO_SUPPORT=y
+++CONFIG_ROCKCHIP_RK3328=y
+++CONFIG_TPL_ROCKCHIP_COMMON_BOARD=y
+++CONFIG_TPL_LIBCOMMON_SUPPORT=y
+++CONFIG_TPL_LIBGENERIC_SUPPORT=y
+++CONFIG_SPL_DRIVERS_MISC_SUPPORT=y
+++CONFIG_ENV_OFFSET=0x3F8000
+++CONFIG_SPL_STACK_R_ADDR=0x600000
+++CONFIG_NR_DRAM_BANKS=1
+++CONFIG_DEBUG_UART_BASE=0xFF130000
+++CONFIG_DEBUG_UART_CLOCK=24000000
+++CONFIG_SMBIOS_PRODUCT_NAME="nanopi-r2_rk3328"
+++CONFIG_DEBUG_UART=y
+++CONFIG_TPL_SYS_MALLOC_F_LEN=0x800
+++# CONFIG_ANDROID_BOOT_IMAGE is not set
+++CONFIG_FIT=y
+++CONFIG_FIT_VERBOSE=y
+++CONFIG_SPL_LOAD_FIT=y
+++CONFIG_DEFAULT_FDT_FILE="rockchip/rk3328-nanopi-r2-rev00.dtb"
+++CONFIG_MISC_INIT_R=y
+++# CONFIG_DISPLAY_CPUINFO is not set
+++CONFIG_DISPLAY_BOARDINFO_LATE=y
+++# CONFIG_SPL_RAW_IMAGE_SUPPORT is not set
+++CONFIG_TPL_SYS_MALLOC_SIMPLE=y
+++CONFIG_SPL_STACK_R=y
+++CONFIG_SPL_I2C_SUPPORT=y
+++CONFIG_SPL_POWER_SUPPORT=y
+++CONFIG_SPL_ATF=y
+++CONFIG_SPL_ATF_NO_PLATFORM_PARAM=y
+++CONFIG_CMD_BOOTZ=y
+++CONFIG_CMD_GPT=y
+++CONFIG_CMD_MMC=y
+++CONFIG_CMD_USB=y
+++# CONFIG_CMD_SETEXPR is not set
+++CONFIG_CMD_TIME=y
+++CONFIG_SPL_OF_CONTROL=y
+++CONFIG_TPL_OF_CONTROL=y
+++CONFIG_DEFAULT_DEVICE_TREE="rk3328-nanopi-r2-rev00"
+++CONFIG_OF_SPL_REMOVE_PROPS="clock-names interrupt-parent assigned-clocks assigned-clock-rates assigned-clock-parents"
+++CONFIG_TPL_OF_PLATDATA=y
+++CONFIG_ENV_IS_IN_MMC=y
+++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
+++CONFIG_NET_RANDOM_ETHADDR=y
+++CONFIG_TPL_DM=y
+++CONFIG_REGMAP=y
+++CONFIG_SPL_REGMAP=y
+++CONFIG_TPL_REGMAP=y
+++CONFIG_SYSCON=y
+++CONFIG_SPL_SYSCON=y
+++CONFIG_TPL_SYSCON=y
+++CONFIG_CLK=y
+++CONFIG_SPL_CLK=y
+++CONFIG_FASTBOOT_BUF_ADDR=0x800800
+++CONFIG_FASTBOOT_CMD_OEM_FORMAT=y
+++CONFIG_ROCKCHIP_GPIO=y
+++CONFIG_SYS_I2C_ROCKCHIP=y
+++CONFIG_MMC_DW=y
+++CONFIG_MMC_DW_ROCKCHIP=y
+++CONFIG_SF_DEFAULT_SPEED=20000000
+++CONFIG_DM_ETH=y
+++CONFIG_ETH_DESIGNWARE=y
+++CONFIG_GMAC_ROCKCHIP=y
+++CONFIG_PHY=y
+++CONFIG_PINCTRL=y
+++CONFIG_SPL_PINCTRL=y
+++CONFIG_DM_PMIC=y
+++CONFIG_PMIC_RK8XX=y
+++CONFIG_SPL_DM_REGULATOR=y
+++CONFIG_REGULATOR_PWM=y
+++CONFIG_SPL_DM_REGULATOR_FIXED=y
+++CONFIG_DM_REGULATOR_FIXED=y
+++CONFIG_REGULATOR_RK8XX=y
+++CONFIG_PWM_ROCKCHIP=y
+++CONFIG_RAM=y
+++CONFIG_SPL_RAM=y
+++CONFIG_TPL_RAM=y
+++CONFIG_DM_RESET=y
+++CONFIG_BAUDRATE=1500000
+++CONFIG_DEBUG_UART_SHIFT=2
+++CONFIG_SYSRESET=y
+++# CONFIG_TPL_SYSRESET is not set
+++CONFIG_USB=y
+++CONFIG_USB_XHCI_HCD=y
+++CONFIG_USB_XHCI_DWC3=y
+++CONFIG_USB_EHCI_HCD=y
+++CONFIG_USB_EHCI_GENERIC=y
+++CONFIG_USB_OHCI_HCD=y
+++CONFIG_USB_OHCI_GENERIC=y
+++CONFIG_USB_DWC2=y
+++CONFIG_USB_DWC3=y
+++# CONFIG_USB_DWC3_GADGET is not set
+++CONFIG_USB_GADGET=y
+++CONFIG_USB_GADGET_DWC2_OTG=y
+++CONFIG_SPL_TINY_MEMSET=y
+++CONFIG_TPL_TINY_MEMSET=y
+++CONFIG_ERRNO_STR=y
+++CONFIG_SMBIOS_MANUFACTURER="friendlyelec"
++diff --git a/arch/arm/dts/rk3328.dtsi b/arch/arm/dts/rk3328.dtsi
++index 060c84e6..eac257b0 100644
++--- a/arch/arm/dts/rk3328.dtsi
+++++ b/arch/arm/dts/rk3328.dtsi
++@@ -1386,7 +1386,7 @@
++ 			};
++ 		};
++ 
++-		gmac2phy {
+++		gmac2phy: gmac2phy {
++ 			fephyled_speed100: fephyled-speed100 {
++ 				rockchip,pins =
++ 					<0 31 RK_FUNC_1 &pcfg_pull_none>;
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/general-prioritize-sd.patch b/package/boot/uboot-rockchip/patches/general-prioritize-sd.patch
+--- a/package/boot/uboot-rockchip/patches/general-prioritize-sd.patch	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/general-prioritize-sd.patch	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,15 @@
++diff --git a/include/configs/rockchip-common.h b/include/configs/rockchip-common.h
++index 68e1105a..906c22ed 100644
++--- a/include/configs/rockchip-common.h
+++++ b/include/configs/rockchip-common.h
++@@ -14,8 +14,8 @@
++ /* First try to boot from SD (index 0), then eMMC (index 1) */
++ #if CONFIG_IS_ENABLED(CMD_MMC)
++ 	#define BOOT_TARGET_MMC(func) \
++-		func(MMC, mmc, 0) \
++-		func(MMC, mmc, 1)
+++		func(MMC, mmc, 1) \
+++		func(MMC, mmc, 0)
++ #else
++ 	#define BOOT_TARGET_MMC(func)
++ #endif
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/general-set-eth1addr.patch b/package/boot/uboot-rockchip/patches/general-set-eth1addr.patch
+--- a/package/boot/uboot-rockchip/patches/general-set-eth1addr.patch	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/general-set-eth1addr.patch	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,16 @@
++diff --git a/arch/arm/mach-rockchip/misc.c b/arch/arm/mach-rockchip/misc.c
++index 6dbb9bde..89f3a918 100644
++--- a/arch/arm/mach-rockchip/misc.c
+++++ b/arch/arm/mach-rockchip/misc.c
++@@ -50,6 +50,11 @@ int rockchip_setup_macaddr(void)
++ 	mac_addr[0] &= 0xfe;  /* clear multicast bit */
++ 	mac_addr[0] |= 0x02;  /* set local assignment bit (IEEE802) */
++ 	eth_env_set_enetaddr("ethaddr", mac_addr);
+++
+++	/* Make a valid MAC address for eth1 too */
+++	mac_addr[5] += 0x20;
+++	mac_addr[5] &= 0xff;
+++	eth_env_set_enetaddr("eth1addr", mac_addr);
++ #endif
++ 	return 0;
++ }
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch b/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch
+--- a/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/rk3328-efuse-driver.patch	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,184 @@
++diff --git a/drivers/misc/rockchip-efuse.c b/drivers/misc/rockchip-efuse.c
++index 2520c6a3..c3e58188 100644
++--- a/drivers/misc/rockchip-efuse.c
+++++ b/drivers/misc/rockchip-efuse.c
++@@ -13,8 +13,18 @@
++ #include <dm.h>
++ #include <linux/bitops.h>
++ #include <linux/delay.h>
+++#include <malloc.h>
++ #include <misc.h>
++ 
+++#define RK3328_INT_STATUS	0x0018
+++#define RK3328_DOUT		0x0020
+++#define RK3328_AUTO_CTRL	0x0024
+++#define RK3328_INT_FINISH	BIT(0)
+++#define RK3328_AUTO_ENB		BIT(0)
+++#define RK3328_AUTO_RD		BIT(1)
+++#define RK3328_NO_SECURE_BYTES	32
+++#define RK3328_SECURE_BYTES	96
+++
++ #define RK3399_A_SHIFT          16
++ #define RK3399_A_MASK           0x3ff
++ #define RK3399_NFUSES           32
++@@ -27,6 +37,9 @@
++ #define RK3399_STROBE           BIT(1)
++ #define RK3399_CSB              BIT(0)
++ 
+++typedef int (*EFUSE_READ)(struct udevice *dev, int offset, void *buf,
+++			  int size);
+++
++ struct rockchip_efuse_regs {
++ 	u32 ctrl;      /* 0x00  efuse control register */
++ 	u32 dout;      /* 0x04  efuse data out register */
++@@ -35,6 +48,10 @@ struct rockchip_efuse_regs {
++ 	u32 jtag_pass; /* 0x10  JTAG password */
++ 	u32 strobe_finish_ctrl;
++ 		       /* 0x14	efuse strobe finish control register */
+++	u32 int_status;/* 0x18 */
+++	u32 reserved;  /* 0x1c */
+++	u32 dout2;     /* 0x20 */
+++	u32 auto_ctrl; /* 0x24 */
++ };
++ 
++ struct rockchip_efuse_platdata {
++@@ -83,6 +100,57 @@ U_BOOT_CMD(
++ );
++ #endif
++ 
+++static int rockchip_rk3328_efuse_read(struct udevice *dev, int offset,
+++				      void *buf, int size)
+++{
+++	struct rockchip_efuse_platdata *plat = dev_get_platdata(dev);
+++	struct rockchip_efuse_regs *efuse =
+++		(struct rockchip_efuse_regs *)plat->base;
+++	unsigned int addr_start, addr_end, addr_offset, addr_len;
+++	u32 out_value, status;
+++	u8 *buffer;
+++	int ret = 0, i = 0, j = 0;
+++
+++	/* Max non-secure Byte */
+++	if (size > RK3328_NO_SECURE_BYTES)
+++		size = RK3328_NO_SECURE_BYTES;
+++
+++	/* 128 Byte efuse, 96 Byte for secure, 32 Byte for non-secure */
+++	offset += RK3328_SECURE_BYTES;
+++	addr_start = rounddown(offset, RK3399_BYTES_PER_FUSE) /
+++			       RK3399_BYTES_PER_FUSE;
+++	addr_end = roundup(offset + size, RK3399_BYTES_PER_FUSE) /
+++			   RK3399_BYTES_PER_FUSE;
+++	addr_offset = offset % RK3399_BYTES_PER_FUSE;
+++	addr_len = addr_end - addr_start;
+++
+++	buffer = calloc(1, sizeof(*buffer) * addr_len * RK3399_BYTES_PER_FUSE);
+++	if (!buffer)
+++		return -ENOMEM;
+++
+++	for (j = 0; j < addr_len; j++) {
+++		writel(RK3328_AUTO_RD | RK3328_AUTO_ENB |
+++		       ((addr_start++ & RK3399_A_MASK) << RK3399_A_SHIFT),
+++		       &efuse->auto_ctrl);
+++		udelay(5);
+++		status = readl(&efuse->int_status);
+++		if (!(status & RK3328_INT_FINISH)) {
+++			ret = -EIO;
+++			goto err;
+++		}
+++		out_value = readl(&efuse->dout2);
+++		writel(RK3328_INT_FINISH, &efuse->int_status);
+++
+++		memcpy(&buffer[i], &out_value, RK3399_BYTES_PER_FUSE);
+++		i += RK3399_BYTES_PER_FUSE;
+++	}
+++	memcpy(buf, buffer + addr_offset, size);
+++err:
+++	free(buffer);
+++
+++	return ret;
+++}
+++
++ static int rockchip_rk3399_efuse_read(struct udevice *dev, int offset,
++ 				      void *buf, int size)
++ {
++@@ -130,7 +198,13 @@ static int rockchip_rk3399_efuse_read(struct udevice *dev, int offset,
++ static int rockchip_efuse_read(struct udevice *dev, int offset,
++ 			       void *buf, int size)
++ {
++-	return rockchip_rk3399_efuse_read(dev, offset, buf, size);
+++	EFUSE_READ efuse_read = NULL;
+++
+++	efuse_read = (EFUSE_READ)dev_get_driver_data(dev);
+++	if (!efuse_read)
+++		return -EINVAL;
+++
+++	return (*efuse_read)(dev, offset, buf, size);
++ }
++ 
++ static const struct misc_ops rockchip_efuse_ops = {
++@@ -146,7 +220,14 @@ static int rockchip_efuse_ofdata_to_platdata(struct udevice *dev)
++ }
++ 
++ static const struct udevice_id rockchip_efuse_ids[] = {
++-	{ .compatible = "rockchip,rk3399-efuse" },
+++	{
+++		.compatible = "rockchip,rk3328-efuse",
+++		.data = (ulong)&rockchip_rk3328_efuse_read,
+++	},
+++	{
+++		.compatible = "rockchip,rk3399-efuse",
+++		.data = (ulong)&rockchip_rk3399_efuse_read,
+++	},
++ 	{}
++ };
++ 
++diff --git a/include/configs/rk3328_common.h b/include/configs/rk3328_common.h
++index 407e5d29..0552e476 100644
++--- a/include/configs/rk3328_common.h
+++++ b/include/configs/rk3328_common.h
++@@ -23,6 +23,10 @@
++ #define CONFIG_SPL_BSS_START_ADDR	0x2000000
++ #define CONFIG_SPL_BSS_MAX_SIZE		0x2000
++ 
+++#define CONFIG_MISC 1
+++#define CONFIG_MISC_INIT_R 1
+++#define CONFIG_ROCKCHIP_EFUSE 1
+++
++ #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
++ 
++ /* FAT sd card locations. */
++diff --git a/arch/arm/dts/rk3328.dtsi b/arch/arm/dts/rk3328.dtsi
++index eac257b0..3e04a823 100644
++--- a/arch/arm/dts/rk3328.dtsi
+++++ b/arch/arm/dts/rk3328.dtsi
++@@ -337,6 +337,31 @@
++ 		};
++ 	};
++ 
+++	efuse: efuse@ff260000 {
+++		compatible = "rockchip,rk3328-efuse";
+++		reg = <0x0 0xff260000 0x0 0x50>;
+++		#address-cells = <1>;
+++		#size-cells = <1>;
+++		clocks = <&cru SCLK_EFUSE>;
+++		clock-names = "pclk_efuse";
+++		rockchip,efuse-size = <0x20>;
+++
+++		/* Data cells */
+++		efuse_id: id@7 {
+++			reg = <0x07 0x10>;
+++		};
+++		cpu_leakage: cpu-leakage@17 {
+++			reg = <0x17 0x1>;
+++		};
+++		logic_leakage: logic-leakage@19 {
+++			reg = <0x19 0x1>;
+++		};
+++		efuse_cpu_version: cpu-version@1a {
+++			reg = <0x1a 0x1>;
+++			bits = <3 3>;
+++		};
+++	};
+++
++ 	saradc: saradc@ff280000 {
++ 		compatible = "rockchip,rk3328-saradc", "rockchip,saradc";
++ 		reg = <0x0 0xff280000 0x0 0x100>;
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/sdmmc-force-fifo-mode-in-spl.patch b/package/boot/uboot-rockchip/patches/sdmmc-force-fifo-mode-in-spl.patch
+--- a/package/boot/uboot-rockchip/patches/sdmmc-force-fifo-mode-in-spl.patch	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/sdmmc-force-fifo-mode-in-spl.patch	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,22 @@
++From b0693aeb9ceab57ffc9d9f4ceca610bd82d5ca07 Mon Sep 17 00:00:00 2001
++From: =?UTF-8?q?Kamil=20Trzci=C5=84ski?= <ayufan@ayufan.eu>
++Date: Mon, 21 May 2018 02:00:19 +0200
++Subject: [PATCH] ayufan: rock64: for SPL build always use fifo-mode
++
++Change-Id: I9ac012ce4aaf03a151f7c5c818829d631efdd7ed
++diff --git a/drivers/mmc/rockchip_dw_mmc.c b/drivers/mmc/rockchip_dw_mmc.c
++index fc0f0fad76..d1f26e41fe 100644
++--- a/drivers/mmc/rockchip_dw_mmc.c
+++++ b/drivers/mmc/rockchip_dw_mmc.c
++@@ -70,7 +70,11 @@ static int rockchip_dwmmc_ofdata_to_platdata(struct udevice *dev)
++ 
++ 	if (priv->fifo_depth < 0)
++ 		return -EINVAL;
+++#ifdef CONFIG_SPL_BUILD
+++	priv->fifo_mode = true; // always force fifo mode
+++#else
++ 	priv->fifo_mode = dev_read_bool(dev, "fifo-mode");
+++#endif
++ 
++ 	/*
++ 	 * 'clock-freq-min-max' is deprecated
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Avoid-using-libfdt-with-of-platdata.diff b/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Avoid-using-libfdt-with-of-platdata.diff
+--- a/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Avoid-using-libfdt-with-of-platdata.diff	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/U-Boot-v4-1-5-rockchip-Avoid-using-libfdt-with-of-platdata.diff	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,65 @@
++diff --git a/drivers/clk/rockchip/clk_rk3328.c b/drivers/clk/rockchip/clk_rk3328.c
++index a89e2ecc4a..e86c17e6d6 100644
++--- a/drivers/clk/rockchip/clk_rk3328.c
+++++ b/drivers/clk/rockchip/clk_rk3328.c
++@@ -669,6 +669,10 @@ static int rk3328_gmac2io_set_parent(struct clk *clk, struct clk *parent)
++ 		return 0;
++ 	}
++ 
+++	/* FIXME: Device tree should be read in ofdata_to_platdata() */
+++	if (CONFIG_IS_ENABLED(OF_PLATDATA))
+++		return -EDEADLK;
+++
++ 	/*
++ 	 * Otherwise, we need to check the clock-output-names of the
++ 	 * requested parent to see if the requested id is "gmac_clkin".
++@@ -706,6 +710,10 @@ static int rk3328_gmac2io_ext_set_parent(struct clk *clk, struct clk *parent)
++ 		return 0;
++ 	}
++ 
+++	/* FIXME: Device tree should be read in ofdata_to_platdata() */
+++	if (CONFIG_IS_ENABLED(OF_PLATDATA))
+++		return -EDEADLK;
+++
++ 	/*
++ 	 * Otherwise, we need to check the clock-output-names of the
++ 	 * requested parent to see if the requested id is "gmac_clkin".
++@@ -762,9 +770,11 @@ static int rk3328_clk_probe(struct udevice *dev)
++ 
++ static int rk3328_clk_ofdata_to_platdata(struct udevice *dev)
++ {
++-	struct rk3328_clk_priv *priv = dev_get_priv(dev);
+++	if (!CONFIG_IS_ENABLED(OF_PLATDATA)) {
+++		struct rk3328_clk_priv *priv = dev_get_priv(dev);
++ 
++-	priv->cru = dev_read_addr_ptr(dev);
+++		priv->cru = dev_read_addr_ptr(dev);
+++	}
++ 
++ 	return 0;
++ }
++diff --git a/drivers/pinctrl/rockchip/pinctrl-rockchip-core.c b/drivers/pinctrl/rockchip/pinctrl-rockchip-core.c
++index 80dc431d20..dccc54e95f 100644
++--- a/drivers/pinctrl/rockchip/pinctrl-rockchip-core.c
+++++ b/drivers/pinctrl/rockchip/pinctrl-rockchip-core.c
++@@ -383,8 +383,8 @@ static int rockchip_pinconf_prop_name_to_param(const char *property,
++ 	return -EPERM;
++ }
++ 
++-static int rockchip_pinctrl_set_state(struct udevice *dev,
++-				      struct udevice *config)
+++static int __maybe_unused rockchip_pinctrl_set_state(struct udevice *dev,
+++						     struct udevice *config)
++ {
++ 	struct rockchip_pinctrl_priv *priv = dev_get_priv(dev);
++ 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
++@@ -474,7 +474,9 @@ static int rockchip_pinctrl_set_state(struct udevice *dev,
++ }
++ 
++ const struct pinctrl_ops rockchip_pinctrl_ops = {
+++#if !CONFIG_IS_ENABLED(PLATDATA)
++ 	.set_state			= rockchip_pinctrl_set_state,
+++#endif
++ 	.get_gpio_mux			= rockchip_pinctrl_get_gpio_mux,
++ };
++ 
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Avoid-using-libfdt-with-of-platdata.diff b/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Avoid-using-libfdt-with-of-platdata.diff
+--- a/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Avoid-using-libfdt-with-of-platdata.diff	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/U-Boot-v4-2-5-omap-mmc-Avoid-using-libfdt-with-of-platdata.diff	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,17 @@
++diff --git a/drivers/mmc/davinci_mmc.c b/drivers/mmc/davinci_mmc.c
++index 0d63279db0..79a7f50d25 100644
++--- a/drivers/mmc/davinci_mmc.c
+++++ b/drivers/mmc/davinci_mmc.c
++@@ -507,6 +507,12 @@ static int davinci_mmc_probe(struct udevice *dev)
++ 		priv->version = data->version;
++ 	}
++ 
+++	/* FIXME: Cannot read from device tree with of-platdata */
+++	if (CONFIG_IS_ENABLED(OF_PLATDATA)) {
+++		printf("Please fix this driver to use of-platdata");
+++		return -ENOSYS;
+++	}
+++
++ 	priv->reg_base = (struct davinci_mmc_regs *)dev_read_addr(dev);
++ 	priv->input_clk = clk_get(DAVINCI_MMCSD_CLKID);
++ 
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-3-5-rockchip-pinctrl-Disable-full-pinctrl-for-SPL.diff b/package/boot/uboot-rockchip/patches/U-Boot-v4-3-5-rockchip-pinctrl-Disable-full-pinctrl-for-SPL.diff
+--- a/package/boot/uboot-rockchip/patches/U-Boot-v4-3-5-rockchip-pinctrl-Disable-full-pinctrl-for-SPL.diff	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/U-Boot-v4-3-5-rockchip-pinctrl-Disable-full-pinctrl-for-SPL.diff	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,48 @@
++diff --git a/configs/chromebit_mickey_defconfig b/configs/chromebit_mickey_defconfig
++index 6a1ea049f9..2e93344bda 100644
++--- a/configs/chromebit_mickey_defconfig
+++++ b/configs/chromebit_mickey_defconfig
++@@ -72,6 +72,7 @@ CONFIG_SPI_FLASH_GIGADEVICE=y
++ CONFIG_PINCTRL=y
++ CONFIG_PINCONF=y
++ CONFIG_SPL_PINCTRL=y
+++# CONFIG_SPL_PINCTRL_FULL is not set
++ # CONFIG_SPL_PINMUX is not set
++ CONFIG_SPL_PINCONF=y
++ CONFIG_DM_PMIC=y
++diff --git a/configs/chromebook_jerry_defconfig b/configs/chromebook_jerry_defconfig
++index 1b7751cc6a..2ed9921e4e 100644
++--- a/configs/chromebook_jerry_defconfig
+++++ b/configs/chromebook_jerry_defconfig
++@@ -75,6 +75,7 @@ CONFIG_SPI_FLASH_GIGADEVICE=y
++ CONFIG_PINCTRL=y
++ CONFIG_PINCONF=y
++ CONFIG_SPL_PINCTRL=y
+++# CONFIG_SPL_PINCTRL_FULL is not set
++ # CONFIG_SPL_PINMUX is not set
++ CONFIG_SPL_PINCONF=y
++ CONFIG_DM_PMIC=y
++diff --git a/configs/chromebook_minnie_defconfig b/configs/chromebook_minnie_defconfig
++index 28ae61847f..c62ebaca31 100644
++--- a/configs/chromebook_minnie_defconfig
+++++ b/configs/chromebook_minnie_defconfig
++@@ -74,6 +74,7 @@ CONFIG_SPI_FLASH_GIGADEVICE=y
++ CONFIG_PINCTRL=y
++ CONFIG_PINCONF=y
++ CONFIG_SPL_PINCTRL=y
+++# CONFIG_SPL_PINCTRL_FULL is not set
++ # CONFIG_SPL_PINMUX is not set
++ CONFIG_SPL_PINCONF=y
++ CONFIG_DM_PMIC=y
++diff --git a/configs/chromebook_speedy_defconfig b/configs/chromebook_speedy_defconfig
++index 0284e31bcf..fd707e283d 100644
++--- a/configs/chromebook_speedy_defconfig
+++++ b/configs/chromebook_speedy_defconfig
++@@ -74,6 +74,7 @@ CONFIG_SPI_FLASH_GIGADEVICE=y
++ CONFIG_PINCTRL=y
++ CONFIG_PINCONF=y
++ CONFIG_SPL_PINCTRL=y
+++# CONFIG_SPL_PINCTRL_FULL is not set
++ CONFIG_DM_PMIC=y
++ # CONFIG_SPL_PMIC_CHILDREN is not set
++ CONFIG_PMIC_RK8XX=y
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-4-5-dm-core-Don-t-include-ofnode-functions-with-of-platdata.diff b/package/boot/uboot-rockchip/patches/U-Boot-v4-4-5-dm-core-Don-t-include-ofnode-functions-with-of-platdata.diff
+--- a/package/boot/uboot-rockchip/patches/U-Boot-v4-4-5-dm-core-Don-t-include-ofnode-functions-with-of-platdata.diff	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/U-Boot-v4-4-5-dm-core-Don-t-include-ofnode-functions-with-of-platdata.diff	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,41 @@
++diff --git a/drivers/core/Makefile b/drivers/core/Makefile
++index bce7467da1..b9e4a2aab1 100644
++--- a/drivers/core/Makefile
+++++ b/drivers/core/Makefile
++@@ -13,6 +13,8 @@ obj-$(CONFIG_OF_LIVE) += of_access.o of_addr.o
++ ifndef CONFIG_DM_DEV_READ_INLINE
++ obj-$(CONFIG_OF_CONTROL) += read.o
++ endif
++-obj-$(CONFIG_OF_CONTROL) += of_extra.o ofnode.o read_extra.o
+++ifdef CONFIG_$(SPL_TPL_)OF_LIBFDT
+++obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += of_extra.o ofnode.o read_extra.o
+++endif
++ 
++ ccflags-$(CONFIG_DM_DEBUG) += -DDEBUG
++diff --git a/include/dm/read.h b/include/dm/read.h
++index d37fcb504d..4f02d07d00 100644
++--- a/include/dm/read.h
+++++ b/include/dm/read.h
++@@ -43,8 +43,7 @@ static inline bool dev_of_valid(struct udevice *dev)
++ 	return ofnode_valid(dev_ofnode(dev));
++ }
++ 
++-#ifndef CONFIG_DM_DEV_READ_INLINE
++-
+++#if !defined(CONFIG_DM_DEV_READ_INLINE) || CONFIG_IS_ENABLED(OF_PLATDATA)
++ /**
++  * dev_read_u32() - read a 32-bit integer from a device's DT property
++  *
++diff --git a/net/eth-uclass.c b/net/eth-uclass.c
++index 3bd98b01ad..e3bfcdb6cc 100644
++--- a/net/eth-uclass.c
+++++ b/net/eth-uclass.c
++@@ -462,7 +462,7 @@ static int eth_pre_unbind(struct udevice *dev)
++ 
++ static bool eth_dev_get_mac_address(struct udevice *dev, u8 mac[ARP_HLEN])
++ {
++-#if IS_ENABLED(CONFIG_OF_CONTROL)
+++#if CONFIG_IS_ENABLED(OF_CONTROL)
++ 	const uint8_t *p;
++ 
++ 	p = dev_read_u8_array_ptr(dev, "mac-address", ARP_HLEN);
+diff -rNEZbwBdu3 a/package/boot/uboot-rockchip/patches/U-Boot-v4-5-5-spl-Allow-SPL-TPL-to-use-of-platdata-without-libfdt.diff b/package/boot/uboot-rockchip/patches/U-Boot-v4-5-5-spl-Allow-SPL-TPL-to-use-of-platdata-without-libfdt.diff
+--- a/package/boot/uboot-rockchip/patches/U-Boot-v4-5-5-spl-Allow-SPL-TPL-to-use-of-platdata-without-libfdt.diff	1970-01-01 08:00:00.000000000 +0800
++++ b/package/boot/uboot-rockchip/patches/U-Boot-v4-5-5-spl-Allow-SPL-TPL-to-use-of-platdata-without-libfdt.diff	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,22 @@
++diff --git a/lib/Kconfig b/lib/Kconfig
++index b8a8509d72..1cae2d5cc8 100644
++--- a/lib/Kconfig
+++++ b/lib/Kconfig
++@@ -484,7 +484,7 @@ config OF_LIBFDT_OVERLAY
++ 
++ config SPL_OF_LIBFDT
++ 	bool "Enable the FDT library for SPL"
++-	default y if SPL_OF_CONTROL
+++	default y if SPL_OF_CONTROL && !SPL_OF_PLATDATA
++ 	help
++ 	  This enables the FDT library (libfdt). It provides functions for
++ 	  accessing binary device tree images in memory, such as adding and
++@@ -505,7 +505,7 @@ config SPL_OF_LIBFDT_ASSUME_MASK
++ 
++ config TPL_OF_LIBFDT
++ 	bool "Enable the FDT library for TPL"
++-	default y if TPL_OF_CONTROL
+++	default y if TPL_OF_CONTROL && !TPL_OF_PLATDATA
++ 	help
++ 	  This enables the FDT library (libfdt). It provides functions for
++ 	  accessing binary device tree images in memory, such as adding and
+diff -rNEZbwBdu3 a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
+--- a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network	2020-05-11 22:49:04.000000000 +0800
++++ b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network	2020-05-17 03:26:09.000000000 +0800
+@@ -5,6 +5,9 @@
+ board_config_update
+ 
+ case "$(board_name)" in
++"friendlyelec,nanopi-r2-rev00")
++	ucidef_set_interfaces_lan_wan "eth1" "eth0"
++	;;
+ *)
+ 	ucidef_set_interface_lan 'eth0'
+ 	;;
+diff -rNEZbwBdu3 a/target/linux/rockchip/armv8/base-files/etc/inittab b/target/linux/rockchip/armv8/base-files/etc/inittab
+--- a/target/linux/rockchip/armv8/base-files/etc/inittab	1970-01-01 08:00:00.000000000 +0800
++++ b/target/linux/rockchip/armv8/base-files/etc/inittab	2020-05-17 03:26:09.000000000 +0800
+@@ -0,0 +1,6 @@
++::sysinit:/etc/init.d/rcS S boot
++::shutdown:/etc/init.d/rcS K shutdown
++::askconsole:/usr/libexec/login.sh
++tts/0::askfirst:/usr/libexec/login.sh
++ttyS0::askfirst:/usr/libexec/login.sh
++tty1::askfirst:/usr/libexec/login.sh
+diff -rNEZbwBdu3 a/target/linux/rockchip/armv8/config-5.4 b/target/linux/rockchip/armv8/config-5.4
+--- a/target/linux/rockchip/armv8/config-5.4	2020-05-11 22:49:04.000000000 +0800
++++ b/target/linux/rockchip/armv8/config-5.4	2020-05-17 03:26:09.000000000 +0800
+@@ -73,7 +73,7 @@
+ CONFIG_CMA_AREAS=7
+ # CONFIG_CMA_DEBUG is not set
+ # CONFIG_CMA_DEBUGFS is not set
+-CONFIG_CMA_SIZE_MBYTES=5
++CONFIG_CMA_SIZE_MBYTES=16
+ # CONFIG_CMA_SIZE_SEL_MAX is not set
+ CONFIG_CMA_SIZE_SEL_MBYTES=y
+ # CONFIG_CMA_SIZE_SEL_MIN is not set
+@@ -101,12 +101,14 @@
+ CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
+ # CONFIG_CPU_FREQ_GOV_USERSPACE is not set
+ CONFIG_CPU_FREQ_STAT=y
++CONFIG_CPU_HAS_PMU=y
+ CONFIG_CPU_IDLE=y
+ # CONFIG_CPU_IDLE_GOV_LADDER is not set
+ CONFIG_CPU_IDLE_GOV_MENU=y
+ CONFIG_CPU_IDLE_MULTIPLE_DRIVERS=y
+ CONFIG_CPU_ISOLATION=y
+ CONFIG_CPU_PM=y
++CONFIG_CPU_SH4A=y
+ CONFIG_CPU_THERMAL=y
+ CONFIG_CRASH_CORE=y
+ CONFIG_CRASH_DUMP=y
+@@ -134,6 +136,10 @@
+ CONFIG_DMA_OF=y
+ CONFIG_DMA_SHARED_BUFFER=y
+ CONFIG_DNOTIFY=y
++CONFIG_DRM=y
++# CONFIG_DRM_ROCKCHIP is not set
++# CONFIG_ROCKCHIP_ANALOGIX_DP is not set
++# CONFIG_ROCKCHIP_CDN_DP is not set
+ CONFIG_DT_IDLE_STATES=y
+ CONFIG_DUMMY_CONSOLE=y
+ CONFIG_DWMAC_DWC_QOS_ETH=y
+@@ -146,6 +152,7 @@
+ CONFIG_EXT4_FS_POSIX_ACL=y
+ CONFIG_EXTCON=y
+ CONFIG_FANOTIFY=y
++CONFIG_FB=y
+ CONFIG_FHANDLE=y
+ CONFIG_FIXED_PHY=y
+ # CONFIG_FLATMEM_MANUAL is not set
+@@ -163,6 +170,9 @@
+ CONFIG_GPIO_DWAPB=y
+ CONFIG_GPIO_GENERIC=y
+ CONFIG_GPIO_GENERIC_PLATFORM=y
++CONFIG_GPIO_RK8XX=y
++CONFIG_GPIO_SYSCON=y
++CONFIG_GPIO_SYSFS=y
+ # CONFIG_HARDENED_USERCOPY is not set
+ CONFIG_HAS_IOPORT_MAP=y
+ CONFIG_HAVE_ARCH_MMAP_RND_COMPAT_BITS=y
+@@ -182,15 +192,23 @@
+ CONFIG_HWMON=y
+ CONFIG_HWSPINLOCK=y
+ CONFIG_HW_CONSOLE=y
++CONFIG_HW_PERF_EVENTS=y
+ # CONFIG_HZ_PERIODIC is not set
+ CONFIG_I2C=y
+ CONFIG_I2C_ALGOBIT=y
+ CONFIG_I2C_BOARDINFO=y
+ CONFIG_I2C_CHARDEV=y
+ CONFIG_I2C_COMPAT=y
++CONFIG_I2C_DESIGNWARE_CORE=y
++CONFIG_I2C_DESIGNWARE_PLATFORM=y
++# CONFIG_I2C_DESIGNWARE_SLAVE is not set
+ CONFIG_I2C_GPIO=y
+ CONFIG_I2C_HELPER_AUTO=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_MUX_PCA954x=y
+ CONFIG_I2C_RK3X=y
++CONFIG_I2C_SLAVE=y
++# CONFIG_I2C_SLAVE_EEPROM is not set
+ CONFIG_INDIRECT_PIO=y
+ CONFIG_INPUT=y
+ CONFIG_INPUT_EVDEV=y
+@@ -198,7 +216,9 @@
+ CONFIG_INPUT_KEYBOARD=y
+ CONFIG_INPUT_LEDS=y
+ CONFIG_INPUT_MATRIXKMAP=y
+-# CONFIG_INPUT_MISC is not set
++CONFIG_INPUT_MISC=y
++CONFIG_INPUT_RAVE_SP_PWRBUTTON=y
++CONFIG_INPUT_RK805_PWRKEY=y
+ CONFIG_IOMMU_API=y
+ # CONFIG_IOMMU_DEBUGFS is not set
+ # CONFIG_IOMMU_DEFAULT_PASSTHROUGH is not set
+@@ -212,6 +232,7 @@
+ # CONFIG_IONIC is not set
+ # CONFIG_IO_STRICT_DEVMEM is not set
+ CONFIG_IO_URING=y
++# CONFIG_IPMB_DEVICE_INTERFACE is not set
+ CONFIG_IRQ_MSI_IOMMU=y
+ CONFIG_IRQ_TIME_ACCOUNTING=y
+ CONFIG_JBD2=y
+@@ -223,11 +244,13 @@
+ # CONFIG_KEXEC_SIG is not set
+ CONFIG_KEYBOARD_GPIO=y
+ CONFIG_KSM=y
++CONFIG_KVM=y
+ # CONFIG_LEDS_BRIGHTNESS_HW_CHANGED is not set
+ CONFIG_LEDS_GPIO=y
+ CONFIG_LEDS_PWM=y
+ CONFIG_LEDS_SYSCON=y
+ CONFIG_LEDS_TRIGGER_CPU=y
++CONFIG_LEDS_TRIGGER_GPIO=y
+ CONFIG_LEDS_TRIGGER_HEARTBEAT=y
+ CONFIG_LEDS_TRIGGER_PANIC=y
+ # CONFIG_LEDS_TRIGGER_TIMER is not set
+@@ -248,6 +271,7 @@
+ CONFIG_MDIO_BUS_MUX_MMIOREG=y
+ CONFIG_MDIO_DEVICE=y
+ CONFIG_MDIO_GPIO=y
++CONFIG_MEDIA_CEC_RC=y
+ CONFIG_MEMORY_ISOLATION=y
+ CONFIG_MFD_CORE=y
+ CONFIG_MFD_RK808=y
+@@ -318,18 +342,23 @@
+ CONFIG_PCI_MSI=y
+ CONFIG_PCI_MSI_IRQ_DOMAIN=y
+ CONFIG_PCI_STUB=y
++CONFIG_PERF_EVENTS=y
+ CONFIG_PGTABLE_LEVELS=4
+ CONFIG_PHYLIB=y
+ CONFIG_PHYLINK=y
+-CONFIG_PHY_ROCKCHIP_DP=y
++# CONFIG_PHY_ROCKCHIP_DP is not set
+ CONFIG_PHY_ROCKCHIP_EMMC=y
+ # CONFIG_PHY_ROCKCHIP_INNO_HDMI is not set
+ CONFIG_PHY_ROCKCHIP_INNO_USB2=y
++CONFIG_PHY_ROCKCHIP_INNO_USB3=y
++# CONFIG_ROCKCHIP_LVDS is not set
++# CONFIG_ROCKCHIP_RGB is not set
++# CONFIG_ROCKCHIP_RK3066_HDMI is not set
+ CONFIG_PHY_ROCKCHIP_PCIE=y
+ CONFIG_PHY_ROCKCHIP_TYPEC=y
+ CONFIG_PHY_ROCKCHIP_USB=y
+ CONFIG_PINCTRL=y
+-# CONFIG_PINCTRL_RK805 is not set
++CONFIG_PINCTRL_RK805=y
+ CONFIG_PINCTRL_ROCKCHIP=y
+ # CONFIG_PINCTRL_SINGLE is not set
+ CONFIG_PL330_DMA=y
+@@ -343,6 +372,9 @@
+ CONFIG_PM_OPP=y
+ CONFIG_POWER_AVS=y
+ CONFIG_POWER_SUPPLY_HWMON=y
++CONFIG_PPS=y
++CONFIG_PPS_CLIENT_KTIMER=y
++CONFIG_PPS_CLIENT_GPIO=y
+ CONFIG_PREEMPT=y
+ CONFIG_PREEMPTION=y
+ CONFIG_PREEMPT_COUNT=y
+@@ -370,6 +402,7 @@
+ # CONFIG_RCU_EXPERT is not set
+ CONFIG_RCU_TRACE=y
+ # CONFIG_READ_ONLY_THP_FOR_FS is not set
++CONFIG_REALTEK_PHY=y
+ CONFIG_REGMAP=y
+ CONFIG_REGMAP_I2C=y
+ CONFIG_REGMAP_IRQ=y
+@@ -381,14 +414,18 @@
+ CONFIG_REGULATOR_RK808=y
+ CONFIG_RELOCATABLE=y
+ CONFIG_RESET_CONTROLLER=y
++#CONFIG_RK_VCODEC=y
+ CONFIG_ROCKCHIP_EFUSE=y
+ CONFIG_ROCKCHIP_GRF=y
+ CONFIG_ROCKCHIP_IODOMAIN=y
+ CONFIG_ROCKCHIP_IOMMU=y
+ CONFIG_ROCKCHIP_MBOX=y
++#CONFIG_ROCKCHIP_MPP_SERVICE=y
++#CONFIG_ROCKCHIP_MPP_DEVICE=y
+ CONFIG_ROCKCHIP_PHY=y
+ CONFIG_ROCKCHIP_PM_DOMAINS=y
+-# CONFIG_ROCKCHIP_THERMAL is not set
++CONFIG_ROCKCHIP_SARADC=y
++CONFIG_ROCKCHIP_THERMAL=y
+ CONFIG_ROCKCHIP_TIMER=y
+ CONFIG_RSEQ=y
+ CONFIG_RTC_CLASS=y
+@@ -426,6 +463,11 @@
+ CONFIG_SG_POOL=y
+ CONFIG_SIMPLE_PM_BUS=y
+ CONFIG_SLUB_DEBUG=y
++# CONFIG_SND_SOC_RK3288_HDMI_ANALOG is not set
++# CONFIG_SND_SOC_ROCKCHIP_MAX98090 is not set
++# CONFIG_SND_SOC_ROCKCHIP_RT5645 is not set
++# CONFIG_SND_SOC_ROCKCHIP_RT5651 is not set
++# CONFIG_SND_SOC_RK3399_GRU_SOUND is not set
+ CONFIG_SPARSEMEM=y
+ CONFIG_SPARSEMEM_EXTREME=y
+ CONFIG_SPARSEMEM_MANUAL=y
+@@ -444,7 +486,7 @@
+ CONFIG_SRAM=y
+ CONFIG_STACKPROTECTOR=y
+ CONFIG_STACKPROTECTOR_STRONG=y
+-# CONFIG_STAGING is not set
++CONFIG_STAGING=y
+ CONFIG_STMMAC_ETH=y
+ CONFIG_STMMAC_PLATFORM=y
+ # CONFIG_STMMAC_SELFTESTS is not set
+@@ -483,7 +525,10 @@
+ CONFIG_UNINLINE_SPIN_UNLOCK=y
+ CONFIG_USB=y
+ CONFIG_USB_COMMON=y
++CONFIG_USB_DWC2=y
++CONFIG_USB_DWC2_DUAL_ROLE=y
+ CONFIG_USB_DWC3=y
++CONFIG_USB_DWC3_DUAL_ROLE=y
+ CONFIG_USB_DWC3_HOST=y
+ CONFIG_USB_DWC3_OF_SIMPLE=y
+ CONFIG_USB_EHCI_HCD=y
+@@ -502,8 +547,14 @@
+ CONFIG_USB_XHCI_HCD=y
+ CONFIG_USB_XHCI_PLATFORM=y
+ # CONFIG_USERIO is not set
++CONFIG_VIDEO_IR_I2C=y
+ # CONFIG_VFIO is not set
++# CONFIG_VFIO_NOIOMMU is not set
++# CONFIG_VFIO_PCI is not set
++# CONFIG_VFIO_PLATFORM is not set
++# CONFIG_VFIO_MDEV is not set
+ # CONFIG_VIRTIO_MENU is not set
++CONFIG_VIRTUALIZATION=y
+ CONFIG_VM_EVENT_COUNTERS=y
+ CONFIG_VT=y
+ CONFIG_VT_CONSOLE=y
+@@ -516,3 +567,118 @@
+ CONFIG_XZ_DEC_BCJ=y
+ CONFIG_ZLIB_DEFLATE=y
+ CONFIG_ZLIB_INFLATE=y
++CONFIG_MEDIA_SUPPORT=y
++CONFIG_VIDEOBUF2_DMA_CONTIG=y
++CONFIG_V4L2_MEM2MEM_DEV=y
++# CONFIG_ROCKCHIP_MPP_VDEC_DEVICE is not set
++# CONFIG_ROCKCHIP_MPP_VDPU2_DEVICE is not set
++CONFIG_USB_DWC3_ROCKCHIP_INNO=y
++CONFIG_VENDOR_FRIENDLYELEC=y
++CONFIG_ARM_RK3328_DMC_DEVFREQ=y
++CONFIG_ARM64_CRYPTO=y
++CONFIG_CRYPTO=y
++CONFIG_CRYPTO_ACOMP2=y
++CONFIG_CRYPTO_AEAD=y
++CONFIG_CRYPTO_AEAD2=y
++CONFIG_CRYPTO_AEGIS128_SIMD=y
++CONFIG_CRYPTO_AES=y
++CONFIG_CRYPTO_AES_ARM64=y
++CONFIG_CRYPTO_AES_ARM64_BS=y
++CONFIG_CRYPTO_AES_ARM64_CE=y
++CONFIG_CRYPTO_AES_ARM64_CE_BLK=y
++CONFIG_CRYPTO_AES_ARM64_CE_CCM=y
++CONFIG_CRYPTO_AES_ARM64_NEON_BLK=y
++CONFIG_CRYPTO_AES_TI=y
++CONFIG_CRYPTO_AKCIPHER=y
++CONFIG_CRYPTO_AKCIPHER2=y
++CONFIG_CRYPTO_ALGAPI=y
++CONFIG_CRYPTO_ALGAPI2=y
++CONFIG_CRYPTO_ANUBIS=y
++CONFIG_CRYPTO_AUTHENC=y
++CONFIG_CRYPTO_BLKCIPHER=y
++CONFIG_CRYPTO_BLKCIPHER2=y
++CONFIG_CRYPTO_BLOWFISH=y
++CONFIG_CRYPTO_BLOWFISH_COMMON=y
++CONFIG_CRYPTO_CAMELLIA=y
++CONFIG_CRYPTO_CAST5=y
++CONFIG_CRYPTO_CAST6=y
++CONFIG_CRYPTO_CAST_COMMON=y
++CONFIG_CRYPTO_CBC=y
++CONFIG_CRYPTO_CCM=y
++CONFIG_CRYPTO_CHACHA20=y
++CONFIG_CRYPTO_CHACHA20POLY1305=y
++CONFIG_CRYPTO_CHACHA20_NEON=y
++CONFIG_CRYPTO_CMAC=y
++CONFIG_CRYPTO_CRC32=y
++CONFIG_CRYPTO_CRCT10DIF_ARM64_CE=y
++CONFIG_CRYPTO_CRYPTD=y
++CONFIG_CRYPTO_CTR=y
++CONFIG_CRYPTO_CTS=y
++CONFIG_CRYPTO_DEFLATE=y
++CONFIG_CRYPTO_DES=y
++CONFIG_CRYPTO_DEV_ROCKCHIP=y
++CONFIG_CRYPTO_DH=y
++CONFIG_CRYPTO_DRBG=y
++CONFIG_CRYPTO_DRBG_CTR=y
++CONFIG_CRYPTO_DRBG_HASH=y
++CONFIG_CRYPTO_DRBG_HMAC=y
++CONFIG_CRYPTO_DRBG_MENU=y
++CONFIG_CRYPTO_ECB=y
++CONFIG_CRYPTO_ECC=y
++CONFIG_CRYPTO_ECDH=y
++CONFIG_CRYPTO_ECHAINIV=y
++CONFIG_CRYPTO_FCRYPT=y
++CONFIG_CRYPTO_GCM=y
++CONFIG_CRYPTO_GF128MUL=y
++CONFIG_CRYPTO_GHASH=y
++CONFIG_CRYPTO_GHASH_ARM64_CE=y
++CONFIG_CRYPTO_HASH=y
++CONFIG_CRYPTO_HASH2=y
++CONFIG_CRYPTO_HASH_INFO=y
++CONFIG_CRYPTO_HMAC=y
++CONFIG_CRYPTO_HW=y
++CONFIG_CRYPTO_JITTERENTROPY=y
++CONFIG_CRYPTO_KHAZAD=y
++CONFIG_CRYPTO_KPP=y
++CONFIG_CRYPTO_KPP2=y
++CONFIG_CRYPTO_LIB_AES=y
++CONFIG_CRYPTO_LIB_DES=y
++CONFIG_CRYPTO_LIB_SHA256=y
++CONFIG_CRYPTO_LZO=y
++CONFIG_CRYPTO_MANAGER=y
++CONFIG_CRYPTO_MANAGER2=y
++CONFIG_CRYPTO_MANAGER_DISABLE_TESTS=y
++CONFIG_CRYPTO_MD4=y
++CONFIG_CRYPTO_MD5=y
++CONFIG_CRYPTO_MICHAEL_MIC=y
++CONFIG_CRYPTO_NULL=y
++CONFIG_CRYPTO_NULL2=y
++CONFIG_CRYPTO_POLY1305=y
++CONFIG_CRYPTO_RMD128=y
++CONFIG_CRYPTO_RMD160=y
++CONFIG_CRYPTO_RMD256=y
++CONFIG_CRYPTO_RMD320=y
++CONFIG_CRYPTO_RNG=y
++CONFIG_CRYPTO_RNG2=y
++CONFIG_CRYPTO_RNG_DEFAULT=y
++CONFIG_CRYPTO_RSA=y
++CONFIG_CRYPTO_SALSA20=y
++CONFIG_CRYPTO_SEED=y
++CONFIG_CRYPTO_SEQIV=y
++CONFIG_CRYPTO_SERPENT=y
++CONFIG_CRYPTO_SHA1=y
++CONFIG_CRYPTO_SHA1_ARM64_CE=y
++CONFIG_CRYPTO_SHA2=y
++CONFIG_CRYPTO_SHA2_ARM64_CE=y
++CONFIG_CRYPTO_SHA256=y
++CONFIG_CRYPTO_SHA256_ARM64=y
++CONFIG_CRYPTO_SHA512=y
++CONFIG_CRYPTO_SHA512_ARM64_CE=y
++CONFIG_CRYPTO_SHA3=y
++CONFIG_CRYPTO_SHA3_ARM64=y
++CONFIG_CRYPTO_SHA512=y
++CONFIG_CRYPTO_SHA512_ARM64=y
++CONFIG_CRYPTO_SIMD=y
++CONFIG_CRYPTO_SM3_ARM64_CE=y
++CONFIG_CRYPTO_SM4_ARM64_CE=y
++CONFIG_CRYPTO_STATS=y
++CONFIG_CRYPTO_TEA=y
++CONFIG_CRYPTO_TGR192=y
++CONFIG_CRYPTO_TWOFISH=y
++CONFIG_CRYPTO_TWOFISH_COMMON=y
++CONFIG_CRYPTO_VMAC=y
++CONFIG_CRYPTO_WP512=y
++CONFIG_CRYPTO_XCBC=y
++CONFIG_CRYPTO_XTS=y
+diff -rNEZbwBdu3 a/target/linux/rockchip/image/armv8.mk b/target/linux/rockchip/image/armv8.mk
+--- a/target/linux/rockchip/image/armv8.mk	2020-05-11 22:49:04.000000000 +0800
++++ b/target/linux/rockchip/image/armv8.mk	2020-05-17 03:26:09.000000000 +0800
+@@ -4,6 +4,27 @@
+ # This is free software, licensed under the GNU General Public License v2.
+ # See /LICENSE for more information.
+ #
++
++define Device/friendlyelec_nanopi-r2-rev00
++  DEVICE_VENDOR := FriendlyELEC
++  DEVICE_MODEL := NanoPi R2S
++  SOC := rk3328
++  UBOOT_DEVICE_NAME := nanopi-r2-rk3328
++  IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
++  DEVICE_PACKAGES := kmod-usb-net-rtl8152
++endef
++TARGET_DEVICES += friendlyelec_nanopi-r2-rev00
++
++define Device/pine64_rock64
++  DEVICE_VENDOR := Pine64
++  DEVICE_MODEL := Rock64
++  SOC := rk3328
++  UBOOT_DEVICE_NAME := rock64-rk3328
++  IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
++  DEVICE_PACKAGES += kmod-drm-rockchip kmod-drm-rockchip-hdmi-sound
++endef
++TARGET_DEVICES += pine64_rock64
++
+ define Device/pine64_rockpro64
+   DEVICE_VENDOR := Pine64
+   DEVICE_MODEL := RockPro64
+diff -rNEZbwBdu3 a/target/linux/rockchip/image/Makefile b/target/linux/rockchip/image/Makefile
+--- a/target/linux/rockchip/image/Makefile	2020-05-11 22:49:04.000000000 +0800
++++ b/target/linux/rockchip/image/Makefile	2020-05-17 03:26:09.000000000 +0800
+@@ -24,7 +24,7 @@
+ 
+ define Build/boot-script
+ 	# Make an U-boot image and copy it to the boot partition
+-	mkimage -A arm -O linux -T script -C none -a 0 -e 0 -d mmc.bootscript $@.boot/boot.scr
++	mkimage -A arm -O linux -T script -C lzma -a 0 -e 0 -d mmc.bootscript $@.boot/boot.scr
+ endef
+ 
+ define Build/pine64-img
+@@ -50,7 +50,7 @@
+ ### Devices ###
+ define Device/Default
+   PROFILES := Default
+-  KERNEL := kernel-bin
++  KERNEL := kernel-bin | lzma
+   IMAGES := sysupgrade.img.gz
+   SUPPORTED_DEVICES := $(subst _,$(comma),$(1))
+   DEVICE_DTS = rockchip/$$(SOC)-$(lastword $(subst _, ,$(1)))
+diff -rNEZbwBdu3 a/target/linux/rockchip/image/mmc.bootscript b/target/linux/rockchip/image/mmc.bootscript
+--- a/target/linux/rockchip/image/mmc.bootscript	2020-05-11 22:49:04.000000000 +0800
++++ b/target/linux/rockchip/image/mmc.bootscript	2020-05-17 03:26:09.000000000 +0800
+@@ -1,8 +1,18 @@
+ part uuid mmc ${devnum}:2 uuid
+ 
+-setenv bootargs "console=ttyS2,1500000 console=tty1 earlycon=uart8250,mmio32,0xff1a0000 root=PARTUUID=${uuid} rw rootwait"
++if test $stdout = 'serial@ff1a0000' ;
++then serial_addr=',0xff1a0000';
++elif test $stdout = 'serial@ff130000' ;
++then serial_addr=',0xff130000';
++fi;
++
++setenv bootargs "console=ttyS2,1500000 console=tty1 earlycon=uart8250,mmio32${serial_addr} swiotlb=1 root=PARTUUID=${uuid} rw rootwait loglevel=9";
+ 
+ load mmc ${devnum}:1 ${fdt_addr_r} rockchip.dtb
+ load mmc ${devnum}:1 ${kernel_addr_r} kernel.img
+ 
+-booti ${kernel_addr_r} - ${fdt_addr_r}
++echo "Uncompress lzma kernel into memmory.."
++setexpr kernel_addr_dec ${filesize} + ${kernel_addr_r} || kernel_addr_dec=0x03000000
++lzmadec ${kernel_addr_r} ${kernel_addr_dec}
++
++booti ${kernel_addr_dec} - ${fdt_addr_r}

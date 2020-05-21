@@ -1,0 +1,135 @@
+#=================================================
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+# Author: Mod from P3TERX
+# For NanoPi R2S org
+#=================================================
+
+name: OpenWrt R2S originfull
+
+on:
+#  release:
+#    types: published
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/origin-full.yml'
+      - 'step/01-prepare_package.sh'
+      - 'seed/R2S.seed'
+  schedule:
+    - cron: 35 20 * * *
+  watch:
+    types: started
+
+env:
+  SSH_ACTIONS: false
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: false
+  UPLOAD_RELEASE: true
+  RK3328_DIR: rk3328
+  TZ: Asia/Shanghai
+
+jobs:
+    build:
+      runs-on: ubuntu-18.04
+      if: github.event.repository.owner.id == github.event.sender.id
+
+      steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          docker rmi $(docker images -q)
+          sudo -E apt-get remove -y --purge azure-cli ghc zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
+          sudo -E apt-get update -y
+          sudo -E apt-get install -y build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint ccache curl wget vim nano python python3 python-pip python3-pip python-ply python3-ply haveged lrzsz device-tree-compiler scons
+          wget -O - https://raw.githubusercontent.com/friendlyarm/build-env-on-ubuntu-bionic/master/install.sh | bash
+          sudo -E apt-get autoremove -y --purge
+          sudo -E apt-get clean -y
+          sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php
+          git clone https://github.com/friendlyarm/repo
+          sudo cp repo/repo /usr/bin/
+
+      - name: Install OpenWrt source
+        run: |
+          git clone https://git.openwrt.org/openwrt/openwrt.git
+          cd openwrt
+          patch -p1 < ../patches/00-R2S.patch
+          wget -P target/linux/rockchip/patches-5.4 https://raw.githubusercontent.com/QiuSimons/R2S-OpenWrt/master/PATCH/000-add-nanopi-r2s-support.patch 
+      - name: Prepare openwrt package
+        run: |
+          cd openwrt
+          cp -r ../step/* ./
+          /bin/bash 01-prepare_package.sh
+
+      - name: Convert Translation
+        run: |
+          cd openwrt
+          /bin/bash 02-convert_translation.sh
+
+      - name: Remove Upx
+        run: |
+          cd openwrt
+          /bin/bash 03-remove_upx.sh
+      - name: Load Config
+        run: |
+          cd openwrt
+          mv ../seed/R2S.seed .config
+          make defconfig
+          chmod -R 755 ./
+      - name: Make Toolchain
+        run: |
+          cd openwrt
+          let make_process=$(nproc)+1
+          make toolchain/install -j${make_process} V=s
+      - name: Compile Openwrt
+        run: |
+          cd openwrt
+          let make_process=$(nproc)+1
+          make -j${make_process} V=s || make -j${make_process} V=s
+
+      - name: Organize files
+        id: organize
+        run: |
+          rm -rf ./artifact/
+          mkdir -p ./artifact/
+          mv openwrt/bin/targets/*/*/*.img* ./artifact/
+          cd ./artifact/          
+          zip R2S-origin-$(date +%Y-%m-%d)-ext4.zip *ext4-sysupgrade.img*
+          zip R2S-origin-$(date +%Y-%m-%d)-squashfs.zip *squashfs-sysupgrade.img*
+          rm *ext4-sysupgrade.img*
+          echo "::set-env name=FIRMWARE::$PWD"
+          echo "::set-output name=status::success"
+          release_tag="R2S-${{ env.DATE }}-origin"
+          echo "##[set-output name=Release_tag;]$release_tag"
+          cd ../openwrt
+          cp .config ../artifact/config-origin-full
+          ./scripts/diffconfig.sh > ../artifact/config-origin.seed
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        with:
+          name: OpenWrt_R2S_origin_firmware
+          path: ${{ env.FIRMWARE }}
+
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1.6.1
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          name: OpenWrt-R2S固件
+          allowUpdates: true
+          tag: OpenWrt
+          commit: master
+          replacesArtifacts: true
+          token: ${{ secrets.RELEASES_TOKEN }}
+          body: |
+            基于原生OpenWrt代码
+            最新编译时间:${{ env.DATE }}
+            最新编译版本: ${{ steps.organize.outputs.release_tag }}
+          artifacts: ${{ env.FIRMWARE }}/*.zip,${{ env.FIRMWARE }}/config*
