@@ -46,6 +46,7 @@ jobs:
           sudo apt clean
           docker rmi $(docker image ls -aq)
           df -h
+          /bin/bash ./script/free_disk_space.sh
 
       - name: Initialization environment
         env:
