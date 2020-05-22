@@ -39,6 +39,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
 
+      - name: free disk space
+        run: |
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+          /bin/bash ./script/free_disk_space.sh
+          
       - name: Initialization environment
         env:
           DEBIAN_FRONTEND: noninteractive
