@@ -110,11 +110,11 @@ svn co https://github.com/openwrt/packages/trunk/utils/runc package/lean/runc
 svn co https://github.com/openwrt/packages/trunk/lang/golang package/lang/golang
 #multiwan support
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-syncdial package/lean/luci-app-syncdial
-rm -rf feeds/packages/net/mwan3
-rm -rf feeds/luci/applications/luci-app-mwan3
-svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-mwan3 feeds/luci/applications/luci-app-mwan3
-svn co https://github.com/coolsnowwolf/packages/trunk/net/mwan3 feeds/packages/net/mwan3
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-mwan3helper package/lean/luci-app-mwan3helper
+#rm -rf feeds/packages/net/mwan3
+#rm -rf feeds/luci/applications/luci-app-mwan3
+#svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-mwan3 feeds/luci/applications/luci-app-mwan3
+#svn co https://github.com/coolsnowwolf/packages/trunk/net/mwan3 feeds/packages/net/mwan3
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-mwan3helper package/lean/luci-app-mwan3helper
 
 #CF811AC wifi driver
 #svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/rtl8821cu package/rtl8821cu
