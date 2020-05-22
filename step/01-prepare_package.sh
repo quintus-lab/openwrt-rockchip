@@ -6,6 +6,9 @@ echo "::set-env name=VersionDate::$VersionDate"
 echo "::set-env name=DATE::$(date "+%Y-%m-%d %H:%M:%S")"
 rm -f ./feeds.conf.default
 wget https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/feeds.conf.default
+#remove annoying snapshot tag
+sed -i 's,SNAPSHOT,,g' include/version.mk
+sed -i 's,snapshots,,g' package/base-files/image-config.in
 #更新feed
 ./scripts/feeds update -a && ./scripts/feeds install -a
 #arpbind
@@ -86,6 +89,7 @@ git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frp
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/leanfrp
 #beardropper
 git clone https://github.com/NateLol/luci-app-beardropper package/luci-app-beardropper
+sed -i 's/"luci.fs"/"luci.sys".net/g' package/new/luci-app-beardropper/files/luasrc/model/cbi/bearDropper/setting.lua
 #trojan server
 svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-trojan-server package/luci-app-trojan-server
 #transmission-web-control
