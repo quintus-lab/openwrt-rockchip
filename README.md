@@ -1,6 +1,6 @@
-### NanoPi R2S固件：Friendlywrt版及原生OpenWrt版
+### Friendlywrt版及原生OpenWrt版 R2S 自用固件，使用者风险自负。
 
-#### 使用Friendlywrt源码更新到最新kernel，集成Lean功能插件，自用固件。<br> 
+#### 使用Friendlywrt源码更新到最新kernel，集成Lean功能插件。<br> 
 按应用筛选分成3版本，均不包含任何广告拦截应用。
 1. 极简的tiny版，仅包含ssr-plus、ddns(不支持任何USB无线网卡，支持U盘)
 2. 瘦身的slim版，包括有ssr-plus、frpc/frps、ttyd、zerotier（支持部分USB无线网卡，只测试过811AC）
