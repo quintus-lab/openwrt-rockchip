@@ -109,7 +109,6 @@ jobs:
           gzip -d *.gz && exit 0
           gzip *.img
           zip R2S-full-$(date +%Y-%m-%d)-squashfs.zip *.img*
-          rm *ext4-sysupgrade.img*
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
           release_tag="R2S-${{ env.DATE }}-origin-full"
