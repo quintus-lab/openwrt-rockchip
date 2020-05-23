@@ -41,6 +41,7 @@ jobs:
 
       - name: free disk space
         run: |
+          df -h
           sudo swapoff -a
           sudo rm -f /swapfile
           sudo apt clean
@@ -111,7 +112,7 @@ jobs:
           zip R2S-full-$(date +%Y-%m-%d)-squashfs.zip *.img*
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
-          release_tag="R2S-${{ env.DATE }}-origin-full"
+          release_tag="R2S-origin-full-${{ env.DATE }}"
           echo "##[set-output name=Release_tag;]$release_tag"
           cd ../openwrt
           cp .config ../artifact/config-origin-full

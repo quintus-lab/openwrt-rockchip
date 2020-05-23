@@ -42,6 +42,11 @@ jobs:
       - name: free disk space
         run: |
           df -h
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
           /bin/bash ./script/free_disk_space.sh
 
       - name: Initialization environment
@@ -108,7 +113,7 @@ jobs:
           zip R2S-slim-$(date +%Y-%m-%d)-squashfs.zip *.img*
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
-          release_tag="R2S-${{ env.DATE }}-origin-slim"
+          release_tag="R2S-origin-slim-${{ env.DATE }}"
           echo "##[set-output name=Release_tag;]$release_tag"
           cd ../openwrt
           cp .config ../artifact/config-origin-slim
