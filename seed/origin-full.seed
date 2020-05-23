@@ -98,12 +98,27 @@ CONFIG_BRCMFMAC_SDIO=y
 # CONFIG_PACKAGE_kmod-rtlwifi-btcoexist is not set
 # CONFIG_PACKAGE_kmod-rtlwifi-usb is not set
 # CONFIG_PACKAGE_kmod-cfg80211 is not set
-# CONFIG_PACKAGE_kmod-usb-net-rndis is not set
 # CONFIG_PACKAGE_iw is not set
 # CONFIG_PACKAGE_iwinfo is not set
 # CONFIG_PACKAGE_kmod-rtl8821cu is not set
-# CONFIG_PACKAGE_usb-modeswitch is not set
 # CONFIG_PACKAGE_wpa-supplicant is not set
+
+#Support some Hilink 4G USB dongle
+CONFIG_PACKAGE_usb-modeswitch=y
+CONFIG_PACKAGE_kmod-usb-net-rndis=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
+
+#Support NCM mode 4G dongle
+#CONFIG_PACKAGE_comgt
+#CONFIG_PACKAGE_comgt-ncm 
+#CONFIG_PACKAGE_kmod-usb-net-cdc-ncm 
+#CONFIG_PACKAGE_kmod-usb-net-huawei-cdc-ncm 
+#CONFIG_PACKAGE_kmod-usb-net-qmi-wwan
+#CONFIG_PACKAGE_luci-proto-ncm 
+#CONFIG_PACKAGE_kmod-usb-serial-wwan 
+#CONFIG_PACKAGE_kmod-usb-serial 
+#CONFIG_PACKAGE_kmod-usb-serial-option
+
 # CONFIG_PACKAGE_hostapd is not set
 # CONFIG_PACKAGE_hostapd-basic is not set
 # CONFIG_PACKAGE_hostapd-utils is not set
