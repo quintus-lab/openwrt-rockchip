@@ -137,7 +137,7 @@ jobs:
           replacesArtifacts: true
           token: ${{ secrets.RELEASES_TOKEN }}
           body: |
-            基于原生OpenWrt代码
+            基于原生OpenWrt代码，自用固件，风险自负
             最新编译时间:${{ env.DATE }}
             最新编译版本: ${{ steps.organize.outputs.release_tag }}
           artifacts: ${{ env.FIRMWARE }}/*.zip,${{ env.FIRMWARE }}/config*
