@@ -10,7 +10,7 @@ on:
     types: started
 
 env:
-  SSH_ACTIONS: false
+  SSH_ACTIONS: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -19,7 +19,8 @@ jobs:
     if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@master
 
     - name: free disk space
       run: |
@@ -28,6 +29,8 @@ jobs:
         sudo apt clean
         docker rmi $(docker image ls -aq)
         df -h
+        /bin/bash ./script/free_disk_space.sh
+
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@master
       if: env.SSH_ACTIONS == 'true'
