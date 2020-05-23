@@ -47,7 +47,7 @@ jobs:
           docker rmi $(docker image ls -aq)
           df -h
           /bin/bash ./script/free_disk_space.sh
-          
+
       - name: Initialization environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -101,7 +101,7 @@ jobs:
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
           echo "::set-env name=DATE::$(date "+%Y-%m-%d %H:%M:%S")"
-          release_tag="NanoPi-R2S-${{ env.DATE }}-tiny"
+          release_tag="NanoPi-R2S-tiny-${{ env.DATE }}"
           echo "##[set-output name=release_tag;]$release_tag"
           cd ../friendlywrt-rk3328/friendlywrt
           cp .config ../../artifact/config-tiny-full
