@@ -107,7 +107,7 @@ jobs:
           mkdir -p ./artifact/
           mv openwrt/bin/targets/*/*/*squashfs-sysupgrade.img* ./artifact/
           cd ./artifact/
-          gzip -d *.gz
+          gzip -d *.gz && exit 0
           gzip *.img
           zip R2S-slim-$(date +%Y-%m-%d)-squashfs.zip *.img*
           rm *ext4-sysupgrade.img*
