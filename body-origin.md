@@ -8,6 +8,6 @@
 7. Openwrt原生更新升级功能，支持各种备份、恢复及系统重置。
 8. 从友善版固件刷写本固件，建议使用dd写卡：
 ```
-dd if=/tmp/upload/openwrt.img wget of=/dev/mmcblk0
+dd if=/tmp/upload/openwrt.img of=/dev/mmcblk0
 ```
 9. 上游代码及编译yml更新频繁。自用测试固件，风险自负，不提供任何DaaS.
