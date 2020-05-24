@@ -10,12 +10,10 @@
 #### Friendlywrt版R2S刷机方法：
 7. 感谢gary lau的在线更新脚本，可选择保存配置升级，或下载固件后通过web管理页的“文件传输”上传到更新，支持多种R2S编译版本互刷，通过web管理页面的TTYD或SSH到R2S后执行下载脚本并执行：<br> 
 ```
-wget -q https://github.com/ardanzhu/Opwrt_Actions/raw/master/script/update.sh -O update.sh && sh ./update.sh
+wget -q https://github.com/quintuschu/Openwrt-R2S/raw/master/script/update.sh -O update.sh && sh ./update.sh
 ```
-
 8. 4.18之后固件已预装[songchenwen](https://github.com/songchenwen/nanopi-r2s)大佬的R2S刷机，可在web页面直接升级，与通常的OpenWrt刷机方法无异 <br> 
-[R2S刷机IPK链接](https://github.com/ardanzhu/Opwrt_Actions/raw/master/other/luci-app-r2sflasher_1.0-4_all.ipk) 
-
+[R2S刷机IPK链接](https://github.com/quintuschu/Openwrt-R2S/raw/master/other/luci-app-r2sflasher_1.0-4_all.ipk) 
 
 #### OpenWrt原生源码，使用Simons的patch，脱离Friendlywrt架构编译，原汁原味<br> 
 1. 原版主线OpenWrt，内核5.4，Luci 19.07+SNAPSHOT均当日最新，默认开启BBR。
