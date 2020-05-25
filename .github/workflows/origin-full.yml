@@ -137,6 +137,4 @@ jobs:
           replacesArtifacts: true
           token: ${{ secrets.RELEASES_TOKEN }}
           bodyFile: "body-origin.md"
-          body: |
-            最新编译版本: ${{ steps.organize.outputs.release_tag }}
           artifacts: ${{ env.FIRMWARE }}/*.zip,${{ env.FIRMWARE }}/config*
