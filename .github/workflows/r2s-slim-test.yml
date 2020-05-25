@@ -19,8 +19,8 @@ on:
 #      - 'r2s_step/06_mod_slim.sh'
 #  schedule:
 #    - cron: 30 20 * * *
-  watch:
-    types: started
+#  watch:
+#    types: started
 
 env:
   REPO_BRANCH: master
