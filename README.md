@@ -6,14 +6,14 @@
 2. 瘦身的slim版，包括有ssr-plus、frpc/frps、ttyd、zerotier（支持部分USB无线网卡，只测试过811AC）
 3. 定制opt版在精简版基础上增加docker、transmission、等较常用功能等。（支持部分USB无线网卡，只测试过811AC）
 4. 默认管理地址:192.168.2.1  用户名:root  密码:password
-5. 下载见[FriendlyWrt-R2S固件](https://github.com/ardanzhu/Opwrt_Actions/releases/tag/FriendlyWrt)
+5. 下载见[FriendlyWrt-R2S固件](https://github.com/quintus-lab/Openwrt-R2S/releases/tag/FriendlyWrt)
 #### Friendlywrt版R2S刷机方法：
 7. 感谢gary lau的在线更新脚本，可选择保存配置升级，或下载固件后通过web管理页的“文件传输”上传到更新，支持多种R2S编译版本互刷，通过web管理页面的TTYD或SSH到R2S后执行下载脚本并执行：<br> 
 ```
 wget -q https://github.com/quintuschu/Openwrt-R2S/raw/master/script/update.sh -O update.sh && sh ./update.sh
 ```
 8. 4.18之后固件已预装[songchenwen](https://github.com/songchenwen/nanopi-r2s)大佬的R2S刷机，可在web页面直接升级，与通常的OpenWrt刷机方法无异 <br> 
-[R2S刷机IPK链接](https://github.com/quintuschu/Openwrt-R2S/raw/master/other/luci-app-r2sflasher_1.0-4_all.ipk) 
+[R2S刷机IPK链接](https://github.com/quintus-lab/Openwrt-R2S/raw/master/other/luci-app-r2sflasher_1.0-4_all.ipk) 
 
 #### OpenWrt原生源码+Simons的patch编译，使用前请仔细阅读如下说明：
 1. 原版主线OpenWrt，内核5.4，Luci 19.07+SNAPSHOT均当日最新，默认开启BBR。
@@ -29,7 +29,7 @@ dd if=/tmp/upload/openwrt.img of=/dev/mmcblk0
 ```
 9. 上游代码及编译yml更新频繁。自用测试固件，风险自负，不提供任何DaaS.
 
-10. 下载见[OpenWrt-R2S固件](https://github.com/ardanzhu/Opwrt_Actions/releases/tag/OpenWrt)
+10. 下载见[OpenWrt-R2S固件](https://github.com/quintus-lab/Openwrt-R2S/releases/tag/OpenWrt)
 
 ### 感谢
 
