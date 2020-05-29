@@ -16,7 +16,7 @@ on:
     paths:
       - '.github/workflows/origin-slim.yml'
       - 'step/01-prepare_package.sh'
-      - 'seed/R2S.seed'
+      - 'seed/origin-slim.seed'
   schedule:
     - cron: 35 20 * * *
   watch:
