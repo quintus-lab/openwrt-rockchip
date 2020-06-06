@@ -64,6 +64,10 @@ git clone -b master --single-branch https://github.com/aa65535/openwrt-simple-ob
 svn co https://github.com/coolsnowwolf/packages/trunk/net/shadowsocks-libev package/lean/shadowsocks-libev
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
 svn co https://github.com/project-openwrt/openwrt/trunk/package/lean/tcpping package/lean/tcpping
+#dnsmasq aaaa filter
+patch -p1 < ../patches/dnsmasq-add-filter-aaaa-option.patch
+patch -p1 < ../patches/luci-add-filter-aaaa-option.patch
+cp -f ../patches/900-add-filter-aaaa-option.patch ./package/network/services/dnsmasq/patches/900-add-filter-aaaa-option.patch
 #订阅转换
 #svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/subconverter package/new/subconverter
 #svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/jpcre2 package/new/jpcre2
