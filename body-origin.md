@@ -5,9 +5,11 @@
 3. 管理地址: 192.168.1.1 默认空密码
 4. 驱动原因，暂不支持任何USB无线网卡。已测试支持Hilink模式的4G USB上网卡，NCM模式测试中。
 6. 仅打包原版bootstrap主题，请勿轻易安装其它主题（19.07多数不兼容）。
-7. Openwrt原生更新升级功能，支持各种备份、恢复及系统重置。
-8. 从友善版固件刷写本固件，建议使用dd写卡：
+7. 建议关闭ipv6的dns解析，以免影响网络体验，Network-DHCP and DNS-Advanced Settings-Filter IPv6 Records
+8. Openwrt原生更新升级功能，支持各种备份、恢复及系统重置。
+9. 从友善版固件刷写本固件，建议使用dd写卡：
 ```
-dd if=/tmp/upload/openwrt.img of=/dev/mmcblk0
+dd if=/tmp/upload/openwrt.img of=/dev/mmcblk0 conv=fsync
 ```
-9. 上游代码及编译yml更新频繁。自用测试固件，风险自负，不提供任何DaaS.
+10. 为避免写卡没有覆盖完全，建议首次启动后先运行firstboot清除再重启一次
+11. 上游代码及编译yml更新频繁。自用测试固件，风险自负，不提供任何DaaS.
