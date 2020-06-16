@@ -7,6 +7,7 @@ git rebase upstream/linux-5.4.y
 cd ../
 #patch openwrt 5.4 kernel
 git clone https://git.openwrt.org/openwrt/openwrt.git --depth=1 && cd openwrt/
+wget -p https://github.com/quintus-lab/Openwrt-R2S/raw/master/patches/952-net-conntrack-events-support-multiple-registrant.patch ./target/linux/generic/hack-5.4/952-net-conntrack-events-support-multiple-registrant.patch
 cp -a ./target/linux/generic/files/* ../kernel/
 ./scripts/patch-kernel.sh ../kernel target/linux/generic/backport-5.4
 ./scripts/patch-kernel.sh ../kernel target/linux/generic/pending-5.4
