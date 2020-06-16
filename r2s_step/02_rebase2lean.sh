@@ -4,7 +4,7 @@ cd friendlywrt-rk3328/friendlywrt/
 git config --local user.email "action@github.com" && git config --local user.name "GitHub Action"
 git remote add upstream https://github.com/coolsnowwolf/lede && git fetch upstream
 git rebase adc1a9a3676b8d7be1b48b5aed185a94d8e42728^ --onto upstream/master -X theirs
-rm -rf package/kernel/mt76/Makefile package/network/services/hostapd package/kernel/mac80211
+#rm -rf package/kernel/mt76/Makefile package/network/services/hostapd package/kernel/mac80211
 git checkout 0a395d6fd6c38c554709197ae3cd6315f143cd7a -- package/kernel/mt76/Makefile package/network/services/hostapd package/kernel/mac80211
 rm target/linux/rockchip-rk3328/patches-4.14/0001-net-thunderx-workaround-BGX-TX-Underflow-issue.patch
 git checkout upstream/master -- feeds.conf.default
