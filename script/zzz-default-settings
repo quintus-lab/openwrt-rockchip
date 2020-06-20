@@ -23,7 +23,7 @@ sed -i 's,downloads.openwrt.org,mirrors.cloud.tencent.com/lede,g' /etc/opkg/dist
 
 sed -i 's,redirect_https\t1,redirect_https\t0,g' /etc/config/uhttpd
 
-sed -i 's,/opt,/overlay,g' /etc/config/dockerman
+#sed -i 's,/opt,/overlay,g' /etc/config/dockerman
 
 sed -i '/log-facility/d' /etc/dnsmasq.conf
 echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
