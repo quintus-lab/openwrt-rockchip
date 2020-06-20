@@ -17,8 +17,8 @@ on:
       - '.github/workflows/r2s-opt.yml'
       - 'seed/opt.seed'
       - 'r2s_step/06_mod_opt.sh'
-  schedule:
-    - cron: 30 20 * * *
+#  schedule:
+#    - cron: 30 20 * * *
   watch:
     types: started
 
@@ -28,7 +28,7 @@ env:
   CONFIG_FILE: seed/opt.seed
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: false
+  UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: false
   TZ: Asia/Shanghai
 
