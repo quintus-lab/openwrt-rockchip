@@ -98,7 +98,6 @@ git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frp
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/leanfrp
 #beardropper
 git clone https://github.com/NateLol/luci-app-beardropper package/luci-app-beardropper
-sed -i 's/"luci.fs"/"luci.sys".net/g' package/new/luci-app-beardropper/files/luasrc/model/cbi/bearDropper/setting.lua
 #trojan server
 svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-trojan-server package/luci-app-trojan-server
 #transmission-web-control
@@ -155,6 +154,14 @@ rm -rf .config
 #修正架构
 sed -i "s,boardinfo.system,'ARMv8',g" feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 chmod -R 755 ./
+#patch config-5.4 support docker
+echo '
+CONFIG_CGROUP_HUGETLB=y
+CONFIG_CGROUP_NET_PRIO=y
+CONFIG_EXT4_FS_SECURITY=y
+CONFIG_IPVLAN=y
+CONFIG_DM_THIN_PROVISIONING=y
+' >> ./target/linux/rockchip/armv8/config-5.4
 #
 echo -e '\nQuintus Build @ '$(date "+%Y.%m.%d")'\n'  >> package/base-files/files/etc/banner
 sed -i '/DISTRIB_REVISION/d' package/base-files/files/etc/openwrt_release
