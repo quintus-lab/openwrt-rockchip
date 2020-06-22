@@ -1,10 +1,35 @@
 CONFIG_LUCI_LANG_zh-cn=y
 CONFIG_LUCI_LANG_zh-tw=y
 
+#wireless card support
 CONFIG_PACKAGE_hostapd=y
 CONFIG_PACKAGE_hostapd-basic=y
 CONFIG_PACKAGE_hostapd-utils=y
-CONFIG_PACKAGE_kmod-mmc=y
+CONFIG_PACKAGE_kmod-brcmfmac=y
+CONFIG_PACKAGE_kmod-cfg80211=y
+CONFIG_PACKAGE_kmod-usb-net=y
+CONFIG_PACKAGE_kmod-usb-net-rtl8150=y
+CONFIG_PACKAGE_kmod-usb-net-rtl8152=y
+CONFIG_PACKAGE_kmod-usb-net-rndis=y
+CONFIG_PACKAGE_kmod-rtlwifi=y
+CONFIG_PACKAGE_kmod-rtlwifi-btcoexist=y
+CONFIG_PACKAGE_kmod-rtlwifi-usb=y
+CONFIG_PACKAGE_iw=y
+CONFIG_PACKAGE_iwinfo=y
+CONFIG_PACKAGE_usb-modeswitch=y
+CONFIG_PACKAGE_wpad=y
+CONFIG_PACKAGE_wpad-mini=y
+CONFIG_PACKAGE_wpa-supplicant=y
+
+#Support Hilink 4G USB dongle & USB Tethering
+#CONFIG_PACKAGE_usb-modeswitch=y
+#CONFIG_PACKAGE_kmod-usb-net-rndis=y
+CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
+CONFIG_PACKAGE_kmod-usb-net-ipheth=y
+CONFIG_PACKAGE_usbmuxd=y
+CONFIG_PACKAGE_libimobiledevice=y
+CONFIG_PACKAGE_usbutils=y
+
 # CONFIG_PACKAGE_kmod-mt76 is not set
 # CONFIG_PACKAGE_kmod-mt7601u is not set
 # CONFIG_PACKAGE_kmod-rtl8192cu is not set
@@ -13,19 +38,8 @@ CONFIG_PACKAGE_kmod-mmc=y
 # CONFIG_PACKAGE_kmod-rtl8187 is not set
 # CONFIG_PACKAGE_kmod-rtl8812au-ct is not set
 # CONFIG_PACKAGE_kmod-rtl8821ae is not set
-CONFIG_PACKAGE_kmod-rtlwifi=y
-CONFIG_PACKAGE_kmod-rtlwifi-btcoexist=y
-CONFIG_PACKAGE_kmod-rtlwifi-usb=y
-CONFIG_PACKAGE_kmod-cfg80211=y
-CONFIG_PACKAGE_kmod-usb-net=y
-CONFIG_PACKAGE_kmod-usb-net-rtl8150=y
-CONFIG_PACKAGE_kmod-usb-net-rtl8152=y
-CONFIG_PACKAGE_kmod-usb-net-rndis=y
-CONFIG_PACKAGE_iw=y
-CONFIG_PACKAGE_iwinfo=y
-# CONFIG_PACKAGE_kmod-brcmfmac is not set
-CONFIG_PACKAGE_usb-modeswitch=y
-CONFIG_PACKAGE_wpa-supplicant=y
+
+
 
 CONFIG_PACKAGE_luci-app-accesscontrol=y
 CONFIG_PACKAGE_luci-app-arpbind=y

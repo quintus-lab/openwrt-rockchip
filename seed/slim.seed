@@ -11,6 +11,8 @@ CONFIG_PACKAGE_ttyd=y
 CONFIG_PACKAGE_luci-app-upnp=y
 CONFIG_PACKAGE_luci-theme-opentomcat=y
 CONFIG_PACKAGE_stress=y
+
+#Disable default package
 # CONFIG_PACKAGE_luci-app-adbyby-plus is not set
 # CONFIG_PACKAGE_adbyby is not set
 # CONFIG_PACKAGE_luci-app-vsftpd is not set
@@ -24,16 +26,18 @@ CONFIG_PACKAGE_stress=y
 # CONFIG_PACKAGE_luci-app-accesscontrol is not set
 # CONFIG_UnblockNeteaseMusic_Go is not set
 # CONFIG_UnblockNeteaseMusic_NodeJS is not set
+
 #docker support
-CONFIG_PACKAGE_luci-app-dockerman=y
-CONFIG_PACKAGE_luci-lib-docker=y
-CONFIG_PACKAGE_luci-lib-jsonc=y
-CONFIG_PACKAGE_docker-ce=y
+#CONFIG_PACKAGE_luci-app-dockerman=y
+#CONFIG_PACKAGE_luci-lib-docker=y
+#CONFIG_PACKAGE_luci-lib-jsonc=y
+#CONFIG_PACKAGE_docker-ce=y
 
 #wireless card support
 CONFIG_PACKAGE_hostapd=y
 CONFIG_PACKAGE_hostapd-basic=y
 CONFIG_PACKAGE_hostapd-utils=y
+CONFIG_PACKAGE_kmod-brcmfmac=y
 CONFIG_PACKAGE_kmod-cfg80211=y
 CONFIG_PACKAGE_kmod-usb-net=y
 CONFIG_PACKAGE_kmod-usb-net-rtl8150=y
@@ -45,20 +49,30 @@ CONFIG_PACKAGE_kmod-rtlwifi-usb=y
 CONFIG_PACKAGE_iw=y
 CONFIG_PACKAGE_iwinfo=y
 CONFIG_PACKAGE_usb-modeswitch=y
+CONFIG_PACKAGE_wpad=y
+CONFIG_PACKAGE_wpad-mini=y
 CONFIG_PACKAGE_wpa-supplicant=y
 
-#Support some Hilink 4G USB dongle
+#Support Hilink 4G USB dongle & USB Tethering
 #CONFIG_PACKAGE_usb-modeswitch=y
 #CONFIG_PACKAGE_kmod-usb-net-rndis=y
 CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y
+CONFIG_PACKAGE_kmod-usb-net-ipheth=y
+CONFIG_PACKAGE_usbmuxd=y
+CONFIG_PACKAGE_libimobiledevice=y
+CONFIG_PACKAGE_usbutils=y
 
 
-CONFIG_PACKAGE_luci-app-wol=y
+#zerotier
 CONFIG_PACKAGE_luci-app-zerotier=y
 CONFIG_PACKAGE_zerotier=y
 
+CONFIG_PACKAGE_luci-app-accesscontrol=y
+CONFIG_PACKAGE_luci-app-arpbind=y
 CONFIG_PACKAGE_luci-app-ramfree=y
+CONFIG_PACKAGE_luci-app-wol=y
 
+#frp
 CONFIG_PACKAGE_luci-app-frpc=y
 CONFIG_PACKAGE_luci-app-frps=y
 CONFIG_PACKAGE_frpc=y
