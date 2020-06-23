@@ -9,8 +9,6 @@ uci commit system
 
 sed -i 's/local ucic = uci.cursor()/local ucic = luci.model.uci.cursor()/g' /usr/share/shadowsocksr/subscribe.lua
 sed -i "s/'cbid.shadowsocksr.'/'widget.cbid.shadowsocksr.'/g" /usr/lib/lua/luci/view/shadowsocksr/ssrurl.htm
-#sed -i "s,START=95,START=99,g" /etc/init.d/shadowsocksr
-#ln -sf /etc/init.d/shadowsocksr /etc/rc.d/S99shadowsocksr
 
 sed -i 's/0/1/g' /etc/config/irqbalance
 
@@ -21,7 +19,9 @@ sed -i '/openwrt_telephony/ { s/snapshots\/packages/releases\/packages-19.07/g; 
 sed -i '/natelol/d' /etc/opkg/distfeeds.conf
 sed -i 's,downloads.openwrt.org,mirrors.cloud.tencent.com/lede,g' /etc/opkg/distfeeds.conf
 
-sed -i 's,redirect_https\t1,redirect_https\t0,g' /etc/config/uhttpd
+uci set uhttpd.main.rfc1918_filter=0
+uci set uhttpd.main.redirect_https=0
+uci commit uhttpd
 
 #sed -i 's,/opt,/overlay,g' /etc/config/dockerman
 
@@ -40,5 +40,12 @@ opkg flag hold ddns-scripts_cloudflare.com-v4
 opkg flag hold luci-app-firewall
 opkg flag hold firewall
 opkg flag hold dnsmasq-full
+
+uci delete network.lan.ip6assign
+uci delete network.wan6
+uci delete dhcp.lan.ra
+uci delete dhcp.lan.dhcpv6
+uci delete dhcp.lan.ndp
+uci commit
 
 exit 0
