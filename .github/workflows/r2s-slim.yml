@@ -17,8 +17,8 @@ on:
       - '.github/workflows/r2s-slim.yml'
       - 'seed/slim.seed'
       - 'r2s_step/06_mod_slim.sh'
- # schedule:
- #   - cron: 30 20 * * *
+# schedule:
+#   - cron: 30 20 * * *
   watch:
     types: started
 
