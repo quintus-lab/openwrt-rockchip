@@ -64,9 +64,9 @@ jobs:
         run: |
           /bin/bash r2s_step/02_rebase2lean.sh
 
-      - name: Patch 5.4 Kernel
-        run: |
-          /bin/bash r2s_step/03_kernel.sh
+#      - name: Patch 5.4 Kernel
+#        run: |
+#          /bin/bash r2s_step/03_kernel.sh
 
       - name: Enable Kernel feature
         run: |
