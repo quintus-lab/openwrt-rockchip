@@ -123,12 +123,12 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-syncdial
 #svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-mwan3 feeds/luci/applications/luci-app-mwan3
 #svn co https://github.com/coolsnowwolf/packages/trunk/net/mwan3 feeds/packages/net/mwan3
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-mwan3helper package/lean/luci-app-mwan3helper
-
-CF811AC wifi driver
+#OLED display
+git clone https://github.com/natelol/luci-app-oled package/natelol/luci-app-oled
+#CF811AC wifi driver
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-18.06-dev/package/ctcgfw/rtl8821cu package/rtl8821cu
 #mkdir package/base-files/files/etc/hotplug.d/usb
 #wget -P package/base-files/files/etc/hotplug.d/usb https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/package/base-files/files/etc/hotplug.d/usb/31-usb_wifi
-
 #Zerotier
 git clone https://github.com/rufengsuixing/luci-app-zerotier package/lean/luci-app-zerotier
 svn co https://github.com/coolsnowwolf/packages/trunk/net/zerotier package/lean/zerotier

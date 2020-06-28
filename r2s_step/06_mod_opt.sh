@@ -29,6 +29,9 @@ rm -rf package/lean/luci-app-diskman
 #rm -rf package/lean/luci-app-ttyd
 #rm -rf package/lean/luci-app-zerotier
 #git clone https://github.com/rufengsuixing/luci-app-zerotier.git package/lean/luci-app-zerotier
+#OLED display
+git clone https://github.com/natelol/luci-app-oled package/natelol/luci-app-oled
+#
 git clone https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/lean/luci-theme-opentomcat
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc

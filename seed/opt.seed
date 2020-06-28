@@ -39,7 +39,9 @@ CONFIG_PACKAGE_usbutils=y
 # CONFIG_PACKAGE_kmod-rtl8812au-ct is not set
 # CONFIG_PACKAGE_kmod-rtl8821ae is not set
 
-
+#OLED
+CONFIG_PACKAGE_luci-app-oled=y
+CONFIG_PACKAGE_luci-i18n-oled-zh-cn=y
 
 CONFIG_PACKAGE_luci-app-accesscontrol=y
 CONFIG_PACKAGE_luci-app-arpbind=y
