@@ -23,17 +23,19 @@ wget -q https://github.com/quintus-lab/Openwrt-R2S/raw/master/script/update.sh &
 4. 驱动原因，暂只支持rtl8192cu芯片(仅2.4G)及mt76x2u芯片USB无线网卡，rtl8821cu/8811cu的驱动未测试通过。
 5. 已测试支持Hilink模式的4G USB上网卡，NCM模式测试中。
 6. 仅打包原版bootstrap主题，请勿轻易安装其它主题（19.07多数不兼容）。
-7. 建议关闭ipv6的dns解析，以免影响网络体验，Network-DHCP and DNS-Advanced Settings-Filter IPv6 Records
-8. 默认关闭ipv6 dhcpv6等，有需求的使用的自行开启。
-9. 注意R2S网口默认MAC address相同，LAN内同时存在多个R2S请自行修改MAC为唯一。
-10. Openwrt原生更新升级功能，支持各种备份、恢复及系统重置。
-11. 从友善版固件刷写本固件，建议使用dd写卡：
+7. 支持第3代金属壳OLED显示R2S系统信息。
+8. 仅打包原版bootstrap主题，请勿轻易安装其它主题（19.07多数不兼容）。
+9. 建议关闭ipv6的dns解析，以免影响网络体验，Network-DHCP and DNS-Advanced Settings-Filter IPv6 Records。
+10. 默认关闭ipv6，有需要的自行开启。
+11. 注意R2S网口默认MAC address相同，LAN内同时存在多个R2S请自行修改MAC为唯一。
+12. Openwrt原生更新升级功能，支持各种备份、恢复及系统重置。
+13. 从友善版固件刷写本固件，建议使用dd写卡：
 ```
 dd if=/tmp/upload/openwrt.img of=/dev/mmcblk0 conv=fsync
 ```
-12. 为避免写卡没有覆盖完全，建议首次启动后先运行firstboot清除再重启一次
-13. 上游代码及编译yml更新频繁。自用测试固件，风险自负，不提供任何DaaS.
-14. 下载见[OpenWrt-R2S固件](https://github.com/quintus-lab/Openwrt-R2S/releases/tag/OpenWrt)
+14. 为避免写卡没有覆盖完全，建议首次启动后先运行firstboot清除再重启一次
+15. 上游代码及编译yml更新频繁。自用测试固件，风险自负，不提供任何DaaS.
+16. 下载见[OpenWrt-R2S固件](https://github.com/quintus-lab/Openwrt-R2S/releases/tag/OpenWrt)
 
 ### 感谢
 
