@@ -67,8 +67,9 @@ jobs:
         run: |
           git clone https://git.openwrt.org/openwrt/openwrt.git
           cd openwrt
-          patch -p1 < ../patches/00-R2S.patch
-          wget -P target/linux/rockchip/patches-5.4 https://raw.githubusercontent.com/QiuSimons/R2S-OpenWrt/master/PATCH/000-add-nanopi-r2s-support.patch 
+          patch -p1 < ../patches/rockchip-add-support-for-rk3328-radxa-rock-pi-e.patch
+          patch -p1 < ../patches/rockchip-add-support-for-FriendlyARM-NanoPi-R2S.patch
+
       - name: Prepare openwrt package
         run: |
           cd openwrt
