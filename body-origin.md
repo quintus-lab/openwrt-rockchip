@@ -1,9 +1,9 @@
 #### OpenWrt原生源码+Simons的patch编译，使用前请仔细阅读如下说明：
 1. 原版主线OpenWrt，内核5.4，Luci 19.07+SNAPSHOT均当日最新，默认开启BBR。
 2. Full版包含adguard home、ssr-plus、docker、ttyd、zerotier、transmission、smartdns、samba4、openclash、frpc/frps、trojan server、应用过滤、ddns、多线多拨（单线多拨无法叠加带宽）等功能
-3. Slim版仅有ssrp、trojan-server、frpc/frps、ddns、应用过滤、zerotier及transmission等常用功能。 
+3. Slim版仅有ssrp、trojan-server、frpc/frps、ddns、应用过滤、zerotier及transmission、京东签到等常用功能。 
 4. 管理地址: 192.168.1.1 默认空密码
-5. 驱动原因，暂只支持rtl8192cu芯片(仅2.4G)及mt76x2u芯片USB无线网卡，rtl8821cu/8811cu的驱动未测试通过。
+5. 驱动原因，暂只支持rtl8192cu芯片(仅2.4G)及mt76x2u芯片USB无线网卡，rtl8821cu/8811cu的驱动未测试通过，MT7601的驱动不支持AP模式。
 6. 已测试支持Hilink模式的4G USB上网卡，NCM模式测试中。
 7. 支持第3代金属壳OLED显示R2S系统信息。
 8. 仅打包原版bootstrap主题，请勿轻易安装其它主题（19.07多数不兼容）。
