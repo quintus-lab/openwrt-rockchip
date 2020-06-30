@@ -41,7 +41,9 @@ git clone https://github.com/lisaac/luci-app-dockerman.git package/lean/luci-app
 #svn co https://github.com/openwrt/packages/trunk/net/samba4 package/lean/samba4
 #svn co https://github.com/openwrt/packages/trunk/utils/ttyd package/ttyd
 #svn co https://github.com/openwrt/luci/trunk/applications/luci-app-ttyd package/luci-app-ttyd
-
+#jd-dailybonus
+git clone https://github.com/jerrykuku/node-request package/lean/node-request
+git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-app-jd-dailybonus
 #更改默認主題及界面语言
 sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/opentomcat"' package/lean/default-settings/files/zzz-default-settings
 sed -i 's/luci.main.lang=zh_cn/luci.main.lang=auto/g' package/lean/default-settings/files/zzz-default-settings

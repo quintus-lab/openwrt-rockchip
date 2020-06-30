@@ -94,6 +94,10 @@ svn co https://github.com/pymumu/smartdns/trunk/package/openwrt package/new/smar
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ntlf9t/luci-app-smartdns package/new/smartdns/luci-app-smartdns
 #上网APP过滤
 git clone -b master --single-branch https://github.com/destan19/OpenAppFilter package/new/OpenAppFilter
+#jd-dailybonus
+git clone https://github.com/jerrykuku/node-request package/lean/node-request
+git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-app-jd-dailybonus
+#
 #frp
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc

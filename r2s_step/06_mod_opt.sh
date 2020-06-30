@@ -45,7 +45,9 @@ svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-trojan-se
 #svn co https://github.com/openwrt/packages/trunk/net/samba4 package/lean/samba4
 #svn co https://github.com/openwrt/packages/trunk/utils/ttyd package/ttyd
 #svn co https://github.com/openwrt/luci/trunk/applications/luci-app-ttyd package/luci-app-ttyd
-
+#jd-dailybonus
+git clone https://github.com/jerrykuku/node-request package/lean/node-request
+git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-app-jd-dailybonus
 #git clone https://github.com/ElonH/Rclone-OpenWrt.git
 #rm -rf lean/rclone
 #rm -rf lean/luci-app-rclone

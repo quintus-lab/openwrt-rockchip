@@ -27,6 +27,9 @@ CONFIG_PACKAGE_stress=y
 # CONFIG_UnblockNeteaseMusic_Go is not set
 # CONFIG_UnblockNeteaseMusic_NodeJS is not set
 
+#jd-dailybonus
+CONFIG_PACKAGE_luci-app-jd-dailybonus=y
+
 #docker support
 #CONFIG_PACKAGE_luci-app-dockerman=y
 #CONFIG_PACKAGE_luci-lib-docker=y
