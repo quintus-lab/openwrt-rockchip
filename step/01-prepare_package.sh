@@ -36,8 +36,10 @@ svn co https://github.com/openwrt/luci/branches/openwrt-18.06/applications/luci-
 sed -i 's/0/1/g' feeds/packages/utils/irqbalance/files/irqbalance.config
 #wget -P package/base-files/files/usr/bin/ https://github.com/QiuSimons/R2S-OpenWrt/raw/master/PATCH/irq_optimize.sh
 #wget -P package/base-files/files/etc/init.d/ https://github.com/QiuSimons/R2S-OpenWrt/raw/master/PATCH/irq_optimize
-cp -f ../patches/irq_optimize.sh package/base-files/files/etc/init.d/ 
-cp -f ../patches/irq_optimize package/base-files/files/etc/init.d/
+#cp -f ../patches/irq_optimize.sh package/base-files/files/etc/init.d/ 
+#cp -f ../patches/irq_optimize package/base-files/files/etc/init.d/
+cp -f ../patches/adjust_network package/base-files/files/etc/init.d/adjust_network
+
 #定时重启
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-autoreboot package/lean/luci-app-autoreboot
 #AdGuard
