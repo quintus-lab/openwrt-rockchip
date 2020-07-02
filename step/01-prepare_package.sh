@@ -34,12 +34,9 @@ svn co https://github.com/openwrt/packages/branches/openwrt-18.06/net/ddns-scrip
 svn co https://github.com/openwrt/luci/branches/openwrt-18.06/applications/luci-app-ddns feeds/luci/applications/luci-app-ddns
 #irqbalance
 sed -i 's/0/1/g' feeds/packages/utils/irqbalance/files/irqbalance.config
-#wget -P package/base-files/files/usr/bin/ https://github.com/QiuSimons/R2S-OpenWrt/raw/master/PATCH/irq_optimize.sh
-#wget -P package/base-files/files/etc/init.d/ https://github.com/QiuSimons/R2S-OpenWrt/raw/master/PATCH/irq_optimize
-#cp -f ../patches/irq_optimize.sh package/base-files/files/etc/init.d/ 
-#cp -f ../patches/irq_optimize package/base-files/files/etc/init.d/
-cp -f ../patches/adjust_network package/base-files/files/etc/init.d/adjust_network
-
+cp -f ../patches/adjust_network package/base-files/files/etc/init.d/zzz-adjust_network
+#scons patch
+wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
 #定时重启
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-autoreboot package/lean/luci-app-autoreboot
 #AdGuard
