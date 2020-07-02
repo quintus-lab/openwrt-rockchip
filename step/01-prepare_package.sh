@@ -34,7 +34,7 @@ svn co https://github.com/openwrt/packages/branches/openwrt-18.06/net/ddns-scrip
 svn co https://github.com/openwrt/luci/branches/openwrt-18.06/applications/luci-app-ddns feeds/luci/applications/luci-app-ddns
 #irqbalance
 sed -i 's/0/1/g' feeds/packages/utils/irqbalance/files/irqbalance.config
-cp -f ../patches/adjust_network package/base-files/files/etc/init.d/zzz-adjust_network
+cp -f ../patches/zzz-adjust_network package/base-files/files/etc/init.d/zzz-adjust_network
 #scons patch
 wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
 #定时重启
