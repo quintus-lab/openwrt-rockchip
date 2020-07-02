@@ -34,6 +34,10 @@ CONFIG_OPENSSL_WITH_PSK=y
 CONFIG_OPENSSL_WITH_SRP=y
 CONFIG_OPENSSL_WITH_TLS13=y
 
+#SFE
+CONFIG_PACKAGE_kmod-shortcut-fe-cm=y
+CONFIG_PACKAGE_kmod-fast-classifier=y
+
 #OLED
 CONFIG_PACKAGE_luci-app-oled=y
 CONFIG_PACKAGE_luci-i18n-oled-zh-cn=y

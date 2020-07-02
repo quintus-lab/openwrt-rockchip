@@ -11,11 +11,58 @@ sed -i 's,SNAPSHOT,,g' include/version.mk
 sed -i 's,snapshots,,g' package/base-files/image-config.in
 #更新feed
 ./scripts/feeds update -a && ./scripts/feeds install -a
-#arpbind
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-arpbind package/lean/luci-app-arpbind
 #O3
 sed -i 's/Os/O3/g' include/target.mk
 sed -i 's/O2/O3/g' ./rules.mk
+#irqbalance
+sed -i 's/0/1/g' feeds/packages/utils/irqbalance/files/irqbalance.config
+cp -f ../patches/zzz-adjust_network package/base-files/files/etc/init.d/zzz-adjust_network
+#scons patch
+wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
+#patch jsonc
+patch -p1 < ../patches/use_json_object_new_int64.patch
+#dnsmasq aaaa filter
+patch -p1 < ../patches/dnsmasq-add-filter-aaaa-option.patch
+patch -p1 < ../patches/luci-add-filter-aaaa-option.patch
+cp -f ../patches/900-add-filter-aaaa-option.patch ./package/network/services/dnsmasq/patches/900-add-filter-aaaa-option.patch
+#FullCone Patch
+git clone -b master --single-branch https://github.com/QiuSimons/openwrt-fullconenat package/fullconenat
+# Patch FireWall for fullcone
+mkdir package/network/config/firewall/patches
+wget -P package/network/config/firewall/patches/ https://github.com/LGA1150/fullconenat-fw3-patch/raw/master/fullconenat.patch
+# Patch LuCI for fullcone
+pushd feeds/luci
+wget -O- https://github.com/LGA1150/fullconenat-fw3-patch/raw/master/luci.patch | git apply
+popd
+#Patch Kernel for fullcone
+pushd target/linux/generic/hack-5.4
+wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/target/linux/generic/hack-5.4/952-net-conntrack-events-support-multiple-registrant.patch
+popd
+#Patch FireWall for SFE
+patch -p1 < ../patches/luci-app-firewall_add_sfe_switch.patch
+# SFE kernel patch
+pushd target/linux/generic/hack-5.4
+wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/target/linux/generic/hack-5.4/999-shortcut-fe-support.patch
+popd
+svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/shortcut-fe package/new/shortcut-fe
+cp -f ../patches/shortcut-fe package/base-files/files/etc/init.d/shortcut-fe
+#
+#patch config-5.4 support docker
+echo '
+CONFIG_CGROUP_HUGETLB=y
+CONFIG_CGROUP_NET_PRIO=y
+CONFIG_EXT4_FS_SECURITY=y
+CONFIG_IPVLAN=y
+CONFIG_DM_THIN_PROVISIONING=y
+' >> ./target/linux/rockchip/armv8/config-5.4
+#
+#update new version GCC
+rm -rf ./feeds/packages/devel/gcc
+svn co https://github.com/openwrt/packages/trunk/devel/gcc feeds/packages/devel/gcc
+#
+#Additional package
+#arpbind
+svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-arpbind package/lean/luci-app-arpbind
 #AutoCore
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/lean/autocore package/lean/autocore
 sed -i "s,@TARGET_x86 ,,g" package/lean/autocore/Makefile
@@ -32,11 +79,6 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ddns-scripts_aliy
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ddns-scripts_dnspod package/lean/ddns-scripts_dnspod
 svn co https://github.com/openwrt/packages/branches/openwrt-18.06/net/ddns-scripts feeds/packages/net/ddns-scripts
 svn co https://github.com/openwrt/luci/branches/openwrt-18.06/applications/luci-app-ddns feeds/luci/applications/luci-app-ddns
-#irqbalance
-sed -i 's/0/1/g' feeds/packages/utils/irqbalance/files/irqbalance.config
-cp -f ../patches/zzz-adjust_network package/base-files/files/etc/init.d/zzz-adjust_network
-#scons patch
-wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
 #定时重启
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-autoreboot package/lean/luci-app-autoreboot
 #AdGuard
@@ -67,10 +109,6 @@ git clone -b master --single-branch https://github.com/aa65535/openwrt-simple-ob
 svn co https://github.com/coolsnowwolf/packages/trunk/net/shadowsocks-libev package/lean/shadowsocks-libev
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
 svn co https://github.com/project-openwrt/openwrt/trunk/package/lean/tcpping package/lean/tcpping
-#dnsmasq aaaa filter
-patch -p1 < ../patches/dnsmasq-add-filter-aaaa-option.patch
-patch -p1 < ../patches/luci-add-filter-aaaa-option.patch
-cp -f ../patches/900-add-filter-aaaa-option.patch ./package/network/services/dnsmasq/patches/900-add-filter-aaaa-option.patch
 #订阅转换
 #svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/subconverter package/new/subconverter
 #svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/jpcre2 package/new/jpcre2
@@ -128,28 +166,16 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-syncdial
 #svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-mwan3 feeds/luci/applications/luci-app-mwan3
 #svn co https://github.com/coolsnowwolf/packages/trunk/net/mwan3 feeds/packages/net/mwan3
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-mwan3helper package/lean/luci-app-mwan3helper
+#Zerotier
+git clone https://github.com/rufengsuixing/luci-app-zerotier package/lean/luci-app-zerotier
+svn co https://github.com/coolsnowwolf/packages/trunk/net/zerotier package/lean/zerotier
 #OLED display
 git clone https://github.com/natelol/luci-app-oled package/natelol/luci-app-oled
 #CF811AC wifi driver
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-18.06-dev/package/ctcgfw/rtl8821cu package/rtl8821cu
 #mkdir package/base-files/files/etc/hotplug.d/usb
 #wget -P package/base-files/files/etc/hotplug.d/usb https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/package/base-files/files/etc/hotplug.d/usb/31-usb_wifi
-#Zerotier
-git clone https://github.com/rufengsuixing/luci-app-zerotier package/lean/luci-app-zerotier
-svn co https://github.com/coolsnowwolf/packages/trunk/net/zerotier package/lean/zerotier
-#FullCone Patch
-git clone -b master --single-branch https://github.com/QiuSimons/openwrt-fullconenat package/fullconenat
-# FireWall Patch
-mkdir package/network/config/firewall/patches
-wget -P package/network/config/firewall/patches/ https://github.com/LGA1150/fullconenat-fw3-patch/raw/master/fullconenat.patch
-# Patch LuCI
-pushd feeds/luci
-wget -O- https://github.com/LGA1150/fullconenat-fw3-patch/raw/master/luci.patch | git apply
-popd
-# Patch Kernel
-pushd target/linux/generic/hack-5.4
-wget https://raw.githubusercontent.com/project-openwrt/openwrt/18.06-kernel5.4/target/linux/generic/hack-5.4/952-net-conntrack-events-support-multiple-registrant.patch
-popd
+#
 #最大连接
 sed -i 's/16384/65536/g' package/kernel/linux/files/sysctl-nf-conntrack.conf
 #翻译
@@ -161,15 +187,6 @@ rm -rf .config
 #修正架构
 sed -i "s,boardinfo.system,'ARMv8',g" feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 chmod -R 755 ./
-#patch config-5.4 support docker
-echo '
-CONFIG_CGROUP_HUGETLB=y
-CONFIG_CGROUP_NET_PRIO=y
-CONFIG_EXT4_FS_SECURITY=y
-CONFIG_IPVLAN=y
-CONFIG_DM_THIN_PROVISIONING=y
-' >> ./target/linux/rockchip/armv8/config-5.4
-#
 echo -e '\nQuintus Build @ '$(date "+%Y.%m.%d")'\n'  >> package/base-files/files/etc/banner
 sed -i '/DISTRIB_REVISION/d' package/base-files/files/etc/openwrt_release
 echo "DISTRIB_REVISION='$(date "+%Y.%m.%d")'" >> package/base-files/files/etc/openwrt_release
