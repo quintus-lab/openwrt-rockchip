@@ -35,5 +35,6 @@ dd if=/tmp/upload/openwrt.img of=/dev/mmcblk0 conv=fsync
 
 #### Openwrt原生系統截圖：
 ![bootstrap](pic/bootstrap.png)
+![R2S NAT Throughput](pic/NAT_Throughput.jpg)
 
 #### Friendlywrt只是用作给一块开发板点亮，各种功能需要杂交移植，随着原生Openwrt对R2S的成熟支持，个人认为Friendlywrt的历史使命已完结。仅保留下Friendlywrt过往编译版本，不再作任何编译更新<br> 
