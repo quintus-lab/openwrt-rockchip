@@ -161,6 +161,7 @@ git clone -b master --single-branch https://github.com/destan19/OpenAppFilter pa
 #jd-dailybonus
 git clone https://github.com/jerrykuku/node-request package/lean/node-request
 git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-app-jd-dailybonus
+wget -O package/lean/luci-app-jd-dailybonus/root/usr/share/jd-dailybonus/JD_DailyBonus.js https://github.com/NobyDa/Script/raw/master/JD-DailyBonus/JD_DailyBonus.js
 #
 #frp
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
