@@ -1,5 +1,5 @@
 #### OpenWrt原生源码+Simons的patch编译，使用前请仔细阅读如下说明：
-1. 原版主线OpenWrt，内核5.4，Luci 19.07+SNAPSHOT均当日最新，默认开启BBR。
+1. 原版主线OpenWrt，内核5.4，Luci 19.07+SNAPSHOT均当日最新，默认开启BBR，默认开启SFE流量分载。
 2. Full版包含adguard home、ssr-plus、docker、ttyd、zerotier、transmission、smartdns、samba4、openclash、frpc/frps、trojan server、应用过滤、ddns、多线多拨（单线多拨无法叠加带宽）等功能
 3. Slim版仅有ssrp、trojan-server、frpc/frps、ddns、应用过滤、zerotier及transmission、京东签到等常用功能。 
 4. 管理地址: 192.168.1.1 默认空密码

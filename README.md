@@ -1,5 +1,5 @@
 #### OpenWrt原生源码+Simons的patch编译，使用前请仔细阅读如下说明：
-1. 原版主线OpenWrt，内核5.4，Luci 19.07+SNAPSHOT均当日最新，默认开启BBR。
+1. 原版主线OpenWrt，内核5.4，Luci 19.07+SNAPSHOT均当日最新，默认开启BBR，默认开启SFE流量分载。
 2. Full版包含adguard home、ssr-plus、docker、ttyd、zerotier、transmission、smartdns、samba4、openclash、frpc/frps、trojan server、应用过滤、ddns、多线多拨（单线多拨无法叠加带宽）等功能
 3. Slim版仅有ssrp、trojan-server、frpc/frps、ddns、应用过滤、zerotier及transmission，京东签到等常用功能。 
 3. 管理地址: 192.168.1.1 默认空密码
@@ -36,20 +36,21 @@ dd if=/tmp/upload/openwrt.img of=/dev/mmcblk0 conv=fsync
 #### Openwrt原生系統截圖：
 ![bootstrap](pic/bootstrap.png)
 
-#### Friendlywrt只是用作给一块开发板点亮，各种功能需要杂交移植，随着原生Openwrt对R2S的成熟支持，个人认为Friendlywrt的历史使命已完结。<br> 
+#### Friendlywrt只是用作给一块开发板点亮，各种功能需要杂交移植，随着原生Openwrt对R2S的成熟支持，个人认为Friendlywrt的历史使命已完结。仅保留下Friendlywrt过往编译版本，不再作任何编译更新<br> 
 
-#### 保留下Friendlywrt的数个编译版本，不再作任何编译更新，下载见[FriendlyWrt-R2S固件](https://github.com/quintus-lab/Openwrt-R2S/releases/tag/FriendlyWrt)<br> 
 按应用筛选分成3版本，均不包含任何广告拦截应用。
 1. 极简的tiny版，仅包含ssr-plus、ddns(不支持任何USB无线网卡，支持U盘)
 2. 瘦身的slim版，包括有ssr-plus、frpc/frps、ttyd、zerotier（支持部分USB无线网卡，只测试过811AC）
 3. 定制opt版在精简版基础上增加docker、transmission、等较常用功能等。（支持部分USB无线网卡，只测试过811AC）
 4. 默认管理地址:192.168.2.1  用户名:root  密码:password
+5. 下载见[FriendlyWrt-R2S固件](https://github.com/quintus-lab/Openwrt-R2S/releases/tag/FriendlyWrt)<br> 
+
 #### Friendlywrt版R2S刷机方法：
-7. 使用gary lau的在线更新脚本，可选择保存配置升级，或下载固件后通过web管理页的“文件传输”上传到更新，支持多种R2S编译版本互刷，通过web管理页面的TTYD或SSH到R2S后执行下载脚本并执行：<br> 
+6. 使用gary lau的在线更新脚本，可选择保存配置升级，或下载固件后通过web管理页的“文件传输”上传到更新，支持多种R2S编译版本互刷，通过web管理页面的TTYD或SSH到R2S后执行下载脚本并执行：<br> 
 ```
 wget -q https://github.com/quintus-lab/Openwrt-R2S/raw/master/script/update.sh && sh ./update.sh
 ```
-8. 4.18之后固件已预装[songchenwen](https://github.com/songchenwen/nanopi-r2s)大佬的R2S刷机，可在web页面直接升级，与通常的OpenWrt刷机方法无异 <br> 
+7. 4.18之后固件已预装[songchenwen](https://github.com/songchenwen/nanopi-r2s)大佬的R2S刷机，可在web页面直接升级，与通常的OpenWrt刷机方法无异 <br> 
 [R2S刷机IPK链接](https://github.com/quintus-lab/Openwrt-R2S/raw/master/other/luci-app-r2sflasher_1.0-4_all.ipk) 
 
 #### Friendlywrt截圖：
