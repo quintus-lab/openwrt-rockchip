@@ -45,7 +45,8 @@ pushd target/linux/generic/hack-5.4
 wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/target/linux/generic/hack-5.4/999-shortcut-fe-support.patch
 popd
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/shortcut-fe package/new/shortcut-fe
-cp -f ../patches/shortcut-fe package/base-files/files/etc/init.d/shortcut-fe
+svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/fast-classifier package/new/fast-classifier
+#cp -f ../patches/shortcut-fe package/base-files/files/etc/init.d/shortcut-fe
 #
 #patch config-5.4 support docker
 echo '
