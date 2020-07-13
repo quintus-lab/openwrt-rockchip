@@ -14,11 +14,11 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/origin-full.yml'
+      - '.github/workflows/customization.yml'
       - 'step/01-prepare_package.sh'
       - 'seed/cod.seed'
-  schedule:
-    - cron: 35 20 * * *
+#  schedule:
+#    - cron: 35 20 * * *
   watch:
     types: started
 
@@ -27,7 +27,7 @@ env:
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: false
   UPLOAD_RELEASE: true
-  CONFIG_FILE: origin-full.seed
+  CONFIG_FILE: cod.seed
   TZ: Asia/Shanghai
 
 jobs:
@@ -109,7 +109,7 @@ jobs:
           cd ./artifact/
           gzip -d *.gz && exit 0
           gzip *.img
-          zip R2S-full-$(date +%Y-%m-%d)-squashfs.zip *.img*
+          zip R2S-cod-$(date +%Y-%m-%d)-squashfs.zip *.img*
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
           release_tag="R2S-origin-full ${{ env.DATE }}"
