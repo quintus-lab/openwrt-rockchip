@@ -105,11 +105,12 @@ jobs:
         run: |
           rm -rf ./artifact/
           mkdir -p ./artifact/
-          mv openwrt/bin/targets/*/*/*squashfs-sysupgrade.img* ./artifact/
+          mv openwrt/bin/targets/*/*/*sysupgrade.img* ./artifact/
           cd ./artifact/
           gzip -d *.gz && exit 0
           gzip *.img
-          zip R2S-full-$(date +%Y-%m-%d)-squashfs.zip *.img*
+          zip R2S-full-$(date +%Y-%m-%d)-squashfs.zip *squashfs*
+          zip R2S-full-$(date +%Y-%m-%d)-ext4.zip *ext4*
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
           release_tag="R2S-origin-full ${{ env.DATE }}"
