@@ -9,6 +9,8 @@ wget https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/feeds.conf.
 #remove annoying snapshot tag
 sed -i 's,SNAPSHOT,,g' include/version.mk
 sed -i 's,snapshots,,g' package/base-files/image-config.in
+#scons patch
+wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
 #更新feed
 ./scripts/feeds update -a && ./scripts/feeds install -a
 #O3
@@ -17,8 +19,6 @@ sed -i 's/O2/O3/g' ./rules.mk
 #irqbalance
 sed -i 's/0/1/g' feeds/packages/utils/irqbalance/files/irqbalance.config
 cp -f ../patches/zzz-adjust_network package/base-files/files/etc/init.d/zzz-adjust_network
-#scons patch
-wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
 #patch jsonc
 patch -p1 < ../patches/use_json_object_new_int64.patch
 #dnsmasq aaaa filter
