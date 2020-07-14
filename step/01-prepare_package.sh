@@ -146,6 +146,8 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-v2ray-se
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-ssrserver-python package/luci-app-ssrserver-python
 #OpenClash
 svn co https://github.com/vernesong/OpenClash/branches/master/luci-app-openclash package/new/luci-app-openclash
+#luci-app-openclash
+git clone https://github.com/frainzy1477/luci-app-clash.git package/luci-app-clash
 #passwall
 svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-passwall package/lienol/luci-app-passwall
 #passwall depends
