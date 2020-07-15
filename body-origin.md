@@ -1,7 +1,7 @@
 #### OpenWrt原生源码+Simons的patch编译，使用前请仔细阅读如下说明：
 ***如果厌烦TF上squashfs更新系统可能无法真正清除upper layer，请直接使用ext4的版本**
 1. 原版主线OpenWrt，内核5.4，Luci 19.07+SNAPSHOT均当日最新，默认开启BBR，默认开启SFE流量分载。
-2. Slim版是一个仅有ssrp、trojan-server、frpc/frps、ddns、ttyd、zerotier及transmission、京东签到等常用功能自用版本，也自带有stress\dig\ss\cfdisk\iftop\ifstat\iperf3\wget\nmap等工具。
+2. SlIM版是一个仅有ssrp、trojan-server、frpc/frps、ddns、ttyd、zerotier及transmission、京东签到等常用功能自用版本，有些组件可能会随时增减，cli下有stress\dig\ss\cfdisk\iftop\ifstat\iperf3\wget\nmap等工具。
 3. 管理地址: 192.168.1.1 默认空密码
 4. 驱动原因，暂只支持rtl8192cu芯片(仅2.4G)及mt76x2u芯片USB无线网卡，rtl8821cu/8811cu的驱动未测试通过，MT7601的驱动不支持AP模式。
 5. 已测试支持Hilink模式的4G USB上网卡，NCM模式测试中。
@@ -15,6 +15,6 @@
 ```
 dd if=/tmp/upload/openwrt.img of=/dev/mmcblk0 conv=fsync
 ```
-13. 为避免写卡没有覆盖完全，建议首次启动后先运行firstboot清除再重启一次
+13. 为避免写卡没有覆盖完全，刷卡或升级后首次启动，建议先运行firstboot清除overlay再重启一次，或者直接使用ext4版。
 14. 上游代码及编译yml更新频繁。自用测试固件，风险自负，不提供任何DaaS.
-15. Full版故名思义大而全，包含adguard home、ssr-plus、docker、ttyd、zerotier、transmission、smartdns、samba4、openclash、frpc/frps、trojan server、应用过滤、ddns、多线多拨（单线多拨无法叠加带宽）等等等……主要还是多了个docker和多拨吧。
+15. Full版不再更新，大而全没什么意思，因为加了docker的组件，反而会导致ssr-plus的udp转发会有问题。
