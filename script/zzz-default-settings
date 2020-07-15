@@ -36,7 +36,7 @@ ln -sf /sbin/ip /usr/bin/ip
 opkg flag hold luci-app-ddns
 opkg flag hold luci-i18n-ddns-zh-cn
 opkg flag hold ddns-scripts
-opkg flag hold ddns-scripts_cloudflare.com-v4
+#opkg flag hold ddns-scripts_cloudflare.com-v4
 opkg flag hold luci-app-firewall
 opkg flag hold firewall
 opkg flag hold dnsmasq-full
@@ -45,7 +45,7 @@ uci delete network.lan.ip6assign
 uci delete network.wan6
 uci delete dhcp.lan.ra
 uci delete dhcp.lan.dhcpv6
-uci delete dhcp.lan.ndp
+#uci delete dhcp.lan.ndp
 uci commit
 
 exit 0
