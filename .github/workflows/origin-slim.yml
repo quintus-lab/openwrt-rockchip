@@ -111,7 +111,7 @@ jobs:
           cd ./artifact/
           gzip -d *.gz && exit 0
           gzip *.img
-          zip R2S-slim-$(date +%Y-%m-%d)-squashfs.zip *quashfs*
+          zip R2S-slim-$(date +%Y-%m-%d)-squashfs.zip *squashfs*
           zip R2S-slim-$(date +%Y-%m-%d)-ext4.zip *ext4*
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"

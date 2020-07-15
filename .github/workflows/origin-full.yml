@@ -94,12 +94,13 @@ jobs:
           cd openwrt
           let make_process=$(nproc)+1
           make toolchain/install -j${make_process} V=s
+          df -h
       - name: Compile Openwrt
         run: |
           cd openwrt
           let make_process=$(nproc)+1
           make -j${make_process} V=s || make -j${make_process} V=s
-
+          df -h
       - name: Organize files
         id: organize
         run: |
