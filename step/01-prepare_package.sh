@@ -236,5 +236,5 @@ echo -e '\nQuintus Build @ '$(date "+%Y.%m.%d")'\n'  >> package/base-files/files
 sed -i '/DISTRIB_REVISION/d' package/base-files/files/etc/openwrt_release
 echo "DISTRIB_REVISION='$(date "+%Y.%m.%d")'" >> package/base-files/files/etc/openwrt_release
 sed -i '/DISTRIB_DESCRIPTION/d' package/base-files/files/etc/openwrt_release
-echo "DISTRIB_DESCRIPTION='Quintus Build'" >> package/base-files/files/etc/openwrt_release
+echo "DISTRIB_DESCRIPTION='Quintus Build@$(date "+%Y.%m.%d")" >> package/base-files/files/etc/openwrt_release
 exit 0
