@@ -52,6 +52,7 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/fast-classifier p
 #
 #patch config-5.4 support docker
 echo '
+CONFIG_ROCKCHIP_THERMAL=y
 CONFIG_CGROUP_HUGETLB=y
 CONFIG_CGROUP_NET_PRIO=y
 CONFIG_EXT4_FS_SECURITY=y
@@ -143,8 +144,8 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-v2ray-se
 #ssr-server-python
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-ssrserver-python package/luci-app-ssrserver-python
 #OpenClash
-svn co https://github.com/vernesong/OpenClash/branches/master/luci-app-openclash package/new/luci-app-openclash
-#luci-app-openclash
+svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/new/luci-app-openclash
+#luci-app-clash
 git clone https://github.com/frainzy1477/luci-app-clash.git package/luci-app-clash
 #passwall
 svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-passwall package/lienol/luci-app-passwall
@@ -168,11 +169,10 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-ramfree 
 #打印机
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-usb-printer package/lean/luci-app-usb-printer
 #流量监视
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-wrtbwmon package/lean/luci-app-wrtbwmon
+git clone -b master --single-branch https://github.com/brvphoenix/wrtbwmon package/new/wrtbwmon
+git clone -b master --single-branch https://github.com/brvphoenix/luci-app-wrtbwmon package/new/luci-app-wrtbwmon
 #流量监管
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-netdata package/lean/luci-app-netdata
-#OpenClash
-svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/new/luci-app-openclash
 #SeverChan
 git clone -b master --single-branch https://github.com/tty228/luci-app-serverchan package/new/luci-app-serverchan
 #iputils
@@ -225,7 +225,8 @@ svn co https://github.com/coolsnowwolf/packages/trunk/net/zerotier package/lean/
 git clone https://github.com/natelol/luci-app-oled package/natelol/luci-app-oled
 
 #CF811AC wifi driver
-svn co https://github.com/project-openwrt/openwrt/branches/openwrt-18.06-dev/package/ctcgfw/rtl8821cu package/rtl8821cu
+#svn co https://github.com/project-openwrt/openwrt/branches/openwrt-18.06-dev/package/ctcgfw/rtl8821cu package/rtl8821cu
+svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/rtl8821cu package/ctcgfw/rtl8821cu
 #mkdir package/base-files/files/etc/hotplug.d/usb
 #wget -P package/base-files/files/etc/hotplug.d/usb https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/package/base-files/files/etc/hotplug.d/usb/31-usb_wifi
 #
