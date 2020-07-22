@@ -190,9 +190,14 @@ git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-
 wget -O package/lean/luci-app-jd-dailybonus/root/usr/share/jd-dailybonus/JD_DailyBonus.js https://github.com/NobyDa/Script/raw/master/JD-DailyBonus/JD_DailyBonus.js
 #
 #frp
+rm -f ./feeds/luci/applications/luci-app-frps
+rm -f ./package/feeds/luci/luci-app-frps
+rm -f ./feeds/luci/applications/luci-app-frpc
+rm -f ./package/feeds/luci/luci-app-frpc
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/leanfrp
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/lean/frp
+
 #beardropper
 git clone https://github.com/NateLol/luci-app-beardropper package/luci-app-beardropper
 #trojan server
