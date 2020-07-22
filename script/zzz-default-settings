@@ -24,7 +24,10 @@ uci set uhttpd.main.redirect_https=0
 uci commit uhttpd
 
 #sed -i 's,/opt,/overlay,g' /etc/config/dockerman
-
+#SSL
+sed -i 's,#afalg,afalg,g' /etc/ssl/openssl.cnf
+sed -i 's/#devcrypto/devcrypto/g' /etc/ssl/openssl.cnf
+sed -i 's/#USE_SOFTDRIVERS = 2/USE_SOFTDRIVERS = 1/g' /etc/ssl/openssl.cnf
 sed -i '/log-facility/d' /etc/dnsmasq.conf
 echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
 
