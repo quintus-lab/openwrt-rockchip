@@ -116,7 +116,7 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-adbyby-p
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/adbyby package/lean/coremark/adbyby
 #gost
 svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/gost package/ctcgfw/gost
-svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-gost package/ctcgfw/luci-app-gost
+svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-gost feeds/luci/applications/luci-app-gost
 #SSRP
 svn co https://github.com/fw876/helloworld/trunk/luci-app-ssr-plus package/lean/luci-app-ssr-plus
 rm -rf ./package/lean/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm
