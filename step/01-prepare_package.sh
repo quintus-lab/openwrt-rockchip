@@ -48,8 +48,9 @@ wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/target/linux/gen
 popd
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/shortcut-fe package/new/shortcut-fe
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/fast-classifier package/new/fast-classifier
-#cp -f ../patches/shortcut-fe package/base-files/files/etc/init.d/shortcut-fe
-#
+#Over Clock to 1.6G
+cp -f ../patches/999-unlock-1608mhz-rk3328.patch ./target/linux/rockchip/patches-5.4/999-unlock-1608mhz-rk3328.patch
+
 #patch config-5.4 support docker
 echo '
 CONFIG_ROCKCHIP_THERMAL=y
@@ -148,7 +149,8 @@ svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/n
 #luci-app-clash
 git clone https://github.com/frainzy1477/luci-app-clash.git package/luci-app-clash
 #passwall
-svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-passwall package/lienol/luci-app-passwall
+#svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-passwall package/lienol/luci-app-passwall
+git clone -b master --single-branch https://github.com/xnxy2012/luci-app-passwall.git package/lienol/luci-app-passwall
 #passwall depends
 svn co https://github.com/Lienol/openwrt-package/trunk/package/chinadns-ng package/lienol/chinadns-ng
 svn co https://github.com/Lienol/openwrt-package/trunk/package/tcping package/lienol/tcping
@@ -225,7 +227,8 @@ svn co https://github.com/coolsnowwolf/packages/trunk/net/zerotier package/lean/
 git clone https://github.com/natelol/luci-app-oled package/natelol/luci-app-oled
 #fix zstd
 rm -rf ./feeds/packages/utils/zstd
-svn co https://github.com/project-openwrt/packages/trunk/utils/zstd feeds/packages/utils/zstd
+#svn co https://github.com/project-openwrt/packages/trunk/utils/zstd feeds/packages/utils/zstd
+svn co https://github.com/QiuSimons/Others/trunk/zstd feeds/packages/utils/zstd
 
 #CF811AC wifi driver
 #svn co https://github.com/project-openwrt/openwrt/branches/openwrt-18.06-dev/package/ctcgfw/rtl8821cu package/rtl8821cu
