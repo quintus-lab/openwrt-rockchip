@@ -203,6 +203,9 @@ rm -f ./package/feeds/luci/luci-app-frpc
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/lean/frp
+#tmate
+svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/tmate package/ctcgfw/tmate
+svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/msgpack-c package/ctcgfw/msgpack-c
 
 #beardropper
 git clone https://github.com/NateLol/luci-app-beardropper package/luci-app-beardropper
