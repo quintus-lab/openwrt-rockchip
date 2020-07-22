@@ -208,7 +208,9 @@ git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frp
 #tmate
 svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/tmate package/ctcgfw/tmate
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/msgpack-c package/ctcgfw/msgpack-c
-
+#
+svn co https://github.com/project-openwrt/openwrt/branches/master/package/lean/luci-app-cpufreq package/lean/luci-app-cpufreq
+patch -p1 < ../patches/luci-app-freq.patch
 #beardropper
 git clone https://github.com/NateLol/luci-app-beardropper package/luci-app-beardropper
 #trojan server
