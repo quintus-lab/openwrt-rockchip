@@ -21,6 +21,12 @@ sed -i 's/0/1/g' feeds/packages/utils/irqbalance/files/irqbalance.config
 cp -f ../patches/zzz-adjust_network package/base-files/files/etc/init.d/zzz-adjust_network
 #patch rk-crypto
 patch -p1 < ../patches/kernel_crypto-add-rk3328-crypto-support.patch
+
+#patch i2c0
+cp -f ../patches/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch ./target/linux/rockchip/patches-5.4/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch
+#patch r8152 led
+cp -f ../patches/991-r8152-Add-module-param-for-customized-LEDs.patch ./target/linux/rockchip/patches-5.4/991-r8152-Add-module-param-for-customized-LEDs.patch
+
 #patch jsonc
 patch -p1 < ../patches/use_json_object_new_int64.patch
 #dnsmasq aaaa filter
