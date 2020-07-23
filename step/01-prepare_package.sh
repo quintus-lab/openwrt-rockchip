@@ -108,8 +108,8 @@ rm -rf ./package/feeds/packages/coremark
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/coremark package/lean/coremark
 sed -i 's,-DMULTIT,-Ofast -DMULTIT,g' package/lean/coremark/Makefile
 #DDNS
-rm -rf ./feeds/packages/net/ddns-scripts
-rm -rf ./feeds/luci/applications/luci-app-ddns
+#rm -rf ./feeds/packages/net/ddns-scripts
+#rm -rf ./feeds/luci/applications/luci-app-ddns
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ddns-scripts_aliyun package/lean/ddns-scripts_aliyun
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ddns-scripts_dnspod package/lean/ddns-scripts_dnspod
 #svn co https://github.com/openwrt/packages/branches/openwrt-18.06/net/ddns-scripts feeds/packages/net/ddns-scripts
