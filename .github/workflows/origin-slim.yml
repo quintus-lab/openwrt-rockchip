@@ -65,7 +65,6 @@ jobs:
 
       - name: Install OpenWrt source
         run: |
-#          git clone -b nanopi-r2s https://git.openwrt.org/openwrt/staging/blocktrron.git openwrt
           git clone https://git.openwrt.org/openwrt/openwrt.git
           cd openwrt
           patch -p1 < ../patches/rockchip-add-support-for-rk3328-radxa-rock-pi-e.patch
