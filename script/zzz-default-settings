@@ -47,16 +47,11 @@ sed -i 's/#USE_SOFTDRIVERS = 2/USE_SOFTDRIVERS = 1/g' /etc/ssl/openssl.cnf
 
 sed -i '/log-facility/d' /etc/dnsmasq.conf
 echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
-
 rm -rf /tmp/luci-modulecache/
 rm -f /tmp/luci-indexcache
-
 ln -sf /sbin/ip /usr/bin/ip
-
-
-
-opkg flag hold luci-app-ddns
-opkg flag hold luci-i18n-ddns-zh-cn
+#opkg flag hold luci-app-ddns
+#opkg flag hold luci-i18n-ddns-zh-cn
 #opkg flag hold ddns-scripts
 #opkg flag hold ddns-scripts_cloudflare.com-v4
 opkg flag hold luci-app-firewall

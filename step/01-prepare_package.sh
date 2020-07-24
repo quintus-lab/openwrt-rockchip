@@ -24,7 +24,7 @@ patch -p1 < ../patches/kernel_crypto-add-rk3328-crypto-support.patch
 #patch i2c0
 cp -f ../patches/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch ./target/linux/rockchip/patches-5.4/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch
 #patch r8152 led
-cp -f ../patches/991-r8152-Add-module-param-for-customized-LEDs.patch ./target/linux/rockchip/patches-5.4/991-r8152-Add-module-param-for-customized-LEDs.patch
+#cp -f ../patches/991-r8152-Add-module-param-for-customized-LEDs.patch ./target/linux/rockchip/patches-5.4/991-r8152-Add-module-param-for-customized-LEDs.patch
 #patch jsonc
 patch -p1 < ../patches/use_json_object_new_int64.patch
 #dnsmasq aaaa filter
@@ -199,15 +199,14 @@ wget -O package/lean/luci-app-jd-dailybonus/root/usr/share/jd-dailybonus/JD_Dail
 #
 #frp
 rm -f ./feeds/luci/applications/luci-app-frps
-rm -f ./package/feeds/luci/luci-app-frps
 rm -f ./feeds/luci/applications/luci-app-frpc
-rm -f ./package/feeds/luci/luci-app-frpc
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/lean/frp
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/lean/frp
 #onliner
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-onliner package/ctcgfw/luci-app-onliner
-
+#filetransfer
+svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/lean/luci-app-filetransfer package/lean/luci-app-filetransfer
 #tmate
 svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/tmate package/ctcgfw/tmate
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/msgpack-c package/ctcgfw/msgpack-c
