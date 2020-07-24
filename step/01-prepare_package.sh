@@ -4,8 +4,8 @@ clear
 VersionDate=$(git show -s --date=short --format="%cd")
 echo "::set-env name=VersionDate::$VersionDate"
 echo "::set-env name=DATE::$(date "+%Y-%m-%d %H:%M:%S")"
-#rm -f ./feeds.conf.default
-#wget https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/feeds.conf.default
+rm -f ./feeds.conf.default
+wget https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/feeds.conf.default
 #remove annoying snapshot tag
 sed -i 's,SNAPSHOT,,g' include/version.mk
 sed -i 's,snapshots,,g' package/base-files/image-config.in
@@ -149,27 +149,27 @@ svn co https://github.com/coolsnowwolf/packages/trunk/net/shadowsocks-libev pack
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
 svn co https://github.com/project-openwrt/openwrt/trunk/package/lean/tcpping package/lean/tcpping
 #v2ray-server
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-v2ray-server package/luci-app-v2ray-server
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-v2ray-server package/luci-app-v2ray-server
 #ssr-server-python
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-ssrserver-python package/luci-app-ssrserver-python
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-ssrserver-python package/luci-app-ssrserver-python
 #OpenClash
-svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/new/luci-app-openclash
+#svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash package/new/luci-app-openclash
 #luci-app-clash
-git clone https://github.com/frainzy1477/luci-app-clash.git package/luci-app-clash
+#git clone https://github.com/frainzy1477/luci-app-clash.git package/luci-app-clash
 #passwall
 #svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-passwall package/lienol/luci-app-passwall
-git clone -b master --single-branch https://github.com/xnxy2012/luci-app-passwall.git package/lienol/luci-app-passwall
+#git clone -b master --single-branch https://github.com/xnxy2012/luci-app-passwall.git package/lienol/luci-app-passwall
 #passwall depends
-svn co https://github.com/Lienol/openwrt-package/trunk/package/chinadns-ng package/lienol/chinadns-ng
-svn co https://github.com/Lienol/openwrt-package/trunk/package/tcping package/lienol/tcping
-svn co https://github.com/Lienol/openwrt-package/trunk/package/trojan-go package/lienol/trojan-go
+#svn co https://github.com/Lienol/openwrt-package/trunk/package/chinadns-ng package/lienol/chinadns-ng
+#svn co https://github.com/Lienol/openwrt-package/trunk/package/tcping package/lienol/tcping
+#svn co https://github.com/Lienol/openwrt-package/trunk/package/trojan-go package/lienol/trojan-go
 #svn co https://github.com/Lienol/openwrt-package/trunk/package/dns2socks package/lienol/dns2socks
 #svn co https://github.com/Lienol/openwrt-package/trunk/package/v2ray-plugin package/lienol/v2ray-plugin
 #svn co https://github.com/Lienol/openwrt-package/trunk/package/pdnsd-alt package/lienol/pdnsd-alt
-svn co https://github.com/Lienol/openwrt-package/trunk/package/openssl1.1 package/lienol/openssl1.1
-svn co https://github.com/Lienol/openwrt-package/trunk/package/simple-obfs package/lienol/simple-obfs
+#svn co https://github.com/Lienol/openwrt-package/trunk/package/openssl1.1 package/lienol/openssl1.1
+#svn co https://github.com/Lienol/openwrt-package/trunk/package/simple-obfs package/lienol/simple-obfs
 #edge主题
-git clone -b master --single-branch https://github.com/garypang13/luci-theme-edge package/new/luci-theme-edge
+#git clone -b master --single-branch https://github.com/garypang13/luci-theme-edge package/new/luci-theme-edge
 #订阅转换
 #svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/subconverter package/new/subconverter
 #svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/jpcre2 package/new/jpcre2
@@ -184,7 +184,7 @@ git clone -b master --single-branch https://github.com/brvphoenix/luci-app-wrtbw
 #流量监管
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-netdata package/lean/luci-app-netdata
 #SeverChan
-git clone -b master --single-branch https://github.com/tty228/luci-app-serverchan package/new/luci-app-serverchan
+#git clone -b master --single-branch https://github.com/tty228/luci-app-serverchan package/new/luci-app-serverchan
 #iputils
 svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/network/utils/iputils package/network/utils/iputils
 #SmartDNS
@@ -204,7 +204,7 @@ rm -f ./feeds/luci/applications/luci-app-frpc
 rm -f ./package/feeds/luci/luci-app-frpc
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
-#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/lean/frp
+svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/lean/frp
 #onliner
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-onliner package/ctcgfw/luci-app-onliner
 
@@ -225,22 +225,22 @@ svn co https://github.com/coolsnowwolf/packages/trunk/net/transmission feeds/pac
 svn co https://github.com/coolsnowwolf/packages/trunk/net/transmission-web-control feeds/packages/net/transmission-web-control
 svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-transmission feeds/luci/applications/luci-app-transmission
 #Dockerman
-git clone https://github.com/lisaac/luci-app-dockerman.git package/lean/luci-app-dockerman
-git clone https://github.com/lisaac/luci-lib-docker package/lean/luci-lib-docker
-svn co https://github.com/openwrt/packages/trunk/utils/docker-ce package/lean/docker-ce
-svn co https://github.com/openwrt/packages/trunk/utils/cgroupfs-mount package/lean/cgroupfs-mount
-svn co https://github.com/openwrt/packages/trunk/utils/libnetwork package/lean/libnetwork
-svn co https://github.com/openwrt/packages/trunk/utils/tini package/lean/tini
-svn co https://github.com/openwrt/packages/trunk/utils/containerd package/lean/containerd
-svn co https://github.com/openwrt/packages/trunk/utils/runc package/lean/runc
-svn co https://github.com/openwrt/packages/trunk/lang/golang package/lang/golang
+#git clone https://github.com/lisaac/luci-app-dockerman.git package/lean/luci-app-dockerman
+#git clone https://github.com/lisaac/luci-lib-docker package/lean/luci-lib-docker
+#svn co https://github.com/openwrt/packages/trunk/utils/docker-ce package/lean/docker-ce
+#svn co https://github.com/openwrt/packages/trunk/utils/cgroupfs-mount package/lean/cgroupfs-mount
+#svn co https://github.com/openwrt/packages/trunk/utils/libnetwork package/lean/libnetwork
+#svn co https://github.com/openwrt/packages/trunk/utils/tini package/lean/tini
+#svn co https://github.com/openwrt/packages/trunk/utils/containerd package/lean/containerd
+#svn co https://github.com/openwrt/packages/trunk/utils/runc package/lean/runc
+#svn co https://github.com/openwrt/packages/trunk/lang/golang package/lang/golang
 #multiwan support
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/lean/luci-app-syncdial package/lean/luci-app-syncdial
-#rm -rf feeds/packages/net/mwan3
-#rm -rf feeds/luci/applications/luci-app-mwan3
-#svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-mwan3 feeds/luci/applications/luci-app-mwan3
-#svn co https://github.com/coolsnowwolf/packages/trunk/net/mwan3 feeds/packages/net/mwan3
-#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-mwan3helper package/lean/luci-app-mwan3helper
+rm -rf feeds/packages/net/mwan3
+rm -rf feeds/luci/applications/luci-app-mwan3
+svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-mwan3 feeds/luci/applications/luci-app-mwan3
+svn co https://github.com/coolsnowwolf/packages/trunk/net/mwan3 feeds/packages/net/mwan3
+svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-mwan3helper package/lean/luci-app-mwan3helper
 #Zerotier
 git clone https://github.com/rufengsuixing/luci-app-zerotier package/lean/luci-app-zerotier
 svn co https://github.com/coolsnowwolf/packages/trunk/net/zerotier package/lean/zerotier

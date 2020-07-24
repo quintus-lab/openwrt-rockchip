@@ -34,7 +34,7 @@ uci commit uhttpd
 #sed -i 's,/opt,/overlay,g' /etc/config/dockerman
 
 #Mark
-echo -e '\nQuintus Build @ '$(date "+%Y.%m.%d")'\n'  >> package/base-files/files/etc/banner
+echo -e '\nQuintus Build @ '$(date "+%Y.%m.%d")'\n'  >> /etc/banner
 sed -i '/DISTRIB_REVISION/d' /etc/openwrt_release
 echo "DISTRIB_REVISION='$(date "+%Y.%m.%d")'" >> /etc/openwrt_release
 sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
@@ -67,8 +67,6 @@ uci delete network.lan.ip6assign
 uci delete network.wan6
 uci set dhcp.lan.ra=disabled
 uci set dhcp.lan.dhcpv6=disabled
-uci delete dhcp.lan.ra_management
-uci delete dhcp.lan.ndp
 uci commit 
 
 exit 0
