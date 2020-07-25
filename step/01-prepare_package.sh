@@ -54,7 +54,7 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/shortcut-fe packa
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/fast-classifier package/new/fast-classifier
 #Over Clock to 1.6G
 cp -f ../patches/999-unlock-1608mhz-rk3328.patch ./target/linux/rockchip/patches-5.4/999-unlock-1608mhz-rk3328.patch
-
+rm-f ./target/linux/rockchip/patches-5.4/004-unlock-1512mhz-rk3328.patch
 #patch config-5.4 support docker
 echo '
 CONFIG_ROCKCHIP_THERMAL=y
