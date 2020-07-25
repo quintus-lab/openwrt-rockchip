@@ -54,7 +54,7 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/shortcut-fe packa
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/fast-classifier package/new/fast-classifier
 #Over Clock to 1.6G
 cp -f ../patches/999-unlock-1608mhz-rk3328.patch ./target/linux/rockchip/patches-5.4/999-unlock-1608mhz-rk3328.patch
-rm-f ./target/linux/rockchip/patches-5.4/004-unlock-1512mhz-rk3328.patch
+rm -f ./target/linux/rockchip/patches-5.4/004-unlock-1512mhz-rk3328.patch
 #patch config-5.4 support docker
 echo '
 CONFIG_ROCKCHIP_THERMAL=y
@@ -191,7 +191,7 @@ svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/network
 svn co https://github.com/pymumu/smartdns/trunk/package/openwrt package/new/smartdns/smartdns
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ntlf9t/luci-app-smartdns package/new/smartdns/luci-app-smartdns
 #上网APP过滤
-git clone -b master --single-branch https://github.com/destan19/OpenAppFilter package/new/OpenAppFilter
+#git clone -b master --single-branch https://github.com/destan19/OpenAppFilter package/new/OpenAppFilter
 #jd-dailybonus
 git clone https://github.com/jerrykuku/node-request package/lean/node-request
 git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-app-jd-dailybonus
@@ -204,7 +204,8 @@ rm -rf ./feeds/packages/net/frp
 rm -f ./package/feeds/packages/frp
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp packages/lean/frp
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp packages/lean/frp
+svn co https://github.com/openwrt/packages/trunk/net/frp package/feeds/packages/frp
 #onliner
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-onliner package/ctcgfw/luci-app-onliner
 #filetransfer
