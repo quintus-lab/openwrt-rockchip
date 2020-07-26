@@ -33,7 +33,7 @@ patch -p1 < ../patches/luci-add-filter-aaaa-option.patch
 cp -f ../patches/900-add-filter-aaaa-option.patch ./package/network/services/dnsmasq/patches/900-add-filter-aaaa-option.patch
 #FullCone Patch
 git clone -b master --single-branch https://github.com/QiuSimons/openwrt-fullconenat package/fullconenat
-# Patch FireWall for fullcone
+# Patch FireWall for fullconeß
 mkdir package/network/config/firewall/patches
 wget -P package/network/config/firewall/patches/ https://github.com/LGA1150/fullconenat-fw3-patch/raw/master/fullconenat.patch
 # Patch LuCI for fullcone
@@ -201,15 +201,15 @@ git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-
 wget -O package/lean/luci-app-jd-dailybonus/root/usr/share/jd-dailybonus/JD_DailyBonus.js https://github.com/NobyDa/Script/raw/master/JD-DailyBonus/JD_DailyBonus.js
 #
 #frp
-rm -f ./feeds/luci/applications/luci-app-frps
-rm -f ./feeds/luci/applications/luci-app-frpc
-rm -rf ./feeds/packages/net/frp
-rm -f ./package/feeds/packages/frp
+#rm -f ./feeds/luci/applications/luci-app-frps
+#rm -f ./feeds/luci/applications/luci-app-frpc
+#rm -rf ./feeds/packages/net/frp
+#rm -f ./package/feeds/packages/frp
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp packages/lean/frp
 #svn co https://github.com/openwrt/packages/trunk/net/frp package/feeds/packages/frp
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
 
 #onliner
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-onliner package/ctcgfw/luci-app-onliner
@@ -227,11 +227,11 @@ git clone https://github.com/NateLol/luci-app-beardropper package/luci-app-beard
 #trojan server
 svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-trojan-server package/luci-app-trojan-server
 #transmission-web-control
-rm -rf ./feeds/packages/net/transmission*
-rm -rf ./feeds/luci/applications/luci-app-transmission/
-svn co https://github.com/coolsnowwolf/packages/trunk/net/transmission feeds/packages/net/transmission
-svn co https://github.com/coolsnowwolf/packages/trunk/net/transmission-web-control feeds/packages/net/transmission-web-control
-svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-transmission feeds/luci/applications/luci-app-transmission
+#rm -rf ./feeds/packages/net/transmission*
+#rm -rf ./feeds/luci/applications/luci-app-transmission/
+#svn co https://github.com/coolsnowwolf/packages/trunk/net/transmission feeds/packages/net/transmission
+#svn co https://github.com/coolsnowwolf/packages/trunk/net/transmission-web-control feeds/packages/net/transmission-web-control
+#svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-transmission feeds/luci/applications/luci-app-transmission
 #Dockerman
 #git clone https://github.com/lisaac/luci-app-dockerman.git package/lean/luci-app-dockerman
 #git clone https://github.com/lisaac/luci-lib-docker package/lean/luci-lib-docker
