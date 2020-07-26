@@ -4,13 +4,13 @@ clear
 VersionDate=$(git show -s --date=short --format="%cd")
 echo "::set-env name=VersionDate::$VersionDate"
 echo "::set-env name=DATE::$(date "+%Y-%m-%d %H:%M:%S")"
-rm -f ./feeds.conf.default
-wget https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/feeds.conf.default
+#rm -f ./feeds.conf.default
+#wget https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/feeds.conf.default
 #remove annoying snapshot tag
-sed -i 's,SNAPSHOT,,g' include/version.mk
-sed -i 's,snapshots,,g' package/base-files/image-config.in
+#sed -i 's,SNAPSHOT,,g' include/version.mk
+#sed -i 's,snapshots,,g' package/base-files/image-config.in
 #scons patch
-wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
+#wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
 #更新feed
 ./scripts/feeds update -a && ./scripts/feeds install -a
 #O3
@@ -96,6 +96,9 @@ CONFIG_SND_SOC_ROCKCHIP_SPDIF=m
 #update new version GCC
 rm -rf ./feeds/packages/devel/gcc
 svn co https://github.com/openwrt/packages/trunk/devel/gcc feeds/packages/devel/gcc
+#update new version Golang
+rm -rf ./feeds/packages/lang/golang
+svn co https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
 
 #Additional package
 #arpbind
