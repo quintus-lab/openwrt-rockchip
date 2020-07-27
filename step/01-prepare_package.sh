@@ -256,14 +256,9 @@ svn co https://github.com/project-openwrt/openwrt/branches/master/package/lean/l
 #svn co https://github.com/coolsnowwolf/packages/trunk/net/zerotier package/lean/zerotier
 #OLED display
 git clone https://github.com/natelol/luci-app-oled package/natelol/luci-app-oled
-#fix zstd
-rm -rf ./feeds/packages/utils/zstd
-#svn co https://github.com/project-openwrt/packages/trunk/utils/zstd feeds/packages/utils/zstd
-svn co https://github.com/QiuSimons/Others/trunk/zstd feeds/packages/utils/zstd
-
 #CF811AC wifi driver
 #svn co https://github.com/project-openwrt/openwrt/branches/openwrt-18.06-dev/package/ctcgfw/rtl8821cu package/rtl8821cu
-svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/rtl8821cu package/ctcgfw/rtl8821cu
+#svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/rtl8821cu package/ctcgfw/rtl8821cu
 #mkdir package/base-files/files/etc/hotplug.d/usb
 #wget -P package/base-files/files/etc/hotplug.d/usb https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/package/base-files/files/etc/hotplug.d/usb/31-usb_wifi
 #
