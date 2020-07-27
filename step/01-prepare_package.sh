@@ -126,9 +126,9 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-autorebo
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-adbyby-plus package/lean/luci-app-adbyby-plus
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/adbyby package/lean/coremark/adbyby
 #gost
-svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/gost package/ctcgfw/gost
+svn co https://github.com/project-openwrt/openwrt/branches/master/package/ctcgfw/gost package/ctcgfw/gost
 #svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-gost package/ctcgfw/luci-app-gost
-svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/luci-app-gost package/ctcgfw/luci-app-gost
+svn co https://github.com/project-openwrt/openwrt/branches/master/package/ctcgfw/luci-app-gost package/ctcgfw/luci-app-gost
 #SSRP
 svn co https://github.com/fw876/helloworld/trunk/luci-app-ssr-plus package/lean/luci-app-ssr-plus
 rm -rf ./package/lean/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm
@@ -244,7 +244,7 @@ svn co https://github.com/Lienol/openwrt-package/trunk/lienol/luci-app-trojan-se
 #svn co https://github.com/openwrt/packages/trunk/utils/runc package/lean/runc
 #svn co https://github.com/openwrt/packages/trunk/lang/golang package/lang/golang
 #multiwan support
-svn co https://github.com/project-openwrt/openwrt/trunk/package/lean/luci-app-syncdial package/lean/luci-app-syncdial
+svn co https://github.com/project-openwrt/openwrt/branches/master/package/lean/luci-app-syncdial package/lean/luci-app-syncdial
 #rm -rf feeds/packages/net/mwan3
 #rm -rf feeds/luci/applications/luci-app-mwan3
 #svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-mwan3 feeds/luci/applications/luci-app-mwan3
@@ -252,7 +252,7 @@ svn co https://github.com/project-openwrt/openwrt/trunk/package/lean/luci-app-sy
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-mwan3helper package/lean/luci-app-mwan3helper
 #Zerotier
 #git clone https://github.com/rufengsuixing/luci-app-zerotier package/lean/luci-app-zerotier
-svn co https://github.com/project-openwrt/openwrt/trunk/package/lean/luci-app-zerotier package/lean/luci-app-zerotier
+svn co https://github.com/project-openwrt/openwrt/branches/master/package/lean/luci-app-zerotier package/lean/luci-app-zerotier
 #svn co https://github.com/coolsnowwolf/packages/trunk/net/zerotier package/lean/zerotier
 #OLED display
 git clone https://github.com/natelol/luci-app-oled package/natelol/luci-app-oled
