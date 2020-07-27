@@ -1,7 +1,7 @@
 #### OpenWrt原生源码+Simons的patch编译，使用前请仔细阅读如下说明：
 ***如果厌烦TF上squashfs更新系统可能无法真正清除upper layer，请直接使用ext4的版本**
-1. 原版主线OpenWrt，内核5.4，Luci 19.07+SNAPSHOT均当日最新，默认开启BBR，默认开启SFE流量分载。
-2. SlIM版是一个仅有ssrp、trojan-server、frpc/frps、ddns、ttyd、zerotier及transmission、京东签到等常用功能自用版本，有些组件可能会随时增减，cli下有stress\dig\ss\cfdisk\iftop\ifstat\iperf3\wget\nmap等工具。
+1. OpenWrt SNAPSHOT ，内核5.4，取当日最新源码编译。默认开启BBR，默认开启SFE流量分载。
+2. SlIM版是一个仅有ssrp、frpc/frps、gost、ddns、ttyd、zerotier及transmission、京东签到等常用功能自用版本，有些组件可能会随时增减，cli下有stress\dig\ss\cfdisk\iftop\ifstat\iperf3\wget\nmap等工具。
 3. 管理地址: 192.168.1.1 默认空密码
 4. 驱动原因，暂只支持rtl8192cu芯片(仅2.4G)及mt76x2u芯片USB无线网卡，rtl8821cu/8811cu的驱动未测试通过，MT7601的驱动不支持AP模式。
 5. 已测试支持Hilink模式的4G USB上网卡，NCM模式测试中。
