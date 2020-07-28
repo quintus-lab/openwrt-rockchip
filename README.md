@@ -1,4 +1,4 @@
-#### OpenWrt原生源码+Simons的patch编译，使用前请仔细阅读如下说明：
+#### OpenWrt原生源码编译，使用前请仔细阅读如下说明：
 ***如果厌烦TF上squashfs更新系统可能无法真正清除upper layer，请直接使用ext4的版本**
 1. OpenWrt SNAPSHOT ，内核5.4，取当日最新源码编译。默认开启BBR，默认开启SFE流量分载。
 2. SlIM版是一个仅有ssrp、frpc/frps、gost、ddns、ttyd、zerotier及transmission、京东签到等常用功能自用版本，有些组件可能会随时增减，cli下有stress\dig\ss\cfdisk\iftop\ifstat\iperf3\wget\nmap等工具。
@@ -22,7 +22,8 @@ dd if=/tmp/upload/openwrt.img of=/dev/mmcblk0 conv=fsync
 
 ### 感谢
 
-- [QiuSimons](https://github.com/QiuSimons/R2S-OpenWrt)
+- [QiuSimons](https://github.com/project-openwrt/R2S-OpenWrt)
+- [CTCGFW](https://github.com/project-openwrt/openwrt)
 - [Lean](https://github.com/coolsnowwolf/lede)
 - [Klever1988](https://github.com/klever1988/nanopi-openwrt)
 - [fanck0605](https://github.com/fanck0605/nanopi-r2s)
