@@ -18,22 +18,27 @@ sed -i 's/Os/O3/g' include/target.mk
 sed -i 's/O2/O3/g' ./rules.mk
 #irqbalance
 sed -i 's/0/1/g' feeds/packages/utils/irqbalance/files/irqbalance.config
-cp -f ../patches/zzz-adjust_network package/base-files/files/etc/init.d/zzz-adjust_network
 #patch rk-crypto
 patch -p1 < ../patches/kernel_crypto-add-rk3328-crypto-support.patch
 #patch i2c0
 cp -f ../patches/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch ./target/linux/rockchip/patches-5.4/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch
-#patch r8152 led
-#cp -f ../patches/991-r8152-Add-module-param-for-customized-LEDs.patch ./target/linux/rockchip/patches-5.4/991-r8152-Add-module-param-for-customized-LEDs.patch
+
+
+#patch config-5.4
+patch -p1 < ../patches/0001-target-linux-improve-friendlyarm-nanopi-r2s-support.patch
+
 #patch jsonc
 patch -p1 < ../patches/use_json_object_new_int64.patch
+
 #dnsmasq aaaa filter
 patch -p1 < ../patches/dnsmasq-add-filter-aaaa-option.patch
 patch -p1 < ../patches/luci-add-filter-aaaa-option.patch
 cp -f ../patches/900-add-filter-aaaa-option.patch ./package/network/services/dnsmasq/patches/900-add-filter-aaaa-option.patch
+
+
 #FullCone Patch
 git clone -b master --single-branch https://github.com/QiuSimons/openwrt-fullconenat package/fullconenat
-# Patch FireWall for fullconeß
+# Patch FireWall for fullcone
 mkdir package/network/config/firewall/patches
 wget -P package/network/config/firewall/patches/ https://github.com/LGA1150/fullconenat-fw3-patch/raw/master/fullconenat.patch
 # Patch LuCI for fullcone
@@ -44,6 +49,7 @@ popd
 pushd target/linux/generic/hack-5.4
 wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/target/linux/generic/hack-5.4/952-net-conntrack-events-support-multiple-registrant.patch
 popd
+
 #Patch FireWall for SFE
 patch -p1 < ../patches/luci-app-firewall_add_sfe_switch.patch
 # SFE kernel patch
@@ -220,15 +226,13 @@ git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-
 wget -O package/lean/luci-app-jd-dailybonus/root/usr/share/jd-dailybonus/JD_DailyBonus.js https://github.com/NobyDa/Script/raw/master/JD-DailyBonus/JD_DailyBonus.js
 #
 #frp
-#rm -f ./feeds/luci/applications/luci-app-frps
-#rm -f ./feeds/luci/applications/luci-app-frpc
-#rm -rf ./feeds/packages/net/frp
-#rm -f ./package/feeds/packages/frp
-#git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
-#git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
-#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp packages/lean/frp
-#svn co https://github.com/openwrt/packages/trunk/net/frp package/feeds/packages/frp
-#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
+rm -f ./feeds/luci/applications/luci-app-frps
+rm -f ./feeds/luci/applications/luci-app-frpc
+rm -rf ./feeds/packages/net/frp
+rm -f ./package/feeds/packages/frp
+git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
+git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
+svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
 
 #onliner
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-onliner package/ctcgfw/luci-app-onliner
@@ -289,7 +293,7 @@ wget -O package/lean/lean-translate/files/zzz-default-settings https://github.co
 #生成默认配置及缓存
 rm -rf .config
 #修正架构
-sed -i "s,boardinfo.system,'ARMv8',g" feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
+#sed -i "s,boardinfo.system,'ARMv8',g" feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
 chmod -R 755 ./
 
 exit 0
