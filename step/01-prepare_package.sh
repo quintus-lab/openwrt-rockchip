@@ -226,13 +226,13 @@ git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-
 wget -O package/lean/luci-app-jd-dailybonus/root/usr/share/jd-dailybonus/JD_DailyBonus.js https://github.com/NobyDa/Script/raw/master/JD-DailyBonus/JD_DailyBonus.js
 #
 #frp
-rm -f ./feeds/luci/applications/luci-app-frps
-rm -f ./feeds/luci/applications/luci-app-frpc
-rm -rf ./feeds/packages/net/frp
-rm -f ./package/feeds/packages/frp
-git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
-git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
+#rm -f ./feeds/luci/applications/luci-app-frps
+#rm -f ./feeds/luci/applications/luci-app-frpc
+#rm -rf ./feeds/packages/net/frp
+#rm -f ./package/feeds/packages/frp
+#git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
+#git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
 
 #onliner
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-onliner package/ctcgfw/luci-app-onliner
