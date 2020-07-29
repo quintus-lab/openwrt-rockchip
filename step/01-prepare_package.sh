@@ -23,10 +23,6 @@ patch -p1 < ../patches/kernel_crypto-add-rk3328-crypto-support.patch
 #patch i2c0
 cp -f ../patches/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch ./target/linux/rockchip/patches-5.4/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch
 
-
-#patch config-5.4
-patch -p1 < ../patches/0001-target-linux-improve-friendlyarm-nanopi-r2s-support.patch
-
 #patch jsonc
 patch -p1 < ../patches/use_json_object_new_int64.patch
 
@@ -115,6 +111,9 @@ CONFIG_SND_SOC_ROCKCHIP=m
 CONFIG_SND_SOC_ROCKCHIP_I2S=m
 CONFIG_SND_SOC_ROCKCHIP_PDM=m
 CONFIG_SND_SOC_ROCKCHIP_SPDIF=m
+CONFIG_PHY_ROCKCHIP_INNO_USB3=y
+CONFIG_USB_DWC2=y
+CONFIG_USB_DWC2_DUAL_ROLE=y
 ' >> ./target/linux/rockchip/armv8/config-5.4
 #
 #update new version GCC
