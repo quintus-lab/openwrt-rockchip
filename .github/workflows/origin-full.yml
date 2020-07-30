@@ -7,7 +7,7 @@
 
 name: OpenWrt R2S origin-full
 
-on:
+#on:
 #  release:
 #    types: published
 #  push:
