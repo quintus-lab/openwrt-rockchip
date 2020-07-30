@@ -114,8 +114,8 @@ jobs:
           release_tag="R2S-origin-slim ${{ env.DATE }}"
           echo "##[set-output name=Release_tag;]$release_tag"
           cd ../openwrt
-          cp .config ../artifact/config-origin-slim
-          ./scripts/diffconfig.sh > ../artifact/config-slim.seed
+          cp .config ../artifact/slim.config
+          ./scripts/diffconfig.sh > ../artifact/slim.seed
         
       - name: Upload artifact
         uses: actions/upload-artifact@main
@@ -136,4 +136,4 @@ jobs:
           replacesArtifacts: true
           token: ${{ secrets.RELEASES_TOKEN }}
           bodyFile: "body-origin.md"
-          artifacts: ${{ env.FIRMWARE }}/*.zip,${{ env.FIRMWARE }}/config*
+          artifacts: ${{ env.FIRMWARE }}/*.zip,${{ env.FIRMWARE }}/slim*
