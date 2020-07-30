@@ -14,7 +14,7 @@ on:
     branches:
       - master
     paths:
-      - '.github/workflows/r2s-18.96.yml'
+      - '.github/workflows/r2s-18.06.yml'
       - 'step/18.06.sh'
       - 'seed/18.06.seed'
   schedule:
