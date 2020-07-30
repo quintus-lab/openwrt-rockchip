@@ -10,17 +10,17 @@ name: OpenWrt R2S origin-full
 on:
 #  release:
 #    types: published
-  push:
-    branches:
-      - master
-    paths:
+#  push:
+#    branches:
+#      - master
+#    paths:
 #      - '.github/workflows/origin-full.yml'
 #      - 'step/01-prepare_package.sh'
 #      - 'seed/origin-full.seed'
 #   schedule:
 #    - cron: 35 20 * * *
-  watch:
-    types: started
+#  watch:
+#    types: started
 
 env:
   SSH_ACTIONS: false
