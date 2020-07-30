@@ -25,9 +25,9 @@ on:
 env:
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: true
+  UPLOAD_FIRMWARE: false
   UPLOAD_RELEASE: true
-  CONFIG_FILE: cod.seed
+  CONFIG_FILE: 18.06.seed
   TZ: Asia/Shanghai
 
 jobs:
@@ -101,10 +101,10 @@ jobs:
           mkdir -p ./artifact/
           mv openwrt/bin/targets/*/*/*sysupgrade.img* ./artifact/
           cd ./artifact/
-          #gzip -d *.gz && exit 0
-          #gzip *.img
-          #zip R2S-18.06-$(date +%Y-%m-%d)-squashfs.zip *squashfs*
-          #zip R2S-18.06-$(date +%Y-%m-%d)-ext4.zip *ext4*
+          gzip -d *.gz && exit 0
+          gzip *.img
+          zip R2S-18.06-$(date +%Y-%m-%d)-squashfs.zip *squashfs*
+          zip R2S-18.06-$(date +%Y-%m-%d)-ext4.zip *ext4*
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
           release_tag="R2S-18.06 ${{ env.DATE }}"
