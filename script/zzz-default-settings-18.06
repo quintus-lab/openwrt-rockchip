@@ -47,10 +47,10 @@ echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
 rm -rf /tmp/luci-modulecache/
 rm -f /tmp/luci-indexcache
 
-uci delete network.lan.ip6assign
-uci delete network.wan6
-uci set dhcp.lan.ra=disabled
-uci set dhcp.lan.dhcpv6=disabled
-uci commit 
+#uci delete network.lan.ip6assign
+#uci delete network.wan6
+#uci set dhcp.lan.ra=disabled
+#uci set dhcp.lan.dhcpv6=disabled
+#uci commit 
 
 exit 0

@@ -58,10 +58,10 @@ opkg flag hold luci-app-firewall
 opkg flag hold firewall
 opkg flag hold dnsmasq-full
 
-uci delete network.lan.ip6assign
-uci delete network.wan6
-uci set dhcp.lan.ra=disabled
-uci set dhcp.lan.dhcpv6=disabled
-uci commit 
+#uci delete network.lan.ip6assign
+#uci delete network.wan6
+#uci set dhcp.lan.ra=disabled
+#uci set dhcp.lan.dhcpv6=disabled
+#uci commit 
 
 exit 0
