@@ -4,13 +4,13 @@ clear
 VersionDate=$(git show -s --date=short --format="%cd")
 echo "::set-env name=VersionDate::$VersionDate"
 echo "::set-env name=DATE::$(date "+%Y-%m-%d %H:%M:%S")"
-#rm -f ./feeds.conf.default
-#wget https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/feeds.conf.default
+rm -f ./feeds.conf.default
+wget https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/feeds.conf.default
 #remove annoying snapshot tag
-#sed -i 's,SNAPSHOT,,g' include/version.mk
-#sed -i 's,snapshots,,g' package/base-files/image-config.in
+sed -i 's,SNAPSHOT,,g' include/version.mk
+sed -i 's,snapshots,,g' package/base-files/image-config.in
 #scons patch
-#wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
+wget -P include/ https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/include/scons.mk
 #更新feed
 ./scripts/feeds update -a && ./scripts/feeds install -a
 #O3
@@ -30,7 +30,6 @@ patch -p1 < ../patches/use_json_object_new_int64.patch
 patch -p1 < ../patches/dnsmasq-add-filter-aaaa-option.patch
 patch -p1 < ../patches/luci-add-filter-aaaa-option.patch
 cp -f ../patches/900-add-filter-aaaa-option.patch ./package/network/services/dnsmasq/patches/900-add-filter-aaaa-option.patch
-
 
 #FullCone Patch
 git clone -b master --single-branch https://github.com/QiuSimons/openwrt-fullconenat package/fullconenat
@@ -134,12 +133,12 @@ rm -rf ./package/feeds/packages/coremark
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/coremark package/lean/coremark
 sed -i 's,-DMULTIT,-Ofast -DMULTIT,g' package/lean/coremark/Makefile
 #DDNS
-#rm -rf ./feeds/packages/net/ddns-scripts
-#rm -rf ./feeds/luci/applications/luci-app-ddns
+rm -rf ./feeds/packages/net/ddns-scripts
+rm -rf ./feeds/luci/applications/luci-app-ddns
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ddns-scripts_aliyun package/lean/ddns-scripts_aliyun
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ddns-scripts_dnspod package/lean/ddns-scripts_dnspod
-#svn co https://github.com/openwrt/packages/branches/openwrt-18.06/net/ddns-scripts feeds/packages/net/ddns-scripts
-#svn co https://github.com/openwrt/luci/branches/openwrt-18.06/applications/luci-app-ddns feeds/luci/applications/luci-app-ddns
+svn co https://github.com/openwrt/packages/branches/openwrt-18.06/net/ddns-scripts feeds/packages/net/ddns-scripts
+svn co https://github.com/openwrt/luci/branches/openwrt-18.06/applications/luci-app-ddns feeds/luci/applications/luci-app-ddns
 
 #定时重启
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-autoreboot package/lean/luci-app-autoreboot
@@ -150,8 +149,8 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-autorebo
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/adbyby package/lean/coremark/adbyby
 #gost
 svn co https://github.com/project-openwrt/openwrt/branches/master/package/ctcgfw/gost package/ctcgfw/gost
-#svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-gost package/ctcgfw/luci-app-gost
-svn co https://github.com/project-openwrt/openwrt/branches/master/package/ctcgfw/luci-app-gost package/ctcgfw/luci-app-gost
+svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-gost package/ctcgfw/luci-app-gost
+#svn co https://github.com/project-openwrt/openwrt/branches/master/package/ctcgfw/luci-app-gost package/ctcgfw/luci-app-gost
 #SSRP
 svn co https://github.com/fw876/helloworld/trunk/luci-app-ssr-plus package/lean/luci-app-ssr-plus
 rm -rf ./package/lean/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm
@@ -204,12 +203,12 @@ svn co https://github.com/project-openwrt/openwrt/trunk/package/lean/tcpping pac
 #清理内存
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-ramfree package/lean/luci-app-ramfree
 #打印机
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-usb-printer package/lean/luci-app-usb-printer
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-usb-printer package/lean/luci-app-usb-printer
 #流量监视
 git clone -b master --single-branch https://github.com/brvphoenix/wrtbwmon package/new/wrtbwmon
 git clone -b master --single-branch https://github.com/brvphoenix/luci-app-wrtbwmon package/new/luci-app-wrtbwmon
 #流量监管
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-netdata package/lean/luci-app-netdata
+#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-netdata package/lean/luci-app-netdata
 #SeverChan
 #git clone -b master --single-branch https://github.com/tty228/luci-app-serverchan package/new/luci-app-serverchan
 #iputils
@@ -225,13 +224,13 @@ git clone https://github.com/jerrykuku/luci-app-jd-dailybonus package/lean/luci-
 wget -O package/lean/luci-app-jd-dailybonus/root/usr/share/jd-dailybonus/JD_DailyBonus.js https://github.com/NobyDa/Script/raw/master/JD-DailyBonus/JD_DailyBonus.js
 #
 #frp
-#rm -f ./feeds/luci/applications/luci-app-frps
-#rm -f ./feeds/luci/applications/luci-app-frpc
-#rm -rf ./feeds/packages/net/frp
-#rm -f ./package/feeds/packages/frp
-#git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
-#git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
-#svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
+rm -f ./feeds/luci/applications/luci-app-frps
+rm -f ./feeds/luci/applications/luci-app-frpc
+rm -rf ./feeds/packages/net/frp
+rm -rf ./package/feeds/packages/frp
+git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
+git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
+svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
 
 #onliner
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-onliner package/ctcgfw/luci-app-onliner
