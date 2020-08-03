@@ -20,6 +20,7 @@ svn co https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang
 git clone -b master --single-branch https://github.com/garypang13/luci-theme-edge package/new/luci-theme-edge
 
 #流量监视
+rm -rf package/lean/luci-app-wrtbwmon
 git clone -b master --single-branch https://github.com/brvphoenix/wrtbwmon package/new/wrtbwmon
 git clone -b master --single-branch https://github.com/brvphoenix/luci-app-wrtbwmon package/new/luci-app-wrtbwmon
 #流量监管
