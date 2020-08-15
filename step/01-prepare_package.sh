@@ -174,6 +174,8 @@ git clone -b master --single-branch https://github.com/aa65535/openwrt-simple-ob
 svn co https://github.com/coolsnowwolf/packages/trunk/net/shadowsocks-libev package/lean/shadowsocks-libev
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
 svn co https://github.com/project-openwrt/openwrt/trunk/package/lean/tcpping package/lean/tcpping
+svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/lienol/tcping package/lean/tcping
+
 #v2ray-server
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-v2ray-server package/luci-app-v2ray-server
 #ssr-server-python
