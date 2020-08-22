@@ -1,5 +1,14 @@
+@@ -63,6 +63,8 @@ echo 'hsts=0' > /root/.wgetrc
+ rm -rf /tmp/luci-modulecache/
+ rm -f /tmp/luci-indexcache
+ 
++sed -i 's/#devcrypto=devcrypto/devcrypto=devcrypto/g;s/#USE_SOFTDRIVERS = 2/USE_SOFTDRIVERS = 1/g' /etc/ssl/openssl.conf
++
+ mv /etc/openwrt_banner /etc/banner
+ 
+ exit 0
 diff --git a/package/lean/luci-app-cpufreq/root/etc/config/cpufreq b/package/lean/luci-app-cpufreq/root/etc/config/cpufreq
-index 0e7eaede3..f7128226f 100644
+index 0e7eaede33..63908d1d53 100644
 --- a/package/lean/luci-app-cpufreq/root/etc/config/cpufreq
 +++ b/package/lean/luci-app-cpufreq/root/etc/config/cpufreq
 @@ -1,8 +1,8 @@
@@ -9,24 +18,24 @@ index 0e7eaede3..f7128226f 100644
 -	option minfreq ''
 -	option maxfreq ''
 +	option governor 'schedutil'
-+	option minfreq '600000'
++	option minfreq '816000'
 +	option maxfreq '1512000'
  	option upthreshold '50'
  	option factor '10'
  
 diff --git a/package/lean/luci-app-turboacc/Makefile b/package/lean/luci-app-turboacc/Makefile
-index f61f4f78e..f1de50f17 100644
+index dfd78c845c..deb85f9246 100644
 --- a/package/lean/luci-app-turboacc/Makefile
 +++ b/package/lean/luci-app-turboacc/Makefile
 @@ -22,7 +22,7 @@ LUCI_PKGARCH:=all
  define Package/$(PKG_NAME)/config
- config PACKAGE_$(PKG_NAME)_INCLUDE_shortcut-fe
- 	bool "Include Shortcut-FE"
--	depends on PACKAGE_$(PKG_NAME)_INCLUDE_flow-offload=n
-+	#depends on PACKAGE_$(PKG_NAME)_INCLUDE_flow-offload=n
- 	default y if LINUX_4_9
- 	default n
+ config PACKAGE_$(PKG_NAME)_INCLUDE_flow-offload
+ 	bool "Include Flow Offload"
+-	depends on PACKAGE_$(PKG_NAME)_INCLUDE_shortcut-fe=n
++	#depends on PACKAGE_$(PKG_NAME)_INCLUDE_shortcut-fe=n
+ 	default y
  
+ config PACKAGE_$(PKG_NAME)_INCLUDE_shortcut-fe
 diff --git a/package/lean/luci-app-turboacc/root/etc/config/turboacc b/package/lean/luci-app-turboacc/root/etc/config/turboacc
 index 067aad2763..cf30d7359d 100644
 --- a/package/lean/luci-app-turboacc/root/etc/config/turboacc
@@ -70,7 +79,6 @@ index 1b2d5e1903..47c1193432 100644
 +CONFIG_CRYPTO_CHACHA20_NEON=y
  CONFIG_CRYPTO_CRC32=y
 +CONFIG_CRYPTO_CRYPTD=y
-+CRYPTO_CRCT10DIF_ARM64_CE=y
 +CONFIG_CRYPTO_CTR=y
 +CONFIG_CRYPTO_DEV_CCREE=y
 +CONFIG_CRYPTO_DEV_HISI_SEC=y

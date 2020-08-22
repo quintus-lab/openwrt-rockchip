@@ -7,12 +7,13 @@ uci set system.@system[0].timezone=CST-8
 uci set system.@system[0].zonename=Asia/Shanghai
 uci commit system
 
-#sed -i '/openwrt_luci/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
-#sed -i '/openwrt_packages/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
-#sed -i '/openwrt_routing/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
-#sed -i '/openwrt_telephony/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
-sed -i '/natelol/d' /etc/opkg/distfeeds.conf
-#sed -i 's,downloads.openwrt.org,mirrors.cloud.tencent.com/lede,g' /etc/opkg/distfeeds.conf
+ln -sf /sbin/ip /usr/bin/ip
+
+sed -i 's#http://downloads.openwrt.org#https://mirrors.cloud.tencent.com/lede#g' /etc/opkg/distfeeds.conf
+sed -i '/openwrt_luci/ { s/snapshots/releases\/18.06.8/g; }'  /etc/opkg/distfeeds.conf
+sed -i '/openwrt_packages/ { s/snapshots/releases\/18.06.8/g; }'  /etc/opkg/distfeeds.conf
+sed -i "s/# //g" /etc/opkg/distfeeds.conf
+
 
 uci set fstab.@global[0].anon_mount=1
 uci commit fstab
@@ -30,12 +31,34 @@ uci commit uhttpd
 
 #sed -i 's,/opt,/overlay,g' /etc/config/dockerman
 
-#Mark
-echo -e '\nQuintus Build @ '$(date "+%Y.%m.%d")'\n'  >> /etc/banner
+
+sed -i '/REDIRECT --to-ports 53/d' /etc/firewall.user
+echo "iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
+echo "iptables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
+
+sed -i '/option disabled/d' /etc/config/wireless
+sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
+
 sed -i '/DISTRIB_REVISION/d' /etc/openwrt_release
-echo "DISTRIB_REVISION='$(date "+%Y.%m.%d")'" >> /etc/openwrt_release
+echo "DISTRIB_REVISION='| Mod20.08 by CTCGFW'" >> /etc/openwrt_release
 sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
-echo "DISTRIB_DESCRIPTION='Quintus Build@$(date "+%Y.%m.%d")" >> /etc/openwrt_release
+echo "DISTRIB_DESCRIPTION='OpenWrt 18.06 by Lean@$(date "+%Y.%m.%d")'" >> /etc/openwrt_release
+
+sed -i 's/LuCI openwrt-18.06 branch/LuCI 18.06 by Lean/g' /usr/lib/lua/luci/version.lua
+sed -i '/luciversion/d' /usr/lib/lua/luci/version.lua
+echo 'luciversion = "Mod20.08 by CTCGFW"' >> /usr/lib/lua/luci/version.lua
+
+sed -i '/log-facility/d' /etc/dnsmasq.conf
+echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
+
+sed -i 's/cbi.submit\"] = true/cbi.submit\"] = \"1\"/g' /usr/lib/lua/luci/dispatcher.lua
+
+echo 'hsts=0' > /root/.wgetrc
+
+rm -rf /tmp/luci-modulecache/
+rm -f /tmp/luci-indexcache
+
+mv /etc/openwrt_banner /etc/banner
 
 #SSL
 sed -i 's,#afalg,afalg,g' /etc/ssl/openssl.cnf

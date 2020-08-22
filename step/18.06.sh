@@ -10,14 +10,14 @@ echo "::set-env name=DATE::$(date "+%Y-%m-%d %H:%M:%S")"
 patch -p1 < ../patches/for_r2s_18.06.patch
 
 #update new version GCC
-rm -rf ./feeds/packages/devel/gcc
-svn co https://github.com/openwrt/packages/trunk/devel/gcc feeds/packages/devel/gcc
+#rm -rf ./feeds/packages/devel/gcc
+#svn co https://github.com/openwrt/packages/trunk/devel/gcc feeds/packages/devel/gcc
 #update new version Golang
-rm -rf ./feeds/packages/lang/golang
-svn co https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
+#rm -rf ./feeds/packages/lang/golang
+#svn co https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
 
 #edge主题
-git clone -b master --single-branch https://github.com/garypang13/luci-theme-edge package/new/luci-theme-edge
+#git clone -b master --single-branch https://github.com/garypang13/luci-theme-edge package/new/luci-theme-edge
 
 #流量监视
 #rm -rf package/lean/luci-app-wrtbwmon
