@@ -18,8 +18,10 @@ sed -i 's/Os/O3/g' include/target.mk
 sed -i 's/O2/O3/g' ./rules.mk
 #irqbalance
 sed -i 's/0/1/g' feeds/packages/utils/irqbalance/files/irqbalance.config
+
 #patch rk-crypto
 patch -p1 < ../patches/kernel_crypto-add-rk3328-crypto-support.patch
+
 #patch i2c0
 cp -f ../patches/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch ./target/linux/rockchip/patches-5.4/998-rockchip-enable-i2c0-on-NanoPi-R2S.patch
 
@@ -55,65 +57,8 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/shortcut-fe packa
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/fast-classifier package/new/fast-classifier
 #Over Clock to 1.6G
 cp -f ../patches/999-unlock-1608mhz-rk3328.patch ./target/linux/rockchip/patches-5.4/999-unlock-1608mhz-rk3328.patch
-rm -f ./target/linux/rockchip/patches-5.4/004-unlock-1512mhz-rk3328.patch
-#patch config-5.4 support docker
-echo '
-CONFIG_ROCKCHIP_THERMAL=y
-CONFIG_CGROUP_HUGETLB=y
-CONFIG_CGROUP_NET_PRIO=y
-CONFIG_EXT4_FS_SECURITY=y
-CONFIG_IPVLAN=y
-CONFIG_IPVTAP=m
-CONFIG_DM_THIN_PROVISIONING=y
-CONFIG_CRYPTO_AES_ARM64_CE_BLK=y
-CONFIG_CRYPTO_AES_ARM64_CE_CCM=y
-CONFIG_CRYPTO_SHA512_ARM64=y
-CONFIG_CRYPTO_SHA512_ARM64_CE=y
-CONFIG_CRYPTO_SHA3_ARM64=y
-CONFIG_CRYPTO_SM3_ARM64_CE=y
-CONFIG_CRYPTO_SM4_ARM64_CE=y
-CONFIG_CRYPTO_CRCT10DIF_ARM64_CE=y
-CONFIG_CRYPTO_AES_ARM64_NEON_BLK=y
-CONFIG_CRYPTO_AES_ARM64_BS=y
-CONFIG_CRYPTO_ANSI_CPRNG=y
-CONFIG_CRYPTO_CMAC=y
-CONFIG_CRYPTO_ECB=y
-CONFIG_CRYPTO_GF128MUL=y
-CONFIG_CRYPTO_GHASH_ARM64_CE=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_HW=y
-CONFIG_CRYPTO_JITTERENTROPY=y
-CONFIG_CRYPTO_LIB_DES=y
-CONFIG_CRYPTO_LIB_SHA256=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_NHPOLY1305=y
-CONFIG_CRYPTO_NHPOLY1305_NEON=y
-CONFIG_CRYPTO_NULL=y
-CONFIG_CRYPTO_POLY1305=y
-CONFIG_CRYPTO_RNG=y
-CONFIG_CRYPTO_RNG_DEFAULT=y
-CONFIG_CRYPTO_SEQIV=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA1_ARM64_CE=y
-CONFIG_CRYPTO_SHA256=y
-CONFIG_CRYPTO_SHA256_ARM64=y
-CONFIG_CRYPTO_SHA2_ARM64_CE=y
-CONFIG_CRYPTO_SHA3=y
-CONFIG_CRYPTO_SHA3_ARM64=y
-CONFIG_CRYPTO_SHA512=y
-CONFIG_CRYPTO_TWOFISH=y
-CONFIG_CRYPTO_USER_API_HASH=y
-CONFIG_CRYPTO_USER_API_RNG=y
-CONFIG_CRYPTO_USER_API_SKCIPHER=y
-CONFIG_CRYPTO_DEV_ROCKCHIP=y
-CONFIG_SND_SOC_ROCKCHIP=m
-CONFIG_SND_SOC_ROCKCHIP_I2S=m
-CONFIG_SND_SOC_ROCKCHIP_PDM=m
-CONFIG_SND_SOC_ROCKCHIP_SPDIF=m
-CONFIG_PHY_ROCKCHIP_INNO_USB3=y
-CONFIG_USB_DWC2=y
-CONFIG_USB_DWC2_DUAL_ROLE=y
-' >> ./target/linux/rockchip/armv8/config-5.4
+#rm -f ./target/linux/rockchip/patches-5.4/004-unlock-1512mhz-rk3328.patch
+
 #
 #update new version GCC
 rm -rf ./feeds/packages/devel/gcc
