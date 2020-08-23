@@ -23,14 +23,9 @@ rm -f /usr/lib/lua/luci/view/admin_status/index/upnp.htm
 rm -f /usr/lib/lua/luci/view/admin_status/index/ddns.htm
 rm -f /usr/lib/lua/luci/view/admin_status/index/minidlna.htm
 
-sed -i 's/services/vpn/g' /usr/lib/lua/luci/controller/ocserv.lua
-
 uci set uhttpd.main.rfc1918_filter=0
-uci set uhttpd.main.redirect_https=0
+#uci set uhttpd.main.redirect_https=0
 uci commit uhttpd
-
-#sed -i 's,/opt,/overlay,g' /etc/config/dockerman
-
 
 sed -i '/REDIRECT --to-ports 53/d' /etc/firewall.user
 echo "iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
@@ -40,9 +35,9 @@ sed -i '/option disabled/d' /etc/config/wireless
 sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
 
 sed -i '/DISTRIB_REVISION/d' /etc/openwrt_release
-echo "DISTRIB_REVISION='| Mod20.08 by CTCGFW'" >> /etc/openwrt_release
+echo "DISTRIB_REVISION='| Mod20.08 by CTCGFW | Build by Quintus@$Build_Date'" >> /etc/openwrt_release
 sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
-echo "DISTRIB_DESCRIPTION='OpenWrt 18.06 by Lean@$(date "+%Y.%m.%d")'" >> /etc/openwrt_release
+echo "DISTRIB_DESCRIPTION='OpenWrt 18.06 by Lean'" >> /etc/openwrt_release
 
 sed -i 's/LuCI openwrt-18.06 branch/LuCI 18.06 by Lean/g' /usr/lib/lua/luci/version.lua
 sed -i '/luciversion/d' /usr/lib/lua/luci/version.lua
@@ -59,6 +54,9 @@ rm -rf /tmp/luci-modulecache/
 rm -f /tmp/luci-indexcache
 
 mv /etc/openwrt_banner /etc/banner
+
+#mark build date at banner
+echo -e '\nQuintus Build @ '$Build_Date'\n'  >> /etc/banner
 
 #SSL
 sed -i 's,#afalg,afalg,g' /etc/ssl/openssl.cnf

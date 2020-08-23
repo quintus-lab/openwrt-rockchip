@@ -4,6 +4,8 @@ clear
 VersionDate=$(git show -s --date=short --format="%cd")
 echo "::set-env name=VersionDate::$VersionDate"
 echo "::set-env name=DATE::$(date "+%Y-%m-%d %H:%M:%S")"
+Build_Date=$(date +%Y.%m.%d)
+echo "::set-env name=Build_Date::$(date +%Y.%m.%d)"
 #更新feed
 ./scripts/feeds update -a && ./scripts/feeds install -a
 
@@ -35,8 +37,8 @@ patch -p1 < ../patches/for_r2s_18.06.patch
 
 #frp
 rm -rf ./package/lean/luci-app-frpc
-rm -rf ./package/ctcgfw/luci-app-frps
-git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
+#rm -rf ./package/ctcgfw/luci-app-frps
+#git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
 
 wget -O package/lean/default-settings/files/zzz-default-settings https://github.com/quintus-lab/Openwrt-R2S/raw/master/script/zzz-default-settings-18.06
