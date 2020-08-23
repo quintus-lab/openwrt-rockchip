@@ -4,6 +4,8 @@ clear
 VersionDate=$(git show -s --date=short --format="%cd")
 echo "::set-env name=VersionDate::$VersionDate"
 echo "::set-env name=DATE::$(date "+%Y-%m-%d %H:%M:%S")"
+Build_Date=$(date +%Y.%m.%d)
+echo "::set-env name=Build_Date::$(date +%Y.%m.%d)"
 rm -f ./feeds.conf.default
 wget https://raw.githubusercontent.com/openwrt/openwrt/openwrt-19.07/feeds.conf.default
 #remove annoying snapshot tag
@@ -59,6 +61,8 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/fast-classifier p
 cp -f ../patches/999-unlock-1608mhz-rk3328.patch ./target/linux/rockchip/patches-5.4/999-unlock-1608mhz-rk3328.patch
 #rm -f ./target/linux/rockchip/patches-5.4/004-unlock-1512mhz-rk3328.patch
 
+#patch rockchip/config-default
+patch -p1 < ../patches/for_r2s_19.07_config-default.patch
 #
 #update new version GCC
 rm -rf ./feeds/packages/devel/gcc
@@ -165,6 +169,11 @@ svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/network
 #SmartDNS
 svn co https://github.com/pymumu/smartdns/trunk/package/openwrt package/new/smartdns/smartdns
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ntlf9t/luci-app-smartdns package/new/smartdns/luci-app-smartdns
+
+#VSSR
+svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-vssr package/new/luci-app-vssr
+
+
 #上网APP过滤
 #git clone -b master --single-branch https://github.com/destan19/OpenAppFilter package/new/OpenAppFilter
 #jd-dailybonus
@@ -175,8 +184,8 @@ wget -O package/lean/luci-app-jd-dailybonus/root/usr/share/jd-dailybonus/JD_Dail
 #frp
 rm -f ./feeds/luci/applications/luci-app-frps
 rm -f ./feeds/luci/applications/luci-app-frpc
-rm -rf ./feeds/packages/net/frp
-rm -rf ./package/feeds/packages/frp
+#rm -rf ./feeds/packages/net/frp
+#rm -rf ./package/feeds/packages/frp
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp

@@ -34,11 +34,11 @@ uci commit uhttpd
 #sed -i 's,/opt,/overlay,g' /etc/config/dockerman
 
 #Mark
-echo -e '\nQuintus Build @ '$(date "+%Y.%m.%d")'\n'  >> /etc/banner
+echo -e '\nQuintus Build @ '$Build_Date'\n'  >> /etc/banner
 sed -i '/DISTRIB_REVISION/d' /etc/openwrt_release
 echo "DISTRIB_REVISION='$(date "+%Y.%m.%d")'" >> /etc/openwrt_release
 sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
-echo "DISTRIB_DESCRIPTION='Quintus Build@$(date "+%Y.%m.%d")" >> /etc/openwrt_release
+echo "DISTRIB_DESCRIPTION='Quintus Build@$Build_Date'" >> /etc/openwrt_release
 
 #SSL
 sed -i 's,#afalg,afalg,g' /etc/ssl/openssl.cnf
