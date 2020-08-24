@@ -41,7 +41,9 @@ rm -rf ./package/lean/luci-app-frpc
 #git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
 
+echo -e '\nQuintus Build @ '$Build_Date'\n'  >> package/lean/default-settings/files/openwrt_banner
 wget -O package/lean/default-settings/files/zzz-default-settings https://github.com/quintus-lab/Openwrt-R2S/raw/master/script/zzz-default-settings-18.06
+sed -i 's/| Mod20.08 by CTCGFW/| Mod20.08 by CTCGFW | Build by Quintus@'$Build_Date'/g' package/lean/default-settings/files/zzz-default-settings
 
 chmod -R 755 ./
 
