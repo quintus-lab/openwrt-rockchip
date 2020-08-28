@@ -75,4 +75,7 @@ rm -f /tmp/luci-indexcache
 #uci set dhcp.lan.dhcpv6=disabled
 #uci commit 
 
+uci set luci.main.lang=en
+uci commit
+
 exit 0
