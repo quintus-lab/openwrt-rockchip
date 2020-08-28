@@ -187,6 +187,10 @@ git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
 
+#curl
+rm -rf ./package/network/utils/curl
+svn co https://github.com/openwrt/packages/trunk/net/curl package/network/utils/curl
+
 #onliner
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-onliner package/ctcgfw/luci-app-onliner
 #filetransfer
