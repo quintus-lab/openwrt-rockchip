@@ -24,6 +24,9 @@ CONFIG_KERNEL_PERF_EVENTS=y
 CONFIG_KERNEL_BUILD_DOMAIN="buildhost"
 CONFIG_KERNEL_BUILD_USER="builder"
 
+CONFIG_PACKAGE_libustream-openssl=y
+# CONFIG_PACKAGE_libustream-wolfssl is not set
+
 CONFIG_LIBSODIUM_MINIMAL=y
 CONFIG_PACKAGE_kmod-crypto-rk3328=y
 CONFIG_PACKAGE_kmod-cryptodev=y
