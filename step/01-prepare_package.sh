@@ -71,6 +71,22 @@ svn co https://github.com/openwrt/packages/trunk/devel/gcc feeds/packages/devel/
 rm -rf ./feeds/packages/lang/golang
 svn co https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
 
+#replace Node version
+rm -rf ./feeds/packages/lang/node
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node feeds/packages/lang/node
+rm -rf ./feeds/packages/lang/node-arduino-firmata
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-arduino-firmata feeds/packages/lang/node-arduino-firmata
+rm -rf ./feeds/packages/lang/node-cylon
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-cylon feeds/packages/lang/node-cylon
+rm -rf ./feeds/packages/lang/node-hid
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-hid feeds/packages/lang/node-hid
+rm -rf ./feeds/packages/lang/node-homebridge
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-homebridge feeds/packages/lang/node-homebridge
+rm -rf ./feeds/packages/lang/node-serialport
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport feeds/packages/lang/node-serialport
+rm -rf ./feeds/packages/lang/node-serialport-bindings
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport-bindings feeds/packages/lang/node-serialport-bindings
+
 #Additional package
 #arpbind
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-arpbind package/lean/luci-app-arpbind
