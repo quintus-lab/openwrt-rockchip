@@ -64,27 +64,33 @@ cp -f ../patches/999-unlock-1608mhz-rk3328.patch ./target/linux/rockchip/patches
 #patch rockchip/config-default
 patch -p1 < ../patches/for_r2s_19.07_config-default.patch
 #
-#update new version GCC
+#update curl
+rm -rf ./package/network/utils/curl
+svn co https://github.com/openwrt/packages/trunk/net/curl package/network/utils/curl
+#replace Node
+rm -rf ./feeds/packages/lang/node
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node feeds/packages/lang/node
+rm -rf ./feeds/packages/lang/node-arduino-firmata
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-arduino-firmata feeds/packages/lang/node-arduino-firmata
+rm -rf ./feeds/packages/lang/node-cylon
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-cylon feeds/packages/lang/node-cylon
+rm -rf ./feeds/packages/lang/node-hid
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-hid feeds/packages/lang/node-hid
+rm -rf ./feeds/packages/lang/node-homebridge
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-homebridge feeds/packages/lang/node-homebridge
+rm -rf ./feeds/packages/lang/node-serialport
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport feeds/packages/lang/node-serialport
+rm -rf ./feeds/packages/lang/node-serialport-bindings
+svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport-bindings feeds/packages/lang/node-serialport-bindings
+#update GCC
 rm -rf ./feeds/packages/devel/gcc
 svn co https://github.com/openwrt/packages/trunk/devel/gcc feeds/packages/devel/gcc
-#update new version Golang
+#update Golang
 rm -rf ./feeds/packages/lang/golang
 svn co https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
-#replace Node version
-#rm -rf ./feeds/packages/lang/node
-#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node feeds/packages/lang/node
-#rm -rf ./feeds/packages/lang/node-arduino-firmata
-#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-arduino-firmata feeds/packages/lang/node-arduino-firmata
-#rm -rf ./feeds/packages/lang/node-cylon
-#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-cylon feeds/packages/lang/node-cylon
-#rm -rf ./feeds/packages/lang/node-hid
-#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-hid feeds/packages/lang/node-hid
-#rm -rf ./feeds/packages/lang/node-homebridge
-#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-homebridge feeds/packages/lang/node-homebridge
-#rm -rf ./feeds/packages/lang/node-serialport
-#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport feeds/packages/lang/node-serialport
-#rm -rf ./feeds/packages/lang/node-serialport-bindings
-#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport-bindings feeds/packages/lang/node-serialport-bindings
+rm -rf ./feeds/packages/lang/golang/.svn
+rm -rf ./feeds/packages/lang/golang/golang
+svn co https://github.com/project-openwrt/packages/trunk/lang/golang/golang feeds/packages/lang/golang/golang
 
 #Additional package
 #arpbind
@@ -201,9 +207,6 @@ rm -f ./feeds/luci/applications/luci-app-frpc
 git clone https://github.com/lwz322/luci-app-frps.git package/lean/luci-app-frps
 git clone https://github.com/kuoruan/luci-app-frpc.git package/lean/luci-app-frpc
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/frp package/feeds/packages/frp
-#curl
-rm -rf ./package/network/utils/curl
-svn co https://github.com/openwrt/packages/trunk/net/curl package/network/utils/curl
 
 #onliner
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-onliner package/ctcgfw/luci-app-onliner
@@ -256,30 +259,7 @@ git clone https://github.com/natelol/luci-app-oled package/natelol/luci-app-oled
 #wget -P package/base-files/files/etc/hotplug.d/usb https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/package/base-files/files/etc/hotplug.d/usb/31-usb_wifi
 #
 #crypto
-echo '
-CONFIG_ARM64_CRYPTO=y
-CONFIG_CRYPTO_AES_ARM64=y
-CONFIG_CRYPTO_AES_ARM64_BS=y
-CONFIG_CRYPTO_AES_ARM64_CE=y
-CONFIG_CRYPTO_AES_ARM64_CE_BLK=y
-CONFIG_CRYPTO_AES_ARM64_CE_CCM=y
-CONFIG_CRYPTO_AES_ARM64_NEON_BLK=y
-CONFIG_CRYPTO_CHACHA20=y
-CONFIG_CRYPTO_CHACHA20_NEON=y
-CONFIG_CRYPTO_CRYPTD=y
-CONFIG_CRYPTO_GF128MUL=y
-CONFIG_CRYPTO_GHASH_ARM64_CE=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA1_ARM64_CE=y
-CONFIG_CRYPTO_SHA256_ARM64=y
-CONFIG_CRYPTO_SHA2_ARM64_CE=y
-# CONFIG_CRYPTO_SHA3_ARM64 is not set
-CONFIG_CRYPTO_SHA512_ARM64=y
-# CONFIG_CRYPTO_SHA512_ARM64_CE is not set
-CONFIG_CRYPTO_SIMD=y
-# CONFIG_CRYPTO_SM3_ARM64_CE is not set
-# CONFIG_CRYPTO_SM4_ARM64_CE is not set
-' >> ./target/linux/rockchip/armv8/config-5.4
+
 #最大连接
 sed -i 's/16384/65536/g' package/kernel/linux/files/sysctl-nf-conntrack.conf
 #翻译
