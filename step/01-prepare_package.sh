@@ -92,6 +92,12 @@ rm -rf ./feeds/packages/lang/golang/.svn
 rm -rf ./feeds/packages/lang/golang/golang
 svn co https://github.com/project-openwrt/packages/trunk/lang/golang/golang feeds/packages/lang/golang/golang
 
+#add libs
+svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/libs/nghttp2 package/libs/nghttp2
+svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/libs/libconfig package/libs/libconfig
+svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/utils/fuse package/utils/fuse
+svn co https://github.com/openwrt/packages/branches/openwrt-19.07/libs/libcap package/libs/libcap
+
 #Additional package
 #arpbind
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-arpbind package/lean/luci-app-arpbind
@@ -124,7 +130,7 @@ svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package
 #SSRP
 svn co https://github.com/fw876/helloworld/trunk/luci-app-ssr-plus package/lean/luci-app-ssr-plus
 svn co https://github.com/fw876/helloworld/trunk/tcping package/lean/tcping
-
+svn co https://github.com/fw876/helloworld/trunk/naiveproxy package/lean/naiveproxy
 #rm -rf ./package/lean/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm
 #wget -P package/lean/luci-app-ssr-plus/luasrc/view/shadowsocksr https://raw.githubusercontent.com/QiuSimons/Others/master/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm
 #SSRP依赖
@@ -144,6 +150,7 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks package
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs package/lean/simple-obfs
 svn co https://github.com/coolsnowwolf/packages/trunk/net/shadowsocks-libev package/lean/shadowsocks-libev
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
+
 
 #v2ray-server
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-v2ray-server package/luci-app-v2ray-server
@@ -189,8 +196,9 @@ svn co https://github.com/pymumu/smartdns/trunk/package/openwrt package/new/smar
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ntlf9t/luci-app-smartdns package/new/smartdns/luci-app-smartdns
 
 #VSSR
-svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-vssr package/new/luci-app-vssr
-
+#svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/luci-app-vssr package/new/luci-app-vssr
+git clone -b master --single-branch https://github.com/jerrykuku/luci-app-vssr package/lean/luci-app-vssr
+git clone -b master --single-branch https://github.com/jerrykuku/lua-maxminddb package/lean/lua-maxminddb
 
 #上网APP过滤
 #git clone -b master --single-branch https://github.com/destan19/OpenAppFilter package/new/OpenAppFilter
