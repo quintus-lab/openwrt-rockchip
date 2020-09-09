@@ -65,7 +65,7 @@ jobs:
 
       - name: Install OpenWrt source
         run: |
-          git clone https://git.openwrt.org/openwrt/openwrt.git
+          git clone -b master https://git.openwrt.org/openwrt/openwrt.git openwrt
       - name: Prepare openwrt package
         run: |
           cd openwrt
@@ -81,6 +81,12 @@ jobs:
         run: |
           cd openwrt
           /bin/bash 03-remove_upx.sh
+
+      - name: Add ACL
+        run: |
+          cd openwrt
+          /bin/bash 04_create_acl_for_luci.sh -a
+
       - name: Load Config
         run: |
           cd openwrt
