@@ -161,3 +161,15 @@ index 1b2d5e1903..b2d0f89b77 100644
  CONFIG_CPU_RMAP=y
  CONFIG_CRYPTO_AEAD=y
  CONFIG_CRYPTO_AEAD2=y
+diff --git a/package/feeds/packages/dnsdist/Makefile b/package/feeds/packages/dnsdist/Makefile
+--- a/package/feeds/packages/dnsdist/Makefile
++++ b/package/feeds/packages/dnsdist/Makefile
+@@ -29,7 +29,7 @@
+
+ choice
+         prompt "Selected SSL library"
+-        default DNSDIST_OPENSSSL
++        default DNSDIST_OPENSSL
+
+         config DNSDIST_OPENSSL
+                 bool "OpenSSL"
