@@ -85,7 +85,7 @@ jobs:
       - name: Add ACL
         run: |
           cd openwrt
-          /bin/bash 04_create_acl_for_luci.sh -a
+          /bin/bash 04-create_acl_for_luci.sh -a
 
       - name: Load Config
         run: |
