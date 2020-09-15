@@ -83,8 +83,8 @@ svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport fee
 rm -rf ./feeds/packages/lang/node-serialport-bindings
 svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport-bindings feeds/packages/lang/node-serialport-bindings
 #update GCC
-rm -rf ./feeds/packages/devel/gcc
-svn co https://github.com/openwrt/packages/trunk/devel/gcc feeds/packages/devel/gcc
+#rm -rf ./feeds/packages/devel/gcc
+#svn co https://github.com/openwrt/packages/trunk/devel/gcc feeds/packages/devel/gcc
 #update Golang
 rm -rf ./feeds/packages/lang/golang
 svn co https://github.com/openwrt/packages/trunk/lang/golang feeds/packages/lang/golang
@@ -96,7 +96,7 @@ svn co https://github.com/project-openwrt/packages/trunk/lang/golang/golang feed
 svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/libs/nghttp2 package/libs/nghttp2
 svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/libs/libconfig package/libs/libconfig
 svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/utils/fuse package/utils/fuse
-svn co https://github.com/openwrt/packages/branches/openwrt-19.07/libs/libcap package/libs/libcap
+#svn co https://github.com/openwrt/packages/branches/openwrt-19.07/libs/libcap package/libs/libcap
 
 #Additional package
 #arpbind
@@ -150,7 +150,6 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks package
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs package/lean/simple-obfs
 svn co https://github.com/coolsnowwolf/packages/trunk/net/shadowsocks-libev package/lean/shadowsocks-libev
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
-
 
 #v2ray-server
 #svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-v2ray-server package/luci-app-v2ray-server
