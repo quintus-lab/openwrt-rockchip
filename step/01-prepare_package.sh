@@ -68,20 +68,20 @@ patch -p1 < ../patches/for_r2s_19.07_config-default.patch
 rm -rf ./package/network/utils/curl
 svn co https://github.com/openwrt/packages/trunk/net/curl package/network/utils/curl
 #replace Node
-rm -rf ./feeds/packages/lang/node
-svn co https://github.com/nxhack/openwrt-node-packages/trunk/node feeds/packages/lang/node
-rm -rf ./feeds/packages/lang/node-arduino-firmata
-svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-arduino-firmata feeds/packages/lang/node-arduino-firmata
-rm -rf ./feeds/packages/lang/node-cylon
-svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-cylon feeds/packages/lang/node-cylon
-rm -rf ./feeds/packages/lang/node-hid
-svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-hid feeds/packages/lang/node-hid
-rm -rf ./feeds/packages/lang/node-homebridge
-svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-homebridge feeds/packages/lang/node-homebridge
-rm -rf ./feeds/packages/lang/node-serialport
-svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport feeds/packages/lang/node-serialport
-rm -rf ./feeds/packages/lang/node-serialport-bindings
-svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport-bindings feeds/packages/lang/node-serialport-bindings
+#rm -rf ./feeds/packages/lang/node
+#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node feeds/packages/lang/node
+#rm -rf ./feeds/packages/lang/node-arduino-firmata
+#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-arduino-firmata feeds/packages/lang/node-arduino-firmata
+#rm -rf ./feeds/packages/lang/node-cylon
+#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-cylon feeds/packages/lang/node-cylon
+#rm -rf ./feeds/packages/lang/node-hid
+#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-hid feeds/packages/lang/node-hid
+#rm -rf ./feeds/packages/lang/node-homebridge
+#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-homebridge feeds/packages/lang/node-homebridge
+#rm -rf ./feeds/packages/lang/node-serialport
+#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport feeds/packages/lang/node-serialport
+#rm -rf ./feeds/packages/lang/node-serialport-bindings
+#svn co https://github.com/nxhack/openwrt-node-packages/trunk/node-serialport-bindings feeds/packages/lang/node-serialport-bindings
 #update GCC
 #rm -rf ./feeds/packages/devel/gcc
 #svn co https://github.com/openwrt/packages/trunk/devel/gcc feeds/packages/devel/gcc
@@ -221,7 +221,7 @@ svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/lean/luci-app-filetransfer package/lean/luci-app-filetransfer
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/lean/luci-lib-fs package/lean/luci-lib-fs
 #tmate
-svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/tmate package/ctcgfw/tmate
+svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/tmate package/ctcgfw/tmate
 svn co https://github.com/project-openwrt/openwrt/branches/openwrt-19.07/package/ctcgfw/msgpack-c package/ctcgfw/msgpack-c
 #
 svn co https://github.com/project-openwrt/openwrt/branches/master/package/lean/luci-app-cpufreq package/lean/luci-app-cpufreq
