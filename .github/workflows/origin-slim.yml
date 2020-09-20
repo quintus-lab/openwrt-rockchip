@@ -126,7 +126,7 @@ jobs:
         
       - name: Upload artifact
         uses: actions/upload-artifact@main
-        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+#        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
           name: OpenWrt_R2S_origin_firmware
           path: ${{ env.FIRMWARE }}
