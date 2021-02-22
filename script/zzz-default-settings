@@ -1,0 +1,70 @@
+#!/bin/sh
+
+#uci set luci.main.mediaurlbase='/luci-static/argon'
+#uci commit luci
+
+uci set system.@system[0].timezone=CST-8
+uci set system.@system[0].zonename=Asia/Shanghai
+uci commit system
+
+sed -i 's/local ucic = uci.cursor()/local ucic = luci.model.uci.cursor()/g' /usr/share/shadowsocksr/subscribe.lua
+sed -i "s/'cbid.shadowsocksr.'/'widget.cbid.shadowsocksr.'/g" /usr/lib/lua/luci/view/shadowsocksr/ssrurl.htm
+
+sed -i 's/0/1/g' /etc/config/irqbalance
+
+sed -i '/openwrt_luci/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
+sed -i '/openwrt_packages/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
+sed -i '/openwrt_routing/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
+sed -i '/openwrt_telephony/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
+sed -i '/natelol/d' /etc/opkg/distfeeds.conf
+sed -i 's,downloads.openwrt.org,mirrors.cloud.tencent.com/lede,g' /etc/opkg/distfeeds.conf
+
+uci set fstab.@global[0].anon_mount=1
+uci commit fstab
+
+rm -f /usr/lib/lua/luci/view/admin_status/index/mwan.htm
+rm -f /usr/lib/lua/luci/view/admin_status/index/upnp.htm
+rm -f /usr/lib/lua/luci/view/admin_status/index/ddns.htm
+rm -f /usr/lib/lua/luci/view/admin_status/index/minidlna.htm
+
+uci set uhttpd.main.rfc1918_filter=0
+uci set uhttpd.main.redirect_https=0
+uci commit uhttpd
+
+#sed -i 's,/opt,/overlay,g' /etc/config/dockerman
+
+#Mark
+Build_Date=$(date +%Y.%m.%d)
+echo -e '\nQuintus Build @ '$Build_Date'\n'  >> /etc/banner
+sed -i '/DISTRIB_REVISION/d' /etc/openwrt_release
+echo "DISTRIB_REVISION='$(date "+%Y.%m.%d")'" >> /etc/openwrt_release
+sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
+echo "DISTRIB_DESCRIPTION='Quintus Build@$Build_Date'" >> /etc/openwrt_release
+
+#SSL
+sed -i 's,#afalg,afalg,g' /etc/ssl/openssl.cnf
+sed -i 's/#devcrypto/devcrypto/g' /etc/ssl/openssl.cnf
+sed -i 's/#USE_SOFTDRIVERS = 2/USE_SOFTDRIVERS = 1/g' /etc/ssl/openssl.cnf
+
+sed -i '/log-facility/d' /etc/dnsmasq.conf
+echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
+rm -rf /tmp/luci-modulecache/
+rm -f /tmp/luci-indexcache
+ln -sf /sbin/ip /usr/bin/ip
+#opkg flag hold luci-app-ddns
+#opkg flag hold luci-i18n-ddns-zh-cn
+#opkg flag hold ddns-scripts
+#opkg flag hold ddns-scripts_cloudflare.com-v4
+opkg flag hold luci-app-firewall
+opkg flag hold firewall
+opkg flag hold dnsmasq-full
+
+#uci delete network.lan.ip6assign
+#uci delete network.wan6
+#uci set dhcp.lan.ra=disabled
+#uci set dhcp.lan.dhcpv6=disabled
+#uci commit 
+uci set ttyd.@ttyd[0].command='/bin/login'
+uci commit ttyd
+
+exit 0

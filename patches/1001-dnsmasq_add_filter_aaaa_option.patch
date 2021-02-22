@@ -1,0 +1,68 @@
+From 0427fdfe2b0f302b7ebd248f36c2c9b6c0eeba19 Mon Sep 17 00:00:00 2001
+From: Quintus Chu <@gmail.com>
+Date: Tue, 29 Dec 2020 04:58:05 +0800
+Subject: [PATCH]Add filter-aaaa option at dnsmasq for the FriendlyARM NanoPi R4S.
+
+Signed-off-by: Quintus Chu
+Signed-off-by: Chuck <fanck0605@qq.com>
+---
+			modified:   feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
+            modified:   package/base-files/files/etc/init.d/boot
+            modified:   package/network/services/dnsmasq/files/dhcp.conf
+            modified:   package/network/services/dnsmasq/files/dnsmasq.init
+
+diff --git a/feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js b/feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
+index 541c2fca1b..6aae03e54b 100644
+--- a/feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
++++ b/feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
+@@ -199,6 +199,11 @@ return view.extend({
+ 		s.taboption('files', form.DynamicList, 'addnhosts',
+ 			_('Additional Hosts files')).optional = true;
+ 
++		o = s.taboption('advanced', form.Flag, 'filteraaaa',
++			_('Filter IPv6 Records'),
++			_('Filter IPv6(AAAA) Records during DNS resolution'));
++		o.optional = true;
++
+ 		o = s.taboption('advanced', form.Flag, 'quietdhcp',
+ 			_('Suppress logging'),
+ 			_('Suppress logging of the routine operation of these protocols'));
+diff --git a/package/base-files/files/etc/init.d/boot b/package/base-files/files/etc/init.d/boot
+index b36323a97e..00bae1eb53 100755
+--- a/package/base-files/files/etc/init.d/boot
++++ b/package/base-files/files/etc/init.d/boot
+@@ -33,6 +33,7 @@ boot() {
+ 	mkdir -p /tmp/resolv.conf.d
+ 	touch /tmp/resolv.conf.d/resolv.conf.auto
+ 	ln -sf /tmp/resolv.conf.d/resolv.conf.auto /tmp/resolv.conf
++	ln -sf /tmp/resolv.conf.d/resolv.conf.auto /tmp/resolv.conf.auto
+ 	grep -q debugfs /proc/filesystems && /bin/mount -o noatime -t debugfs debugfs /sys/kernel/debug
+ 	grep -q bpf /proc/filesystems && /bin/mount -o nosuid,nodev,noexec,noatime,mode=0700 -t bpf bpffs /sys/fs/bpf
+ 	[ "$FAILSAFE" = "true" ] && touch /tmp/.failsafe
+diff --git a/package/network/services/dnsmasq/files/dhcp.conf b/package/network/services/dnsmasq/files/dhcp.conf
+index 8c42ef782e..5ff9bf8bfd 100644
+--- a/package/network/services/dnsmasq/files/dhcp.conf
++++ b/package/network/services/dnsmasq/files/dhcp.conf
+@@ -20,6 +20,7 @@ config dnsmasq
+ 	#list notinterface	lo
+ 	#list bogusnxdomain     '64.94.110.11'
+ 	option localservice	1  # disable to allow DNS requests from non-local subnets
++	option filteraaaa	1
+ 	option ednspacket_max	1232
+ 
+ config dhcp lan
+diff --git a/package/network/services/dnsmasq/files/dnsmasq.init b/package/network/services/dnsmasq/files/dnsmasq.init
+index 680e72f9e7..c998aa3ac5 100644
+--- a/package/network/services/dnsmasq/files/dnsmasq.init
++++ b/package/network/services/dnsmasq/files/dnsmasq.init
+@@ -893,6 +893,8 @@ dnsmasq_start()
+ 	append_bool "$cfg" sequential_ip "--dhcp-sequential-ip"
+ 	append_bool "$cfg" allservers "--all-servers"
+ 	append_bool "$cfg" noping "--no-ping"
++	append_bool "$cfg" filteraaaa "--filter-aaaa"
++   append_parm "$cfg" mini_ttl "--min-ttl"
+ 	append_bool "$cfg" rapidcommit "--dhcp-rapid-commit"
+ 	append_bool "$cfg" scriptarp "--script-arp"
+
+-- 
+2.28.0
