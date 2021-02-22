@@ -32,9 +32,6 @@ patch -p1 < ../patches/1004-netconntrack.patch
 #update curl
 svn co https://github.com/openwrt/openwrt/branches/openwrt-19.07/package/network/utils/curl package/network/utils/curl
 
-#3328 add idle patch
-cp -rf ../patches/007-arm64-dts-rockchip-Add-RK3328-idle-state.patch target/linux/rockchip/patches-5.10
-
 #R2S overclock to 1.6G patch
 #cp -f ../patches/999-unlock-1608mhz-rk3328.patch ./target/linux/rockchip/patches-5.4/
 
