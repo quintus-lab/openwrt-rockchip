@@ -11,5 +11,5 @@
 4. Can keeping configurations in upgrade is **suggested**, it's totally unnecessary to drop them.<br/>
 
 - ### Applications
-  AccessControl, ADbyby, CFDisk, DDNS, DiskMan, FRP, Gost, SpeedTest-CLI, SSRPlus, Socat, Stress-ng, Tmate, UPNP, Wake-On-LAN, WireGuard, ZeroTier etc.
+  AccessControl, ADbyby, CFDisk, DDNS, DiskMan, FRP, Gost, SpeedTest-CLI, SSRPlus, Socat, Stress-ng, Tmate, UPNP, Wake-On-LAN, WireGuard(Unfortunately, kernel 5.10 not yet), ZeroTier etc.
 - - -
