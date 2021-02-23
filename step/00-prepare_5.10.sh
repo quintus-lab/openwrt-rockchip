@@ -1,5 +1,9 @@
 #!/bin/bash
 clear
+#temp: update to 5.10.18
+wget https://patch-diff.githubusercontent.com/raw/openwrt/openwrt/pull/3919.patch
+patch -p1 < ./3919.patch
+
 # use 02
 sed -i 's/Os/O2/g' include/target.mk
 #Update feed
