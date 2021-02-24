@@ -1,7 +1,5 @@
 #!/bin/bash
 clear
-# use 02
-sed -i 's/Os/O2/g' include/target.mk
 #Update feed
 sed -i '4s/src-git/#src-git/g' ./feeds.conf.default
 sed -i '5s/src-git/#src-git/g' ./feeds.conf.default

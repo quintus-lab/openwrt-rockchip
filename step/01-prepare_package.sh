@@ -24,10 +24,12 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/dns2socks package
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks package/lean/ipt2socks
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs package/lean/simple-obfs
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
-#temp
+#temp patch
 wget https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/394.patch
+wget https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/401.patch
 pushd package/lean/
-patch -p1 < ../patches/394.patch
+patch -p1 < ../../394.patch
+patch -p1 < ../../401.patch
 popd
 
 #wrt bw monitor
