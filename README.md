@@ -6,7 +6,7 @@
 - - -
 ## Introduction
 - ### Usage
-0. OpenWRT Official master source code + CTCGFW & Lean's packages code <br/>
+0. OpenWRT 21.02 source  + CTCGFW & Lean's packages<br/>
 1. Default Management IP addr is [192.168.1.1](192.168.1.1), username: `root`  , no password<br/>
  Please setup the login password **as soon as possible** once you logined.
 2. Once you flashed the firmware into SD card, you may simply use "Upgrade" function<br/>
