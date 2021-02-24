@@ -4,8 +4,6 @@ clear
 wget https://patch-diff.githubusercontent.com/raw/openwrt/openwrt/pull/3919.patch
 patch -p1 < ./3919.patch
 
-# use 02
-sed -i 's/Os/O2/g' include/target.mk
 #Update feed
 sed -i '4s/src-git/#src-git/g' ./feeds.conf.default
 sed -i '5s/src-git/#src-git/g' ./feeds.conf.default
@@ -23,7 +21,7 @@ patch -p1 < ../patches/0002-rockchip-rngd.patch
 patch -p1 < ../patches/0004-uboot-add-r4s-support.patch
 patch -p1 < ../patches/0005-target-5.10-r4s-support.patch
 patch -p1 < ../patches/0006-target-5.10-rockchip-support.patch
-
+patch -p1 < ../patches/0007-optimize_for_rk3399.patch
 #dnsmasq aaaa filter
 patch -p1 < ../patches/1001-dnsmasq_add_filter_aaaa_option.patch
 cp -f ../patches/910-mini-ttl.patch package/network/services/dnsmasq/patches/
