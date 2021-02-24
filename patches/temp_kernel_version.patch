@@ -1,0 +1,132 @@
+diff --git a/include/image-commands.mk b/include/image-commands.mk
+index c3f8b4b95a..51e745958e 100644
+--- a/include/image-commands.mk
++++ b/include/image-commands.mk
+@@ -3,6 +3,10 @@
+ IMAGE_KERNEL = $(word 1,$^)
+ IMAGE_ROOTFS = $(word 2,$^)
+ 
++define ModelNameLimit16
++$(shell expr substr "$(word 2, $(subst _, ,$(1)))" 1 16)
++endef
++
+ define rootfs_align
+ $(patsubst %-256k,0x40000,$(patsubst %-128k,0x20000,$(patsubst %-64k,0x10000,$(patsubst squashfs%,0x4,$(patsubst root.%,%,$(1))))))
+ endef
+diff --git a/include/image.mk b/include/image.mk
+index 2530108211..e602f2f4e9 100644
+--- a/include/image.mk
++++ b/include/image.mk
+@@ -472,7 +472,8 @@ endef
+ ifndef IB
+ define Device/Build/initramfs
+   $(call Device/Export,$(KDIR)/tmp/$$(KERNEL_INITRAMFS_IMAGE),$(1))
+-  $$(_TARGET): $$(if $$(KERNEL_INITRAMFS),$(BIN_DIR)/$$(KERNEL_INITRAMFS_IMAGE))
++  $$(_TARGET): $$(if $$(KERNEL_INITRAMFS),$(BIN_DIR)/$$(KERNEL_INITRAMFS_IMAGE)) \
++	  $$(if $$(CONFIG_JSON_OVERVIEW_IMAGE_INFO), $(BUILD_DIR)/json_info_files/$$(KERNEL_INITRAMFS_IMAGE).json,)
+ 
+   $(KDIR)/$$(KERNEL_INITRAMFS_NAME):: image_prepare
+   $(BIN_DIR)/$$(KERNEL_INITRAMFS_IMAGE): $(KDIR)/tmp/$$(KERNEL_INITRAMFS_IMAGE)
+@@ -481,6 +482,38 @@ define Device/Build/initramfs
+   $(KDIR)/tmp/$$(KERNEL_INITRAMFS_IMAGE): $(KDIR)/$$(KERNEL_INITRAMFS_NAME) $(CURDIR)/Makefile $$(KERNEL_DEPENDS) image_prepare
+ 	@rm -f $$@
+ 	$$(call concat_cmd,$$(KERNEL_INITRAMFS))
++
++  $(call Device/Export,$(BUILD_DIR)/json_info_files/$$(KERNEL_INITRAMFS_IMAGE).json,$(1))
++
++  $(BUILD_DIR)/json_info_files/$$(KERNEL_INITRAMFS_IMAGE).json: $(BIN_DIR)/$$(KERNEL_INITRAMFS_IMAGE)
++	@mkdir -p $$(shell dirname $$@)
++	DEVICE_ID="$(1)" \
++	BIN_DIR="$(BIN_DIR)" \
++	SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH) \
++	IMAGE_NAME="$$(notdir $$^)" \
++	IMAGE_TYPE="kernel" \
++	IMAGE_FILESYSTEM="initramfs" \
++	IMAGE_PREFIX="$$(IMAGE_PREFIX)" \
++	DEVICE_VENDOR="$$(DEVICE_VENDOR)" \
++	DEVICE_MODEL="$$(DEVICE_MODEL)" \
++	DEVICE_VARIANT="$$(DEVICE_VARIANT)" \
++	DEVICE_ALT0_VENDOR="$$(DEVICE_ALT0_VENDOR)" \
++	DEVICE_ALT0_MODEL="$$(DEVICE_ALT0_MODEL)" \
++	DEVICE_ALT0_VARIANT="$$(DEVICE_ALT0_VARIANT)" \
++	DEVICE_ALT1_VENDOR="$$(DEVICE_ALT1_VENDOR)" \
++	DEVICE_ALT1_MODEL="$$(DEVICE_ALT1_MODEL)" \
++	DEVICE_ALT1_VARIANT="$$(DEVICE_ALT1_VARIANT)" \
++	DEVICE_ALT2_VENDOR="$$(DEVICE_ALT2_VENDOR)" \
++	DEVICE_ALT2_MODEL="$$(DEVICE_ALT2_MODEL)" \
++	DEVICE_ALT2_VARIANT="$$(DEVICE_ALT2_VARIANT)" \
++	DEVICE_TITLE="$$(DEVICE_TITLE)" \
++	DEVICE_PACKAGES="$$(DEVICE_PACKAGES)" \
++	TARGET="$(BOARD)" \
++	SUBTARGET="$(if $(SUBTARGET),$(SUBTARGET),generic)" \
++	VERSION_NUMBER="$(VERSION_NUMBER)" \
++	VERSION_CODE="$(VERSION_CODE)" \
++	SUPPORTED_DEVICES="$$(SUPPORTED_DEVICES)" \
++	$(TOPDIR)/scripts/json_add_image_info.py $$@
+ endef
+ endif
+ 
+diff --git a/include/kernel-defaults.mk b/include/kernel-defaults.mk
+index e5a0ba367b..8293956f6b 100644
+--- a/include/kernel-defaults.mk
++++ b/include/kernel-defaults.mk
+@@ -3,7 +3,7 @@
+ # Copyright (C) 2006-2020 OpenWrt.org
+ 
+ ifdef CONFIG_STRIP_KERNEL_EXPORTS
+-  KERNEL_MAKEOPTS += \
++  KERNEL_MAKEOPTS_IMAGE += \
+ 	EXTRA_LDSFLAGS="-I$(KERNEL_BUILD_DIR) -include symtab.h"
+ endif
+ 
+@@ -75,7 +75,7 @@ ifeq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),y)
+ 	echo -e "$(if $(CONFIG_TARGET_INITRAMFS_COMPRESSION_LZO),CONFIG_INITRAMFS_COMPRESSION_LZO=y\nCONFIG_RD_LZO=y,# CONFIG_INITRAMFS_COMPRESSION_LZO is not set\n# CONFIG_RD_LZO is not set)" >> $(LINUX_DIR)/.config
+ 	echo -e "$(if $(CONFIG_TARGET_INITRAMFS_COMPRESSION_XZ),CONFIG_INITRAMFS_COMPRESSION_XZ=y\nCONFIG_RD_XZ=y,# CONFIG_INITRAMFS_COMPRESSION_XZ is not set\n# CONFIG_RD_XZ is not set)" >> $(LINUX_DIR)/.config
+ 	echo -e "$(if $(CONFIG_TARGET_INITRAMFS_COMPRESSION_LZ4),CONFIG_INITRAMFS_COMPRESSION_LZ4=y\nCONFIG_RD_LZ4=y,# CONFIG_INITRAMFS_COMPRESSION_LZ4 is not set\n# CONFIG_RD_LZ4 is not set)" >> $(LINUX_DIR)/.config
+-	echo -e "$(if $(CONFIG_TARGET_INITRAMFS_COMPRESSION_ZSTD),CONFIG_INITRAMFS_COMPRESSION_ZSTD=y\nCONFIG_RD_STD=y,# CONFIG_INITRAMFS_COMPRESSION_ZSTD is not set\n# CONFIG_RD_ZSTD is not set)" >> $(LINUX_DIR)/.config
++	echo -e "$(if $(CONFIG_TARGET_INITRAMFS_COMPRESSION_ZSTD),CONFIG_INITRAMFS_COMPRESSION_ZSTD=y\nCONFIG_RD_ZSTD=y,# CONFIG_INITRAMFS_COMPRESSION_ZSTD is not set\n# CONFIG_RD_ZSTD is not set)" >> $(LINUX_DIR)/.config
+   endef
+ else
+ endif
+@@ -113,7 +113,7 @@ endef
+ 
+ define Kernel/CompileModules/Default
+ 	rm -f $(LINUX_DIR)/vmlinux $(LINUX_DIR)/System.map
+-	+$(KERNEL_MAKE) modules
++	+$(KERNEL_MAKE) $(if $(KERNELNAME),$(KERNELNAME),all) modules
+ endef
+ 
+ OBJCOPY_STRIP = -R .reginfo -R .notes -R .note -R .comment -R .mdebug -R .note.gnu.build-id
+@@ -137,7 +137,7 @@ endef
+ 
+ define Kernel/CompileImage/Default
+ 	rm -f $(TARGET_DIR)/init
+-	+$(KERNEL_MAKE) $(if $(KERNELNAME),$(KERNELNAME),all) modules
++	+$(KERNEL_MAKE) $(KERNEL_MAKEOPTS_IMAGE) $(if $(KERNELNAME),$(KERNELNAME),all)
+ 	$(call Kernel/CopyImage)
+ endef
+ 
+@@ -147,7 +147,7 @@ define Kernel/CompileImage/Initramfs
+ 	$(CP) $(GENERIC_PLATFORM_DIR)/other-files/init $(TARGET_DIR)/init
+ 	$(if $(SOURCE_DATE_EPOCH),touch -hcd "@$(SOURCE_DATE_EPOCH)" $(TARGET_DIR)/init)
+ 	rm -rf $(KERNEL_BUILD_DIR)/linux-$(LINUX_VERSION)/usr/initramfs_data.cpio*
+-	+$(KERNEL_MAKE) $(if $(KERNELNAME),$(KERNELNAME),all) modules
++	+$(KERNEL_MAKE) $(KERNEL_MAKEOPTS_IMAGE) $(if $(KERNELNAME),$(KERNELNAME),all)
+ 	$(call Kernel/CopyImage,-initramfs)
+ endef
+ else
+diff --git a/include/kernel-version.mk b/include/kernel-version.mk
+index 9602d2b9bd..79525c7d71 100644
+--- a/include/kernel-version.mk
++++ b/include/kernel-version.mk
+@@ -7,8 +7,10 @@ ifdef CONFIG_TESTING_KERNEL
+ endif
+ 
+ LINUX_VERSION-5.4 = .99
++LINUX_VERSION-5.10 = .16
+ 
+ LINUX_KERNEL_HASH-5.4.99 = 5bdad12c69253d30d836dd51e0b2a9a04a6749cc6b4b2412561a1efcb1351a27
++LINUX_KERNEL_HASH-5.10.16 = 536fe3ea273bfcc72b3571d3b3a7ff0a5bcdc16068efd22e42c4f9d03c200a37
+ 
+ remove_uri_prefix=$(subst git://,,$(subst http://,,$(subst https://,,$(1))))
+ sanitize_uri=$(call qstrip,$(subst @,_,$(subst :,_,$(subst .,_,$(subst -,_,$(subst /,_,$(1)))))))
