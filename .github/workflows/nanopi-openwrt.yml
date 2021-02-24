@@ -76,7 +76,7 @@ jobs:
         run: |
           cd openwrt
           cp -r ../step/* ./
-          /bin/bash 00-prepare_5.10.sh
+          /bin/bash 00-prepare_openwrt.sh
 
       - name: Prepare application packages
         run: |
