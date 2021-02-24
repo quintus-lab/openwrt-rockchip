@@ -101,16 +101,34 @@ jobs:
           cp .config  nanopi_multi.config
 
       - name: Make toolchain-aarch64
+        id: compiletoolchain
+        continue-on-error: true
         run: |
           cd openwrt
           let make_process=$(nproc)+1
           make toolchain/install -j${make_process} V=s
 
+      - name: If toolchain Error
+        if: steps.compiletoolchain.outcome == 'failure'
+        run: |
+          echo '================================================================'
+          cd openwrt && make toolchain/install -j1 V=s
+
+
       - name: Compile OpenWRT for R2S & R4S
+        id: compileopenwrt
+        continue-on-error: true
         run: |
           cd openwrt
           let make_process=$(nproc)+1
           make -j${make_process} V=s || make -j${make_process} V=s
+
+      - name: If compile openwrt Error
+        if: steps.compileopenwrt.outcome == 'failure'
+        run: |
+          cat openwrt/.config
+          echo '================================================================'
+          cd openwrt && make -j1 V=s
 
 #      - name: Load R4S Config
 #        run: |
