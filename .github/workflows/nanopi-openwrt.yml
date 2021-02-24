@@ -177,8 +177,7 @@ jobs:
           allowUpdates: true
           tag: K5.4
           commit: 21.02
-          omitName: true
           replacesArtifacts: true
           token: ${{ secrets.RELEASES_TOKEN }}
-          bodyFile: "body-origin.md"
+          bodyFile: "body-origin-21.02.md"
           artifacts: ./artifact/*.zip,./artifact/*.config,./artifact/*.hash
