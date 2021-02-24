@@ -1,9 +1,5 @@
 #!/bin/bash
 clear
-#temp: update to 5.10.18
-wget https://patch-diff.githubusercontent.com/raw/openwrt/openwrt/pull/3919.patch
-patch -p1 < ./3919.patch
-
 #Update feed
 sed -i '4s/src-git/#src-git/g' ./feeds.conf.default
 sed -i '5s/src-git/#src-git/g' ./feeds.conf.default
