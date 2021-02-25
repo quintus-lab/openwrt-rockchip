@@ -175,7 +175,7 @@ jobs:
         with:
           name: OpenWRT-R2S-R4S-21.02
           allowUpdates: true
-          tag: K5.4
+          tag: 21.02
           commit: 21.02
           replacesArtifacts: true
           token: ${{ secrets.RELEASES_TOKEN }}
