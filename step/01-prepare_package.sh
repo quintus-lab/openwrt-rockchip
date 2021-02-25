@@ -25,7 +25,8 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks package
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs package/lean/simple-obfs
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
 #GCC-10 patch
-wget -O package/lean/shadowsocksr-libev/patches/998-gcc10.patch https://patch-diff.githubusercontent.com/raw/coolsnowwolf/lede/pull/6433.patch
+wget https://patch-diff.githubusercontent.com/raw/coolsnowwolf/lede/pull/6433.patch
+patch -p1 < ./6433.patch
 #temp patch
 wget https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/394.patch
 wget https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/401.patch
