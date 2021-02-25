@@ -169,7 +169,7 @@ jobs:
         with:
           name: OpenWRT-R2S-R4S-K510
           allowUpdates: true
-          tag: K510
+          tag: master
           commit: master
           replacesArtifacts: true
           token: ${{ secrets.RELEASES_TOKEN }}
