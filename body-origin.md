@@ -1,1 +1,1 @@
-*** OpenWRT master with Kernel 5.10 ***
+***OpenWRT master with Kernel 5.10***
