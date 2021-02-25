@@ -4,6 +4,7 @@ clear
 # remove other coremark
 rm -rf feeds/packages/utils/coremark
 rm -rf package/feeds/packages/coremark
+./scripts/feeds update -a && ./scripts/feeds install -a
 
 #OLED display
 git clone https://github.com/natelol/luci-app-oled package/natelol/luci-app-oled
