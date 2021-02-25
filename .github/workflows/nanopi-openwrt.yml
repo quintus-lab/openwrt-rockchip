@@ -158,9 +158,8 @@ jobs:
           zip R4S-QC-$(date +%Y-%m-%d)-21.02-sfs.zip *r4s*squashfs*
           cp ../openwrt/*.config ./
           ls -Ahl
-          sha256sum openwrt* | tee sha256_$(date "+%Y%m%d").hash
-          md5sum    openwrt* | tee    md5_$(date "+%Y%m%d").hash
-
+          sha256sum openwrt*r2s* | tee R2S-QC-$(date +%Y-%m-%d)-21.02.sha256sum
+          sha256sum openwrt*r4s* | tee R4S-QC-$(date +%Y-%m-%d)-21.02.sha256sum
       - name: Upload artifact
         uses: actions/upload-artifact@main
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
@@ -180,4 +179,4 @@ jobs:
           replacesArtifacts: true
           token: ${{ secrets.RELEASES_TOKEN }}
           bodyFile: "body-origin-21.02.md"
-          artifacts: ./artifact/*.zip,./artifact/*.config,./artifact/*.hash
+          artifacts: ./artifact/*.zip,./artifact/*.config,./artifact/*.sha256sum
