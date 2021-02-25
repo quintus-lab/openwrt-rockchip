@@ -29,10 +29,8 @@ wget https://patch-diff.githubusercontent.com/raw/coolsnowwolf/lede/pull/6433.pa
 patch -p1 < ./6433.patch
 #temp patch
 wget https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/394.patch
-wget https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/401.patch
 pushd package/lean/
 patch -p1 < ../../394.patch
-patch -p1 < ../../401.patch
 popd
 
 #wrt bw monitor
