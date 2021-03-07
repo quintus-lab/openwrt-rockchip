@@ -54,7 +54,7 @@ Subject: [PATCH] new_rockchip_support_k510
  new file:   target/linux/rockchip/patches-5.4/806-arm64-dts-rockchip-rk3328-add-dfi-node.patch
  new file:   target/linux/rockchip/patches-5.4/807-arm64-dts-nanopi-r2s-add-rk3328-dmc-relate-node.patch
 ---
- .../boot/arm-trusted-firmware-rk3328/Makefile |  57 ++
+ .../boot/arm-trusted-firmware-rk3328/Makefile |  55 ++
  .../arm-trusted-firmware-rk3328/src/trust.ini |  15 +
  package/boot/uboot-rockchip/Makefile          |  25 +-
  ...split-nanopi-r4-rk3399-out-of-evb_rk.patch | 509 +++++++++++
@@ -94,7 +94,7 @@ Subject: [PATCH] new_rockchip_support_k510
  ...eq-rockchip-dfi-add-more-soc-support.patch | 665 ++++++++++++++
  ...m64-dts-rockchip-rk3328-add-dfi-node.patch |  27 +
  ...anopi-r2s-add-rk3328-dmc-relate-node.patch | 126 +++
- 40 files changed, 5752 insertions(+), 7 deletions(-)
+ 40 files changed, 5750 insertions(+), 7 deletions(-)
  create mode 100644 package/boot/arm-trusted-firmware-rk3328/Makefile
  create mode 100644 package/boot/arm-trusted-firmware-rk3328/src/trust.ini
  create mode 100644 package/boot/uboot-rockchip/patches/200-rockchip-rk3399-split-nanopi-r4-rk3399-out-of-evb_rk.patch
