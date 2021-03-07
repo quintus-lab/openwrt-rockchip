@@ -1,0 +1,180 @@
+#=================================================
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+
+name: OpenWRT-snapshot
+
+on:
+#  release:
+#    types: published
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/nanopi-openwrt.yml'
+      - 'step/01-prepare_package.sh'
+      - 'step/00-prepare_5.10.sh'
+      - 'seed/nanopi.seed'
+  schedule:
+    - cron: 35 20 * * *
+  watch:
+    types: started
+
+jobs:
+    build:
+      runs-on: ubuntu-18.04
+      if: github.event.repository.owner.id == github.event.sender.id
+
+      steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Show CPU Model and Free Space
+        run: |
+          echo -e "Total CPU cores\t: $(nproc)"
+          cat /proc/cpuinfo | grep 'model name'
+          free -h
+
+      - name: Set env
+        run: |
+          echo "SSH_ACTIONS=false" >> $GITHUB_ENV
+          echo "UPLOAD_BIN_DIR=false" >> $GITHUB_ENV
+          echo "UPLOAD_FIRMWARE=true" >> $GITHUB_ENV
+          echo "UPLOAD_RELEASE=true" >> $GITHUB_ENV
+          echo "TZ=Asia/Shanghai" >>$GITHUB_ENV
+          echo "Build_Date=$(date +%Y.%m.%d)" >> $GITHUB_ENV
+          
+      - name: Show env
+        run: echo $GITHUB_ENV
+
+      - name: free disk space
+        run: |
+          df -h
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+          /bin/bash ./script/free_disk_space.sh
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo -E rm -rf /etc/apt/sources.list.d
+          sudo -E apt-get update -y
+          sudo -E apt-get install -y build-essential rsync asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core p7zip p7zip-full msmtp libssl-dev texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint ccache curl wget vim nano python3 python3-pip python3-ply haveged lrzsz device-tree-compiler scons
+          wget -qO - https://raw.githubusercontent.com/friendlyarm/build-env-on-ubuntu-bionic/master/install.sh | sed 's/python-/python3-/g' | /bin/bash
+          sudo -E apt-get clean -y
+          git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+          df -h
+
+      - name: Install OpenWrt source
+        run: |
+          git clone -b master --single-branch https://git.openwrt.org/openwrt/openwrt.git openwrt
+
+      - name: Prepare openwrt
+        run: |
+          cd openwrt
+          cp -r ../step/* ./
+          /bin/bash 00-prepare_5.10.sh
+
+      - name: Prepare application packages
+        run: |
+          cd openwrt
+          /bin/bash 01-prepare_package.sh
+
+      - name: Add ACL
+        run: |
+          cd openwrt
+          /bin/bash 03-create_acl_for_luci.sh -a
+
+      - name: Load Multiple devices Config
+        run: |
+          cd openwrt
+          mv ../seed/nanopi.seed .config
+          make defconfig
+          cp .config  nanopi_multi.config
+
+      - name: Make toolchain-aarch64
+        id: compiletoolchain
+        continue-on-error: true
+        run: |
+          cd openwrt
+          let make_process=$(nproc)+1
+          make toolchain/install -j${make_process} V=s
+
+      - name: If toolchain Error
+        if: steps.compiletoolchain.outcome == 'failure'
+        run: |
+          echo '================================================================'
+          cd openwrt && make toolchain/install -j1 V=s
+
+
+      - name: Compile OpenWRT for R2S & R4S
+        id: compileopenwrt
+        continue-on-error: true
+        run: |
+          cd openwrt
+          let make_process=$(nproc)+1
+          make -j${make_process} V=s || make -j${make_process} V=s
+
+      - name: If compile openwrt Error
+        if: steps.compileopenwrt.outcome == 'failure'
+        run: |
+          cat openwrt/.config
+          echo '================================================================'
+          cd openwrt && make -j1 V=s
+#      - name: Load R4S Config
+#        run: |
+#          cd openwrt
+#          mv ../seed/r4s.seed .config
+#          make defconfig
+#          cp .config  r4s.config
+#
+#      - name: Compile OpenWRT for R4S
+#        run: |
+#          cd openwrt
+#          let make_process=$(nproc)+1
+#          make -j${make_process} V=s || make -j${make_process} V=s
+#
+      - name: Organize files
+        id: organize
+        run: |
+          rm -rf ./artifact/
+          mkdir -p ./artifact/
+          mv openwrt/bin/targets/rockchip/armv8/*sysupgrade.img* ./artifact/
+          cd ./artifact/
+          ls -Ahl
+          gzip -d *.gz && exit 0
+          gzip *.img
+          sha256sum openwrt*r2s* | tee R2S-QC-$(date +%Y-%m-%d).sha256sum
+          sha256sum openwrt*r4s* | tee R4S-QC-$(date +%Y-%m-%d).sha256sum
+          ls -Ahl
+          zip R2S-QC-$(date +%Y-%m-%d)-ext4.zip *r2s*ext4*
+          zip R2S-QC-$(date +%Y-%m-%d)-sfs.zip *r2s*squashfs*
+          zip R4S-QC-$(date +%Y-%m-%d)-ext4.zip *r4s*ext4*
+          zip R4S-QC-$(date +%Y-%m-%d)-sfs.zip *r4s*squashfs*
+          cp ../openwrt/*.config ./
+          ls -Ahl
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        with:
+          name: OpenWRT_NanoPi_firmware
+          path: ./artifact/
+
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1.8.0
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          name: OpenWRT-R2S-R4S-K510
+          allowUpdates: true
+          tag: snapshot
+          commit: master
+          replacesArtifacts: true
+          token: ${{ secrets.RELEASES_TOKEN }}
+          bodyFile: "body-origin.md"
+          artifacts: ./artifact/*.zip,./artifact/*.config,./artifact/*.sha256sum

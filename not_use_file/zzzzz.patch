@@ -1,0 +1,104 @@
+diff --git a/package/lean/default-settings/Makefile b/package/lean/default-settings/Makefile
+index 858587f71f..c7bb45eded 100644
+--- a/package/lean/default-settings/Makefile
++++ b/package/lean/default-settings/Makefile
+@@ -21,7 +21,7 @@ define Package/default-settings
+   CATEGORY:=LuCI
+   TITLE:=LuCI support for Default Settings
+   PKGARCH:=all
+-  DEPENDS:=+luci-base +luci +luci-compat +@LUCI_LANG_zh-cn
++  DEPENDS:=+luci-base +luci +luci-compat
+ endef
+ 
+ define Package/default-settings/description
+@@ -38,7 +38,6 @@ define Package/default-settings/install
+ 	$(INSTALL_DIR) $(1)/etc/uci-defaults
+ 	$(INSTALL_BIN) ./files/zzz-default-settings $(1)/etc/uci-defaults/99-default-settings
+ 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
+-	po2lmo ./i18n/default.zh-cn.po $(1)/usr/lib/lua/luci/i18n/default.zh-cn.lmo
+ endef
+ 
+ $(eval $(call BuildPackage,default-settings))
+diff --git a/package/lean/default-settings/files/zzz-default-settings b/package/lean/default-settings/files/zzz-default-settings
+index 5a012b9989..3415976488 100755
+--- a/package/lean/default-settings/files/zzz-default-settings
++++ b/package/lean/default-settings/files/zzz-default-settings
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ 
+-uci set luci.main.lang=zh_cn
++uci set luci.main.lang=en
+ uci commit luci
+ 
+ uci set system.@system[0].timezone=CST-8
+@@ -15,46 +15,32 @@ rm -f /usr/lib/lua/luci/view/admin_status/index/upnp.htm
+ rm -f /usr/lib/lua/luci/view/admin_status/index/ddns.htm
+ rm -f /usr/lib/lua/luci/view/admin_status/index/minidlna.htm
+ 
+-sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/aria2.lua
+-sed -i 's/services/nas/g' /usr/lib/lua/luci/view/aria2/overview_status.htm
+-sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/hd_idle.lua
+-sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/samba.lua
+-sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/minidlna.lua
+-sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/transmission.lua
+-sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/mjpg-streamer.lua
+-sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/p910nd.lua
+-sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/usb_printer.lua
+-sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/xunlei.lua
+-sed -i 's/services/nas/g'  /usr/lib/lua/luci/view/minidlna_status.htm
++uci set uhttpd.main.rfc1918_filter=0
++uci set uhttpd.main.redirect_https=0
++uci commit uhttpd
+ 
+-ln -sf /sbin/ip /usr/bin/ip
+-
+-sed -i 's#http://downloads.openwrt.org#https://mirrors.cloud.tencent.com/lede#g' /etc/opkg/distfeeds.conf
+-sed -i 's/root::0:0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' /etc/shadow
+-
+-sed -i "s/# //g" /etc/opkg/distfeeds.conf
+-sed -i '/openwrt_luci/ { s/snapshots/releases\/18.06.8/g; }'  /etc/opkg/distfeeds.conf
+-
+-sed -i '/REDIRECT --to-ports 53/d' /etc/firewall.user
+-echo "iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
+-echo "iptables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53" >> /etc/firewall.user
+-
+-sed -i '/option disabled/d' /etc/config/wireless
+-sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
+-
+-sed -i '/DISTRIB_REVISION/d' /etc/openwrt_release
+-echo "DISTRIB_REVISION='R20.12.12'" >> /etc/openwrt_release
+-sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
+-echo "DISTRIB_DESCRIPTION='OpenWrt '" >> /etc/openwrt_release
+-
+-sed -i '/log-facility/d' /etc/dnsmasq.conf
+-echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
+-
+-sed -i 's/cbi.submit\"] = true/cbi.submit\"] = \"1\"/g' /usr/lib/lua/luci/dispatcher.lua
+-
+-echo 'hsts=0' > /root/.wgetrc
++sed -i '/openwrt_luci/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
++sed -i '/openwrt_packages/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
++sed -i '/openwrt_routing/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
++sed -i '/openwrt_telephony/ { s/snapshots\/packages/releases\/packages-19.07/g; }' /etc/opkg/distfeeds.conf
++sed -i '/natelol/d' /etc/opkg/distfeeds.conf
++sed -i 's,downloads.openwrt.org,mirrors.cloud.tencent.com/lede,g' /etc/opkg/distfeeds.conf
+ 
+ rm -rf /tmp/luci-modulecache/
+ rm -f /tmp/luci-indexcache
+-
++ln -sf /sbin/ip /usr/bin/ip
++rm /usr/lib/lua/luci/i18n/*cn*
++echo 'luciversion = "Quintus@🇨🇦🇹🇼🇺🇸🇭🇰"' >> /usr/lib/lua/luci/version.lua
++sed -i '/log-facility/d' /etc/dnsmasq.conf
++echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
++opkg flag hold luci-app-firewall
++opkg flag hold firewall
++opkg flag hold dnsmasq-full
++
++uci set ttyd.@ttyd[0].command='/bin/login'
++uci commit ttyd
++uci set firewall.@zone[1].fullcone='1'
++uci commit firewall
++uci set network.globals.packet_steering='1'
++uci commit network
+ exit 0
