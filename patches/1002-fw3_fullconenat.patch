@@ -1,12 +1,11 @@
-From 1efde71dce5d30c64579afbfab265a4a3cf22cb3 Mon Feb 17 00:00:00 2021
+From b8be603976ff0ff22d60c873f6cb1b25db558250 Mon Sep 17 00:00:00 2001
 From: quintus-lab<noreply@github.com>
-Date: Sat, 2 Jan 2021 03:59:23 +0800
-Subject: [PATCH] Add fullconenat support
- 	new file:   package/network/config/firewall/patches/fullconenat.patch
+Date: Mon, 8 Mar 2021 03:32:04 +0800
+Subject: [PATCH] FW3_support_fullconenat
 
 ---
- .../config/firewall/patches/fullconenat.patch |  63 ++++
- 1 files changed,  63 insertions(+)
+ .../config/firewall/patches/fullconenat.patch | 63 +++++++++++++++++++
+ 1 file changed, 63 insertions(+)
  create mode 100644 package/network/config/firewall/patches/fullconenat.patch
 
 diff --git a/package/network/config/firewall/patches/fullconenat.patch b/package/network/config/firewall/patches/fullconenat.patch
@@ -79,4 +78,5 @@ index 0000000000..d69e7129ec
 + 			}
 + 		}
 -- 
-2.28.0
+2.25.1
+
