@@ -38,7 +38,7 @@ index 7526224972..aba7849b65 100644
 +    ifneq ($(filter $(FEATURES),fpu),)
 +      CPU_CFLAGS += -march=armv8-a+crypto
 +    endif
-     CPU_CFLAGS_generic = -mcpu=generic
+     CPU_CFLAGS_generic = -march=armv8-a+crypto+crc -mcpu=cortex-a72.cortex-a53+crypto+crc -mtune=cortex-a72.cortex-a53
      CPU_CFLAGS_cortex-a53 = -mcpu=cortex-a53
    endif
 diff --git a/package/libs/mbedtls/Makefile b/package/libs/mbedtls/Makefile
