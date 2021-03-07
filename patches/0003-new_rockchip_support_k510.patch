@@ -132,9 +132,7 @@ new file mode 100644
 index 0000000000..32fab196b5
 --- /dev/null
 +++ b/package/boot/arm-trusted-firmware-rk3328/Makefile
-@@ -0,0 +1,57 @@
-+#
-+# Copyright (C) 2020 Tobias Maedel <openwrt@tbspace.de>
+@@ -0,0 +1,55 @@
 +#
 +# Copyright (C) 2021 ImmortalWrt
 +# (https://immortalwrt.org)
