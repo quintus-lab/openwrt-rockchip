@@ -14,7 +14,7 @@ patch -p1 < ../patches/0001-tools-add-upx-ucl-support.patch
 patch -p1 < ../patches/0002-rockchip-rngd.patch
 
 # add R4S support
-patch -p1 < ../patches/0003-new_rockchip_support_k510.patch
+patch -p1 < ../patches/0003-new_rk33xx_support_with_ARMv8_CE_k5.10.patch
 patch -p1 < ../patches/0007-optimize_for_rk3399.patch
 
 # add AES and GCM with ARMv8 Crypto support

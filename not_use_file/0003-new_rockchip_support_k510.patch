@@ -26,7 +26,8 @@ Subject: [PATCH] new_rockchip_support_k510
  modified:   target/linux/rockchip/armv8/base-files/etc/board.d/01_leds 
  modified:   target/linux/rockchip/armv8/base-files/etc/board.d/02_network 
  modified:   target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity
- modified:   target/linux/rockchip/armv8/config-5.10 modified:   target/linux/rockchip/armv8/config-5.4 
+ modified:   target/linux/rockchip/armv8/config-5.10 
+ modified:   target/linux/rockchip/armv8/config-5.4 
  new file:   target/linux/rockchip/files/arch/arm64/boot/dts/rockchip/rk3328-dram-nanopi2-timing.dtsi
  new file:   target/linux/rockchip/files/drivers/devfreq/rk3328_dmc.c 
  new file:   target/linux/rockchip/files/include/dt-bindings/clock/rockchip-ddr.h
