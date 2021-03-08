@@ -20,6 +20,10 @@ patch -p1 < ../patches/0007-optimize_for_rk3399.patch
 # add AES and GCM with ARMv8 Crypto support
 patch -p1 < ../patches/0008-mbedtls-Implements-AES-and-GCM-with-ARMv8-Crypto-Ext.patch
 
+# use vendor usb3 inno driver
+patch -p1 < ../patches/0009-rockchip-introduce-vendor-USB3-inno-driver.patch
+patch -p1 < ../patches/0010-rk3328_refresh_usb3_nodes_k5.10.patch
+
 #Fullcone patch
 patch -p1 < ../patches/1002-fw3_fullconenat.patch
 patch -p1 < ../patches/1003-luci-app-firewall_add_fullcone.patch
