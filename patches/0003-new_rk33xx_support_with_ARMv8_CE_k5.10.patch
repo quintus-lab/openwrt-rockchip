@@ -1,57 +1,53 @@
-From cb420967022d07235ea5f34bc3bc0b81da09906d Mon Sep 17 00:00:00 2001
+From bf41b1a5c301c20253228c416170f78d50933401 Mon Sep 17 00:00:00 2001
 From: quintus-lab<noreply@github.com>
-Date: Mon, 8 Mar 2021 16:43:32 +0800
+Date: Tue, 9 Mar 2021 10:42:52 +0800
 Subject: [PATCH] new_rk33xx_support_with_ARMv8_CE_k5.10
 
  This introduces rockchip ddrloader firmware, which allows users to control the memory frequency
- runtime. This introduces rockchip ddrloader firmware, which allows users to control the memory frequency runtime. 
- Signed-off-by: AmadeusGhost <amadeus@immortalwrt.org> 
- Signed-off-by: Tianling Shen <cnsztl@immortalwrt.org> 
+ runtime. This introduces rockchip ddrloader firmware, which allows users to control the memory frequency runtime.
+ Signed-off-by: AmadeusGhost <amadeus@immortalwrt.org>
+ Signed-off-by: Tianling Shen <cnsztl@immortalwrt.org>
 
  R4S support from:
- Signed-off-by: Tianling Shen <cnsztl@gmail.com> 
- Co-authored-by: Jensen Huang <jensenhuang@friendlyarm.com> 
- Signed-off-by: Jensen Huang <jensenhuang@friendlyarm.com> 
- Co-authored-by: Marty Jones <mj8263788@gmail.com> 
- Signed-off-by: Marty Jones <mj8263788@gmail.com> 
-----
- new file:   package/boot/arm-trusted-firmware-rk3328/Makefile
- new file:   package/boot/arm-trusted-firmware-rk3328/src/trust.ini
- modified:   package/boot/uboot-rockchip/Makefile 	new file:  
- new file:   package/boot/arm-trusted-firmware-rk3328/Makefile
- new file:   package/boot/arm-trusted-firmware-rk3328/src/trust.ini
- modified:   package/boot/uboot-rockchip/Makefile
- new file:   package/boot/uboot-rockchip/patches/200-rockchip-rk3399-split-nanopi-r4-rk3399-out-of-evb_rk.patch
- new file:   package/boot/uboot-rockchip/patches/201-ram-rk3399-Add-support-for-multiple-DDR-types.patch
- new file:   package/boot/uboot-rockchip/patches/202-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
- new file:   target/linux/generic/hack-5.10/310-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch
- new file:   target/linux/generic/hack-5.10/952-net-conntrack-events-support-multiple-registrant.patch
- modified:   target/linux/rockchip/Makefile
- modified:   target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
- modified:   target/linux/rockchip/armv8/base-files/etc/board.d/02_network
- modified:   target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity
- modified:   target/linux/rockchip/armv8/config-5.10
- new file:   target/linux/rockchip/files/arch/arm64/boot/dts/rockchip/rk3328-dram-nanopi2-timing.dtsi
- new file:   target/linux/rockchip/files/drivers/devfreq/rk3328_dmc.c 
- new file:   target/linux/rockchip/files/include/dt-bindings/clock/rockchip-ddr.h
- new file:   target/linux/rockchip/files/include/dt-bindings/memory/rk3328-dram.h
- modified:   target/linux/rockchip/image/Makefile
- modified:   target/linux/rockchip/image/armv8.mk 
- new file:   target/linux/rockchip/image/nanopi-r4s.bootscript
- new file:   target/linux/rockchip/patches-5.10/005-rockchip-rk3328-add-compatible-to-NanoPi-R2S-etherne.patch
- new file:   target/linux/rockchip/patches-5.10/105-mmc-core-set-initial-signal-voltage-on-power-off.patch
- new file:   target/linux/rockchip/patches-5.10/200-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
- new file:   target/linux/rockchip/patches-5.10/201-rockchip-rk3328-add-i2c0-controller-for-nanopi-r2s.patch
- new file:   target/linux/rockchip/patches-5.10/801-char-add-support-for-rockchip-hardware-random-number.patch
- new file:   target/linux/rockchip/patches-5.10/802-arm64-dts-rockchip-add-hardware-random-number-genera.patch
- new file:   target/linux/rockchip/patches-5.10/803-PM-devfreq-rockchip-add-devfreq-driver-for-rk3328-dmc.patch
- new file:   target/linux/rockchip/patches-5.10/804-clk-rockchip-support-setting-ddr-clock-via-SIP-Version-2-.patch
- new file:   target/linux/rockchip/patches-5.10/805-PM-devfreq-rockchip-dfi-add-more-soc-support.patch
- new file:   target/linux/rockchip/patches-5.10/806-arm64-dts-rockchip-rk3328-add-dfi-node.patch
- new file:   target/linux/rockchip/patches-5.10/807-arm64-dts-nanopi-r2s-add-rk3328-dmc-relate-node.patch
- new file:   target/linux/rockchip/patches-5.10/911-kernel-dma-adjust-default-coherent_pool-to-2MiB.patch
- new file:   target/linux/rockchip/patches-5.10/991-arm64-dts-rockchip-add-more-cpu-operating-points-for.patch
- new file:   target/linux/rockchip/patches-5.10/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
+ Signed-off-by: Tianling Shen <cnsztl@gmail.com>
+ Co-authored-by: Jensen Huang <jensenhuang@friendlyarm.com>
+ Signed-off-by: Jensen Huang <jensenhuang@friendlyarm.com>
+ Co-authored-by: Marty Jones <mj8263788@gmail.com>
+ Signed-off-by: Marty Jones <mj8263788@gmail.com>
+	new file:   package/boot/arm-trusted-firmware-rk3328/Makefile
+	new file:   package/boot/arm-trusted-firmware-rk3328/src/trust.ini
+	modified:   package/boot/uboot-rockchip/Makefile
+	new file:   package/boot/uboot-rockchip/patches/200-rockchip-rk3399-split-nanopi-r4-rk3399-out-of-evb_rk.patch
+	new file:   package/boot/uboot-rockchip/patches/201-ram-rk3399-Add-support-for-multiple-DDR-types.patch
+	new file:   package/boot/uboot-rockchip/patches/202-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
+	new file:   target/linux/generic/hack-5.10/310-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch
+	new file:   target/linux/generic/hack-5.10/952-net-conntrack-events-support-multiple-registrant.patch
+	modified:   target/linux/rockchip/Makefile
+	modified:   target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
+	modified:   target/linux/rockchip/armv8/base-files/etc/board.d/02_network
+	modified:   target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity
+	modified:   target/linux/rockchip/armv8/config-5.10
+	new file:   target/linux/rockchip/files/arch/arm64/boot/dts/rockchip/rk3328-dram-nanopi2-timing.dtsi
+	new file:   target/linux/rockchip/files/drivers/devfreq/rk3328_dmc.c
+	new file:   target/linux/rockchip/files/include/dt-bindings/clock/rockchip-ddr.h
+	new file:   target/linux/rockchip/files/include/dt-bindings/memory/rk3328-dram.h
+	modified:   target/linux/rockchip/image/Makefile
+	modified:   target/linux/rockchip/image/armv8.mk
+	new file:   target/linux/rockchip/image/nanopi-r4s.bootscript
+	new file:   target/linux/rockchip/patches-5.10/005-rockchip-rk3328-add-compatible-to-NanoPi-R2S-etherne.patch
+	new file:   target/linux/rockchip/patches-5.10/105-mmc-core-set-initial-signal-voltage-on-power-off.patch
+	new file:   target/linux/rockchip/patches-5.10/200-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
+	new file:   target/linux/rockchip/patches-5.10/201-rockchip-rk3328-add-i2c0-controller-for-nanopi-r2s.patch
+	new file:   target/linux/rockchip/patches-5.10/801-char-add-support-for-rockchip-hardware-random-number.patch
+	new file:   target/linux/rockchip/patches-5.10/802-arm64-dts-rockchip-add-hardware-random-number-genera.patch
+	new file:   target/linux/rockchip/patches-5.10/803-PM-devfreq-rockchip-add-devfreq-driver-for-rk3328-dmc.patch
+	new file:   target/linux/rockchip/patches-5.10/804-clk-rockchip-support-setting-ddr-clock-via-SIP-Version-2-.patch
+	new file:   target/linux/rockchip/patches-5.10/805-PM-devfreq-rockchip-dfi-add-more-soc-support.patch
+	new file:   target/linux/rockchip/patches-5.10/806-arm64-dts-rockchip-rk3328-add-dfi-node.patch
+	new file:   target/linux/rockchip/patches-5.10/807-arm64-dts-nanopi-r2s-add-rk3328-dmc-relate-node.patch
+	new file:   target/linux/rockchip/patches-5.10/911-kernel-dma-adjust-default-coherent_pool-to-2MiB.patch
+	new file:   target/linux/rockchip/patches-5.10/991-arm64-dts-rockchip-add-more-cpu-operating-points-for.patch
+	new file:   target/linux/rockchip/patches-5.10/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
 ---
  .../boot/arm-trusted-firmware-rk3328/Makefile |  55 ++
  .../arm-trusted-firmware-rk3328/src/trust.ini |  15 +
@@ -70,7 +66,7 @@ Subject: [PATCH] new_rk33xx_support_with_ARMv8_CE_k5.10
  .../files/drivers/devfreq/rk3328_dmc.c        | 852 ++++++++++++++++++
  .../include/dt-bindings/clock/rockchip-ddr.h  |  63 ++
  .../include/dt-bindings/memory/rk3328-dram.h  | 159 ++++
- target/linux/rockchip/image/Makefile          |  14 +
+ target/linux/rockchip/image/Makefile          |  20 +
  target/linux/rockchip/image/armv8.mk          |  12 +-
  .../rockchip/image/nanopi-r4s.bootscript      |   8 +
  ...add-compatible-to-NanoPi-R2S-etherne.patch |  25 +
@@ -87,7 +83,7 @@ Subject: [PATCH] new_rk33xx_support_with_ARMv8_CE_k5.10
  ...adjust-default-coherent_pool-to-2MiB.patch |  28 +
  ...ip-add-more-cpu-operating-points-for.patch |  44 +
  ...overclock-to-2.2-1.8-GHz-for-NanoPi4.patch | 186 ++++
- 34 files changed, 4710 insertions(+), 16 deletions(-)
+ 34 files changed, 4716 insertions(+), 16 deletions(-)
  create mode 100644 package/boot/arm-trusted-firmware-rk3328/Makefile
  create mode 100644 package/boot/arm-trusted-firmware-rk3328/src/trust.ini
  create mode 100644 package/boot/uboot-rockchip/patches/200-rockchip-rk3399-split-nanopi-r4-rk3399-out-of-evb_rk.patch
@@ -117,7 +113,7 @@ Subject: [PATCH] new_rk33xx_support_with_ARMv8_CE_k5.10
 
 diff --git a/package/boot/arm-trusted-firmware-rk3328/Makefile b/package/boot/arm-trusted-firmware-rk3328/Makefile
 new file mode 100644
-index 0000000000..e9b77ca7c7
+index 0000000000..243fcac9c9
 --- /dev/null
 +++ b/package/boot/arm-trusted-firmware-rk3328/Makefile
 @@ -0,0 +1,55 @@
@@ -3326,22 +3322,28 @@ index 0000000000..171f41c256
 +
 +#endif /*_DT_BINDINGS_DRAM_ROCKCHIP_RK3328_H*/
 diff --git a/target/linux/rockchip/image/Makefile b/target/linux/rockchip/image/Makefile
-index f5fdff637f..3741bee8cc 100644
+index f5fdff637f..5791f5c064 100644
 --- a/target/linux/rockchip/image/Makefile
 +++ b/target/linux/rockchip/image/Makefile
-@@ -45,6 +45,20 @@ define Build/pine64-img
+@@ -45,6 +45,26 @@ define Build/pine64-img
  	dd if="$(STAGING_DIR_IMAGE)"/$(UBOOT_DEVICE_NAME)-u-boot.itb of="$@" seek=16384 conv=notrunc
  endef
  
 +define Build/pine64-bin
-+	# This is a copy of pine64-img, but uses rockchip ddrloader
++	# Typical Rockchip boot flow with Rockchip miniloader
++	# Rockchp idbLoader which is combinded by Rockchip ddr init bin
++	# and miniloader bin from Rockchip rkbin project
 +
++	# Generate a new partition table in $@ with 32 MiB of alignment
++	# padding for the idbloader, uboot and trust image to fit:
++	# http://opensource.rock-chips.com/wiki_Boot_option#Boot_flow
 +	$(SCRIPT_DIR)/gen_image_generic.sh \
 +		$@ \
 +		$(CONFIG_TARGET_KERNEL_PARTSIZE) $@.boot \
 +		$(CONFIG_TARGET_ROOTFS_PARTSIZE) $(IMAGE_ROOTFS) \
 +		32768
 +
++	# Copy the idbloader, uboot and trust image to the image at sector 0x40, 0x4000 and 0x6000
 +	dd if="$(STAGING_DIR_IMAGE)"/$(UBOOT_DEVICE_NAME)-idbloader.bin of="$@" seek=64 conv=notrunc
 +	dd if="$(STAGING_DIR_IMAGE)"/$(UBOOT_DEVICE_NAME)-uboot.img of="$@" seek=16384 conv=notrunc
 +	dd if="$(STAGING_DIR_IMAGE)"/$(UBOOT_DEVICE_NAME)-trust.bin of="$@" seek=24576 conv=notrunc
