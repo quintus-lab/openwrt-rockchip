@@ -1,31 +1,28 @@
-From 910704ef04d7358da44f24c979f27d8c9d14cb2d Mon Sep 17 00:00:00 2001
+From fabf22f2188e53ab30d97ad90f6df6ba5e523cae Mon Sep 17 00:00:00 2001
 From: quintus-lab<noreply@github.com>
-Date: Mon, 8 Mar 2021 23:38:02 +0800
+Date: Tue, 9 Mar 2021 15:43:18 +0800
 Subject: [PATCH] rk3328_refresh_usb3_nodes_k5.10
 
-Reference:
-- https://github.com/friendlyarm/kernel-rockchip/commit/e93adaa8e9acfa7de51762616d24c52522f46a13
-
-Signed-off-by: Tianling Shen <cnsztl@immortalwrt.org>
-
- 	modified:   target/linux/rockchip/patches-5.10/005-rockchip-rk3328-add-compatible-to-NanoPi-R2S-etherne.patch
- 	deleted:    target/linux/rockchip/patches-5.10/101-dts-rockchip-add-usb3-controller-node-for-RK3328-SoCs.patch
- 	modified:   target/linux/rockchip/patches-5.10/103-arm64-rockchip-add-OF-node-for-USB-eth-on-NanoPi-R2S.patch
- 	modified:   target/linux/rockchip/patches-5.10/201-rockchip-rk3328-add-i2c0-controller-for-nanopi-r2s.patch
- 	modified:   target/linux/rockchip/patches-5.10/806-arm64-dts-rockchip-rk3328-add-dfi-node.patch
- 	modified:   target/linux/rockchip/patches-5.10/807-arm64-dts-nanopi-r2s-add-rk3328-dmc-relate-node.patch
- 	new file:   target/linux/rockchip/patches-5.10/809-dts-rockchip-add-usb3-controller-node-for-RK3328-SoCs.patch
- 	renamed:    target/linux/rockchip/patches-5.10/102-rockchip-enable-LAN-port-on-NanoPi-R2S.patch -> target/linux/rockchip/patches-5.10/810-rockchip-enable-LAN-port-on-NanoPi-R2S.patch
+	modified:   target/linux/rockchip/patches-5.10/005-rockchip-rk3328-add-compatible-to-NanoPi-R2S-etherne.patch
+	modified:   target/linux/rockchip/patches-5.10/100-rockchip-use-system-LED-for-OpenWrt.patch
+	deleted:    target/linux/rockchip/patches-5.10/101-dts-rockchip-add-usb3-controller-node-for-RK3328-SoCs.patch
+	modified:   target/linux/rockchip/patches-5.10/103-arm64-rockchip-add-OF-node-for-USB-eth-on-NanoPi-R2S.patch
+	modified:   target/linux/rockchip/patches-5.10/201-rockchip-rk3328-add-i2c0-controller-for-nanopi-r2s.patch
+	modified:   target/linux/rockchip/patches-5.10/806-arm64-dts-rockchip-rk3328-add-dfi-node.patch
+	modified:   target/linux/rockchip/patches-5.10/807-arm64-dts-nanopi-r2s-add-rk3328-dmc-relate-node.patch
+	new file:   target/linux/rockchip/patches-5.10/809-dts-rockchip-add-usb3-controller-node-for-RK3328-SoCs.patch
+	renamed:    target/linux/rockchip/patches-5.10/102-rockchip-enable-LAN-port-on-NanoPi-R2S.patch -> target/linux/rockchip/patches-5.10/810-rockchip-enable-LAN-port-on-NanoPi-R2S.patch
 ---
  ...add-compatible-to-NanoPi-R2S-etherne.patch |   2 +-
+ ...-rockchip-use-system-LED-for-OpenWrt.patch |  36 ++++++-
  ...usb3-controller-node-for-RK3328-SoCs.patch |  62 -----------
- ...dd-OF-node-for-USB-eth-on-NanoPi-R2S.patch |  10 +-
+ ...dd-OF-node-for-USB-eth-on-NanoPi-R2S.patch |   6 +-
  ...8-add-i2c0-controller-for-nanopi-r2s.patch |   2 +-
  ...m64-dts-rockchip-rk3328-add-dfi-node.patch |   4 +-
  ...anopi-r2s-add-rk3328-dmc-relate-node.patch |   8 +-
  ...usb3-controller-node-for-RK3328-SoCs.patch | 102 ++++++++++++++++++
  ...kchip-enable-LAN-port-on-NanoPi-R2S.patch} |  47 +++++---
- 8 files changed, 149 insertions(+), 88 deletions(-)
+ 9 files changed, 179 insertions(+), 90 deletions(-)
  delete mode 100644 target/linux/rockchip/patches-5.10/101-dts-rockchip-add-usb3-controller-node-for-RK3328-SoCs.patch
  create mode 100644 target/linux/rockchip/patches-5.10/809-dts-rockchip-add-usb3-controller-node-for-RK3328-SoCs.patch
  rename target/linux/rockchip/patches-5.10/{102-rockchip-enable-LAN-port-on-NanoPi-R2S.patch => 810-rockchip-enable-LAN-port-on-NanoPi-R2S.patch} (62%)
@@ -43,6 +40,60 @@ index 897a42fea2..085dd392c9 100644
   		#size-cells = <0>;
   
   		rtl8211e: ethernet-phy@1 {
+diff --git a/target/linux/rockchip/patches-5.10/100-rockchip-use-system-LED-for-OpenWrt.patch b/target/linux/rockchip/patches-5.10/100-rockchip-use-system-LED-for-OpenWrt.patch
+index 7b3b50ffd8..faa5736d14 100644
+--- a/target/linux/rockchip/patches-5.10/100-rockchip-use-system-LED-for-OpenWrt.patch
++++ b/target/linux/rockchip/patches-5.10/100-rockchip-use-system-LED-for-OpenWrt.patch
+@@ -8,11 +8,15 @@ Use the SYS LED on the casing for showing system status.
+ This patch is kept separate from the NanoPi R2S support patch, as i plan
+ on submitting the device support upstream.
+ 
++--modified for vendor inno usb3 driver led setting: quintus-lab
++
+ Signed-off-by: David Bauer <mail@david-bauer.net>
+ ---
+- arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts | 9 ++++++++-
+- 1 file changed, 8 insertions(+), 1 deletion(-)
++ arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts   | 13 ++++++++++---
++ 1 file changed, 10 insertions(+), 3 deletions(-)
+ 
++diff --git a/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts b/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts
++index 5219247..9cffe5e 100644
+ --- a/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts
+ +++ b/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts
+ @@ -13,6 +13,13 @@
+@@ -29,3 +33,31 @@ Signed-off-by: David Bauer <mail@david-bauer.net>
+  	chosen {
+  		stdout-path = "serial2:1500000n8";
+  	};
++@@ -43,7 +50,7 @@
++ 		pinctrl-names = "default";
++ 
++ 		lan_led: led-0 {
++-			gpios = <&gpio2 RK_PB7 GPIO_ACTIVE_HIGH>;
+++			gpios = <&gpio2 RK_PC6 GPIO_ACTIVE_HIGH>;
++ 			label = "nanopi-r2s:green:lan";
++ 		};
++ 
++@@ -294,7 +301,7 @@
++ 
++ 	leds {
++ 		lan_led_pin: lan-led-pin {
++-			rockchip,pins = <2 RK_PB7 RK_FUNC_GPIO &pcfg_pull_none>;
+++			rockchip,pins = <2 RK_PC6 RK_FUNC_GPIO &pcfg_pull_none>;
++ 		};
++ 
++ 		sys_led_pin: sys-led-pin {
++@@ -371,4 +378,4 @@
++ 
++ &usb_host0_ohci {
++ 	status = "okay";
++-};
++\ No newline at end of file
+++};
++-- 
++2.25.1
++
 diff --git a/target/linux/rockchip/patches-5.10/101-dts-rockchip-add-usb3-controller-node-for-RK3328-SoCs.patch b/target/linux/rockchip/patches-5.10/101-dts-rockchip-add-usb3-controller-node-for-RK3328-SoCs.patch
 deleted file mode 100644
 index e8123ee025..0000000000
@@ -112,7 +163,7 @@ index e8123ee025..0000000000
 - 		compatible = "arm,gic-400";
 - 		#interrupt-cells = <3>;
 diff --git a/target/linux/rockchip/patches-5.10/103-arm64-rockchip-add-OF-node-for-USB-eth-on-NanoPi-R2S.patch b/target/linux/rockchip/patches-5.10/103-arm64-rockchip-add-OF-node-for-USB-eth-on-NanoPi-R2S.patch
-index dfc71a2701..81cb688f48 100644
+index dfc71a2701..e932567d1f 100644
 --- a/target/linux/rockchip/patches-5.10/103-arm64-rockchip-add-OF-node-for-USB-eth-on-NanoPi-R2S.patch
 +++ b/target/linux/rockchip/patches-5.10/103-arm64-rockchip-add-OF-node-for-USB-eth-on-NanoPi-R2S.patch
 @@ -14,9 +14,9 @@ Signed-off-by: David Bauer <mail@david-bauer.net>
@@ -122,22 +173,14 @@ index dfc71a2701..81cb688f48 100644
 -@@ -403,4 +403,11 @@
 - &usbdrd_dwc3 {
 - 	dr_mode = "host";
-+@@ -396,6 +396,13 @@
++@@ -378,4 +378,11 @@
 +
 + &usb_host0_ohci {
   	status = "okay";
  +
  +	usb-eth@2 {
-@@ -26,3 +26,7 @@ Signed-off-by: David Bauer <mail@david-bauer.net>
- +		realtek,led-data = <0x87>;
- +	};
-  };
-+
-+ &usbdrd3 {
-+--
-+2.25.1
 diff --git a/target/linux/rockchip/patches-5.10/201-rockchip-rk3328-add-i2c0-controller-for-nanopi-r2s.patch b/target/linux/rockchip/patches-5.10/201-rockchip-rk3328-add-i2c0-controller-for-nanopi-r2s.patch
-index 28798047fd..edf007eefa 100644
+index 28798047fd..7aa6bbc27e 100644
 --- a/target/linux/rockchip/patches-5.10/201-rockchip-rk3328-add-i2c0-controller-for-nanopi-r2s.patch
 +++ b/target/linux/rockchip/patches-5.10/201-rockchip-rk3328-add-i2c0-controller-for-nanopi-r2s.patch
 @@ -9,7 +9,7 @@ Subject: [PATCH] rockchip: rk3328: add i2c0 controller for nanopi r2s
@@ -145,7 +188,7 @@ index 28798047fd..edf007eefa 100644
  --- a/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts
  +++ b/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts
 -@@ -165,6 +165,10 @@
-+@@ -169,6 +169,10 @@
++@@ -157,6 +157,10 @@
   	};
   };
   
