@@ -1,12 +1,11 @@
-From 0fface42186bd589fcc921b315946e56169d2022 Mon Sep 17 00:00:00 2001
-From: quintus-lab<noreply@github.com>
-Date: Sun, 7 Mar 2021 21:42:01 +0800
+From 9fcf01be4e89e72887b58253ba5d2b2601bad7dc Mon Sep 17 00:00:00 2001
+From: Quintus Chu <ardanzhu@gmail.com>
+Date: Tue, 9 Mar 2021 10:21:17 +0800
 Subject: [PATCH] mbedtls: Implements AES and GCM with ARMv8 Crypto Extensions
-
-A compact patch that provides AES and GCM implementations that utilize the
-ARMv8 Crypto Extensions. The config flag is MBEDTLS_ARMV8CE_AES_C, which
-is disabled by default as we don't do runtime checking for the feature.
-The new implementation lives in armv8ce_aes.c.
+ A compact patch that provides AES and GCM implementations that utilize the
+ ARMv8 Crypto Extensions. The config flag is MBEDTLS_ARMV8CE_AES_C, which is
+ disabled by default as we don't do runtime checking for the feature. The new
+ implementation lives in armv8ce_aes.c.
 
 Provides similar functionality to https://github.com/ARMmbed/mbedtls/pull/432
 Thanks to Barry O'Rourke and others for that contribtion.
@@ -16,33 +15,16 @@ throughput increases about 4x, while raw AES speed is up to 10x faster.
 
 [updated Makefile to enable this function, adjusted commit message]
 Signed-off-by: Tianling Shen <cnsztl@immortalwrt.org>
-
-modified:   include/target.mk
-modified:   package/libs/mbedtls/Makefile
-new file:   package/libs/mbedtls/patches/100-Implements-AES-and-GCM-with-ARMv8-Crypto-Extensions.patch
+	modified:   package/libs/mbedtls/Makefile
+	new file:   package/libs/mbedtls/patches/100-Implements-AES-and-GCM-with-ARMv8-Crypto-Extensions.patch
 ---
- include/target.mk                             |   3 +
- package/libs/mbedtls/Makefile                 |  16 +
+ package/libs/mbedtls/Makefile                 |  19 +
  ...and-GCM-with-ARMv8-Crypto-Extensions.patch | 401 ++++++++++++++++++
- 3 files changed, 420 insertions(+)
+ 2 files changed, 420 insertions(+)
  create mode 100644 package/libs/mbedtls/patches/100-Implements-AES-and-GCM-with-ARMv8-Crypto-Extensions.patch
 
-diff --git a/include/target.mk b/include/target.mk
-index 7526224972..aba7849b65 100644
---- a/include/target.mk
-+++ b/include/target.mk
-@@ -232,6 +232,9 @@ ifeq ($(DUMP),1)
-   endif
-   ifeq ($(ARCH),aarch64)
-     CPU_TYPE ?= generic
-+    ifneq ($(filter $(FEATURES),fpu),)
-+      CPU_CFLAGS += -march=armv8-a+crypto
-+    endif
-     CPU_CFLAGS_generic = -march=armv8-a+crypto+crc -mcpu=cortex-a72.cortex-a53+crypto+crc -mtune=cortex-a72.cortex-a53
-     CPU_CFLAGS_cortex-a53 = -mcpu=cortex-a53
-   endif
 diff --git a/package/libs/mbedtls/Makefile b/package/libs/mbedtls/Makefile
-index 43cc8b05b7..9bf8ebb5f4 100644
+index 43cc8b05b7..8a72f3d012 100644
 --- a/package/libs/mbedtls/Makefile
 +++ b/package/libs/mbedtls/Makefile
 @@ -23,6 +23,7 @@ PKG_CPE_ID:=cpe:/a:arm:mbed_tls
@@ -74,7 +56,17 @@ index 43cc8b05b7..9bf8ebb5f4 100644
  config LIBMBEDTLS_HKDF_C
  	depends on PACKAGE_libmbedtls
  	bool "Enable the HKDF algorithm (RFC 5869)"
-@@ -103,6 +118,7 @@ define Build/Configure
+@@ -92,6 +107,9 @@ PKG_INSTALL:=1
+ 
+ TARGET_CFLAGS += -ffunction-sections -fdata-sections
+ TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS))
++ifneq ($(CONFIG_LIBMBEDTILS_HAVE_ARMV8CE_AES),)
++  TARGET_CFLAGS := $(filter-out -march=%,$(TARGET_CFLAGS)) -march=armv8-a+crypto
++endif
+ 
+ CMAKE_OPTIONS += \
+ 	-DUSE_SHARED_MBEDTLS_LIBRARY:Bool=ON \
+@@ -103,6 +121,7 @@ define Build/Configure
  
  	awk 'BEGIN { rc = 1 } \
  	     /#define MBEDTLS_DEBUG_C/ { $$$$0 = "$(if $(CONFIG_LIBMBEDTLS_DEBUG_C),,// )#define MBEDTLS_DEBUG_C"; rc = 0 } \
