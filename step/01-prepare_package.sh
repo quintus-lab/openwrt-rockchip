@@ -26,9 +26,9 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks package
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs package/lean/simple-obfs
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
 #temp patch add ss-rust
-pushd package/lean
-wget -O- https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/426.patch | patch -p1
-popd
+#pushd package/lean
+#wget -O- https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/426.patch | patch -p1
+#popd
 
 #wrt bw monitor
 git clone -b master --single-branch https://github.com/brvphoenix/wrtbwmon package/new/wrtbwmon
