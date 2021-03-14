@@ -27,7 +27,7 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs packa
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
 #temp patch add ss-rust
 pushd package/lean
-wget -O- https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/426.patch | patch -p1
+wget -O- https://patch-diff.githubusercontent.com/raw/fw876/helloworld/pull/430.patch | patch -p1
 popd
 
 #wrt bw monitor
