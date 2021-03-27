@@ -23,6 +23,9 @@ patch -p1 < ../patches/0008-mbedtls-Implements-AES-and-GCM-with-ARMv8-Crypto-Ext
 # use vendor usb3 inno driver
 #patch -p1 < ../patches/0009-rockchip-introduce-vendor-USB3-inno-driver.patch
 #patch -p1 < ../patches/0010-rk3328_refresh_usb3_nodes_k5.10.patch
+#test 8152 patch
+cp -f ../patches/993-board-nanopi-r2s-r8152-customise-leds.patch target/linux/rockchip/patches-5.10/
+cp -f ../patches/994-board-nanopi-r2s-r8152-mac-from-dt.patch target/linux/rockchip/patches-5.10/
 
 #Fullcone patch
 patch -p1 < ../patches/1002-fw3_fullconenat.patch
