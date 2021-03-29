@@ -1,0 +1,114 @@
+From 082501bff9f4781636aa43aa81a7a9f5a9757849 Mon Sep 17 00:00:00 2001
+From: Lucian Cristian <lucian.cristian@gmail.com>
+Date: Sun, 28 Jun 2020 22:04:50 +0300
+Subject: [PATCH] rockchip: add drm and lima gpu driver
+
+Pack the drivers needed for enabling the drm and gpu driver
+for rk3328 and rk3399. Fix: #304
+
+Signed-off-by: Lucian Cristian <lucian.cristian@gmail.com>
+[rebase commit, apply review recommendations]
+Signed-off-by: AmadeusGhost <amadeus@immortalwrt.org>
+Signed-off-by: Tianling Shen <cnsztl@immortalwrt.org>
+---
+ package/kernel/linux/modules/video.mk | 18 ++++++++
+ target/linux/rockchip/modules.mk      | 61 +++++++++++++++++++++++++++
+ 2 files changed, 79 insertions(+)
+ create mode 100644 target/linux/rockchip/modules.mk
+
+diff --git a/package/kernel/linux/modules/video.mk b/package/kernel/linux/modules/video.mk
+index c71f0760a6..14d1afcb85 100644
+--- a/package/kernel/linux/modules/video.mk
++++ b/package/kernel/linux/modules/video.mk
+@@ -221,6 +221,24 @@ endef
+ $(eval $(call KernelPackage,fb-tft-ili9486))
+ 
+ 
++define KernelPackage/multimedia-input
++  SUBMENU:=$(VIDEO_MENU)
++  TITLE:=Multimedia input support
++  KCONFIG:=CONFIG_RC_CORE \
++	CONFIG_LIRC=y \
++	CONFIG_RC_DECODERS=y \
++	CONFIG_RC_DEVICES=y
++  FILES:=$(LINUX_DIR)/drivers/media/rc/rc-core.ko
++  AUTOLOAD:=$(call AutoProbe,rc-core)
++endef
++
++define KernelPackage/multimedia-input/description
++  Enable multimedia input.
++endef
++
++$(eval $(call KernelPackage,multimedia-input))
++
++
+ define KernelPackage/drm
+   SUBMENU:=$(VIDEO_MENU)
+   TITLE:=Direct Rendering Manager (DRM) support
+diff --git a/target/linux/rockchip/modules.mk b/target/linux/rockchip/modules.mk
+new file mode 100644
+index 0000000000..9349507f2f
+--- /dev/null
++++ b/target/linux/rockchip/modules.mk
+@@ -0,0 +1,61 @@
++# SPDX-License-Identifier: GPL-2.0-only
++#
++# Copyright (C) 2020 OpenWrt.org
++
++define KernelPackage/drm-rockchip
++  SUBMENU:=$(VIDEO_MENU)
++  TITLE:=Rockchip DRM support
++  DEPENDS:=@TARGET_rockchip +kmod-backlight +kmod-drm-kms-helper +kmod-multimedia-input
++  KCONFIG:=CONFIG_DRM_ROCKCHIP \
++	CONFIG_DRM_LOAD_EDID_FIRMWARE=y \
++	CONFIG_DRM_FBDEV_EMULATION=y \
++	CONFIG_DRM_FBDEV_OVERALLOC=100 \
++	CONFIG_DRM_BRIDGE \
++	CONFIG_HDMI \
++	CONFIG_PHY_ROCKCHIP_INNO_HDMI \
++	CONFIG_DRM_DW_HDMI \
++	CONFIG_DRM_DW_HDMI_CEC \
++	CONFIG_ROCKCHIP_DW_HDMI=y \
++	CONFIG_ROCKCHIP_INNO_HDMI=y \
++	CONFIG_ROCKCHIP_DW_MIPI_DSI=y \
++	CONFIG_ROCKCHIP_LVDS=y \
++	CONFIG_DRM_PANEL \
++	CONFIG_DRM_PANEL_BRIDGE \
++	CONFIG_DRM_PANEL_SIMPLE
++  FILES:= \
++	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-cec.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.ko \
++	$(LINUX_DIR)/drivers/media/cec/cec.ko \
++	$(LINUX_DIR)/drivers/phy/rockchip/phy-rockchip-inno-hdmi.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/panel/panel-simple.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/rockchip/rockchipdrm.ko
++  AUTOLOAD:=$(call AutoProbe,rockchipdrm phy-rockchip-inno-hdmi dw-hdmi-cec)
++endef
++
++define KernelPackage/drm-rockchip/description
++  Direct Rendering Manager (DRM) support for Rockchip
++endef
++
++$(eval $(call KernelPackage,drm-rockchip))
++
++define KernelPackage/gpu-lima
++  SUBMENU:=$(VIDEO_MENU)
++  TITLE:=Mali-4xx GPU support
++  DEPENDS:=@TARGET_rockchip +kmod-drm
++  KCONFIG:= \
++	CONFIG_DRM_VGEM \
++	CONFIG_DRM_GEM_CMA_HELPER=y \
++	CONFIG_DRM_LIMA
++  FILES:= \
++	$(LINUX_DIR)/drivers/gpu/drm/vgem/vgem.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/scheduler/gpu-sched.ko \
++	$(LINUX_DIR)/drivers/gpu/drm/lima/lima.ko
++  AUTOLOAD:=$(call AutoProbe,lima vgem)
++endef
++
++define KernelPackage/gpu-lima/description
++  Open-source reverse-engineered driver for Mali-4xx GPUs
++endef
++
++$(eval $(call KernelPackage,gpu-lima))
