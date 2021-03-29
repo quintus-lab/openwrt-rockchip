@@ -1,6 +1,6 @@
 ## OpenWrt for Rockchip rk3328/rk3399, include Nanopi R2S/R4S and OrangePi R1 plus 
 #### ⚠ WARNING: USE IT UNDER YOUR OWN RISK. Non profit use only ⚠ 
-![OpenWRT-snapshot](https://github.com/quintus-lab/OpenWRT-Rockchip/actions/workflows/openwrt-rockchip.yml/badge.svg?branch=master)](https://github.com/quintus-lab/OpenWRT-Rockchip/actions/workflows/openwrt-rockchip.yml)
+[![OpenWRT-snapshot](https://github.com/quintus-lab/OpenWRT-Rockchip/actions/workflows/openwrt-rockchip.yml/badge.svg?branch=master)](https://github.com/quintus-lab/OpenWRT-Rockchip/actions/workflows/openwrt-rockchip.yml)
 [![OpenWRT-21.02](https://github.com/quintus-lab/OpenWRT-Rockchip/actions/workflows/openwrt-rockchip-2102.yml/badge.svg?branch=21.02)](https://github.com/quintus-lab/OpenWRT-Rockchip/actions/workflows/openwrt-rockchip-2102.yml)
 
 ##### Download: [Releases](https://github.com/quintus-lab/OpenWRT-R2S-R4S/releases) or [Actions](https://github.com/quintus-lab/Openwrt-R2S-R4S/actions) \(Login Needed\)
