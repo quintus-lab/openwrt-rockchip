@@ -1,4 +1,4 @@
-## OpenWrt R2S and R4S Firmware 
+## OpenWrt for Rockchip rk3328/rk3399, include Nanopi R2S/R4S and OrangePi R1 plus 
 #### ⚠ WARNING: USE IT UNDER YOUR OWN RISK. Non profit use only ⚠ 
 [![OpenWRT-snapshot](https://github.com/quintus-lab/OpenWRT-R2S-R4S/actions/workflows/nanopi-openwrt.yml/badge.svg?branch=master)](https://github.com/quintus-lab/OpenWRT-R2S-R4S/actions/workflows/nanopi-openwrt.yml)
 [![OpenWRT-21.02](https://github.com/quintus-lab/OpenWRT-R2S-R4S/actions/workflows/nanopi-openwrt-2102.yml/badge.svg?branch=21.02)](https://github.com/quintus-lab/OpenWRT-R2S-R4S/actions/workflows/nanopi-openwrt-2102.yml)
