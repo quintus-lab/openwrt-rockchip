@@ -19,7 +19,8 @@ patch -p1 < ../patches/0007-optimize_for_rk3399.patch
 
 # add AES and GCM with ARMv8 Crypto support
 patch -p1 < ../patches/0008-mbedtls-Implements-AES-and-GCM-with-ARMv8-Crypto-Ext.patch
-
+# rockchip: add support for OrangePi R1 Plus
+patch -p1 < ../patches/0009-rockchip-add-support-for-OrangePi-R1-Plus.patch
 # rockchip: add drm and lima gpu driver
 patch -p1 < ../patches/0011-rockchip-add-drm-and-lima-gpu-driver.patch
 
