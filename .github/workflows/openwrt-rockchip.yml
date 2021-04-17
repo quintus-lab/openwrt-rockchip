@@ -96,6 +96,15 @@ jobs:
           make defconfig
           cp .config  rockchip_multi.config
 
+      - name: Download package
+        id: package
+        run: |
+          cd openwrt
+          make defconfig
+          make download -j128
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
       - name: Make toolchain-aarch64
         id: compiletoolchain
         continue-on-error: true
