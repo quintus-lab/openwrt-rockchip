@@ -1,6 +1,6 @@
-From bf41b1a5c301c20253228c416170f78d50933401 Mon Sep 17 00:00:00 2001
+From 6a965b207debd6160ab53ef658034900a775ea8d Mon Sep 17 00:00:00 2001
 From: quintus-lab<noreply@github.com>
-Date: Tue, 9 Mar 2021 10:42:52 +0800
+Date: Wed, 28 Apr 2021 02:59:14 +0800
 Subject: [PATCH] new_rk33xx_support_with_ARMv8_CE_k5.10
 
  This introduces rockchip ddrloader firmware, which allows users to control the memory frequency
@@ -14,12 +14,13 @@ Subject: [PATCH] new_rk33xx_support_with_ARMv8_CE_k5.10
  Signed-off-by: Jensen Huang <jensenhuang@friendlyarm.com>
  Co-authored-by: Marty Jones <mj8263788@gmail.com>
  Signed-off-by: Marty Jones <mj8263788@gmail.com>
+
 	new file:   package/boot/arm-trusted-firmware-rk3328/Makefile
 	new file:   package/boot/arm-trusted-firmware-rk3328/src/trust.ini
 	modified:   package/boot/uboot-rockchip/Makefile
+	new file:	package/boot/uboot-rockchip/patches/102-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
 	new file:   package/boot/uboot-rockchip/patches/200-rockchip-rk3399-split-nanopi-r4-rk3399-out-of-evb_rk.patch
 	new file:   package/boot/uboot-rockchip/patches/201-ram-rk3399-Add-support-for-multiple-DDR-types.patch
-	new file:   package/boot/uboot-rockchip/patches/202-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
 	new file:   target/linux/generic/hack-5.10/310-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch
 	new file:   target/linux/generic/hack-5.10/952-net-conntrack-events-support-multiple-registrant.patch
 	modified:   target/linux/rockchip/Makefile
@@ -48,20 +49,21 @@ Subject: [PATCH] new_rk33xx_support_with_ARMv8_CE_k5.10
 	new file:   target/linux/rockchip/patches-5.10/911-kernel-dma-adjust-default-coherent_pool-to-2MiB.patch
 	new file:   target/linux/rockchip/patches-5.10/991-arm64-dts-rockchip-add-more-cpu-operating-points-for.patch
 	new file:   target/linux/rockchip/patches-5.10/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
+
 ---
  .../boot/arm-trusted-firmware-rk3328/Makefile |  55 ++
  .../arm-trusted-firmware-rk3328/src/trust.ini |  15 +
  package/boot/uboot-rockchip/Makefile          |  25 +-
- ...split-nanopi-r4-rk3399-out-of-evb_rk.patch | 509 +++++++++++
+ ...Add-support-for-FriendlyARM-NanoPi-R.patch | 257 ++++++
+ ...split-nanopi-r4-rk3399-out-of-evb_rk.patch |  74 ++
  ...9-Add-support-for-multiple-DDR-types.patch | 256 ++++++
- ...Add-support-for-FriendlyARM-NanoPi-R.patch | 313 +++++++
  ...el-name-in-proc-cpuinfo-for-64bit-ta.patch |  38 +
  ...k-events-support-multiple-registrant.patch | 291 ++++++
  target/linux/rockchip/Makefile                |   2 +-
  .../armv8/base-files/etc/board.d/01_leds      |   3 +-
  .../armv8/base-files/etc/board.d/02_network   |   7 +-
  .../etc/hotplug.d/net/40-net-smp-affinity     |   4 +
- target/linux/rockchip/armv8/config-5.10       |  59 +-
+ target/linux/rockchip/armv8/config-5.10       |  50 +
  .../rockchip/rk3328-dram-nanopi2-timing.dtsi  | 311 +++++++
  .../files/drivers/devfreq/rk3328_dmc.c        | 852 ++++++++++++++++++
  .../include/dt-bindings/clock/rockchip-ddr.h  |  63 ++
@@ -82,13 +84,13 @@ Subject: [PATCH] new_rk33xx_support_with_ARMv8_CE_k5.10
  ...anopi-r2s-add-rk3328-dmc-relate-node.patch | 126 +++
  ...adjust-default-coherent_pool-to-2MiB.patch |  28 +
  ...ip-add-more-cpu-operating-points-for.patch |  44 +
- ...overclock-to-2.2-1.8-GHz-for-NanoPi4.patch | 186 ++++
- 34 files changed, 4716 insertions(+), 16 deletions(-)
+ ...overclock-to-2.2-1.8-GHz-for-NanoPi4.patch | 182 ++++
+ 34 files changed, 4221 insertions(+), 7 deletions(-)
  create mode 100644 package/boot/arm-trusted-firmware-rk3328/Makefile
  create mode 100644 package/boot/arm-trusted-firmware-rk3328/src/trust.ini
+ create mode 100644 package/boot/uboot-rockchip/patches/102-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
  create mode 100644 package/boot/uboot-rockchip/patches/200-rockchip-rk3399-split-nanopi-r4-rk3399-out-of-evb_rk.patch
  create mode 100644 package/boot/uboot-rockchip/patches/201-ram-rk3399-Add-support-for-multiple-DDR-types.patch
- create mode 100644 package/boot/uboot-rockchip/patches/202-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
  create mode 100644 target/linux/generic/hack-5.10/310-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch
  create mode 100644 target/linux/generic/hack-5.10/952-net-conntrack-events-support-multiple-registrant.patch
  create mode 100644 target/linux/rockchip/files/arch/arm64/boot/dts/rockchip/rk3328-dram-nanopi2-timing.dtsi
@@ -194,7 +196,7 @@ index 0000000000..b95797427e
 +[OUTPUT]
 +PATH=$(PKG_BUILD_DIR)/trust.bin
 diff --git a/package/boot/uboot-rockchip/Makefile b/package/boot/uboot-rockchip/Makefile
-index 393e8c3a9f..a0e6d06383 100644
+index 645422aca4..9d240e464c 100644
 --- a/package/boot/uboot-rockchip/Makefile
 +++ b/package/boot/uboot-rockchip/Makefile
 @@ -29,15 +29,26 @@ define U-Boot/nanopi-r2s-rk3328
@@ -251,12 +253,275 @@ index 393e8c3a9f..a0e6d06383 100644
  endef
  
  define Package/u-boot/install/default
+diff --git a/package/boot/uboot-rockchip/patches/102-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch b/package/boot/uboot-rockchip/patches/102-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
+new file mode 100644
+index 0000000000..2988ea2248
+--- /dev/null
++++ b/package/boot/uboot-rockchip/patches/102-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
+@@ -0,0 +1,257 @@
++From 2dd6b01ec665c376e6be7d37b513fb4d05df60db Mon Sep 17 00:00:00 2001
++From: Tianling Shen <cnsztl@gmail.com>
++Date: Fri, 8 Jan 2021 05:55:50 +0000
++Subject: [PATCH] rockchip: rk3399: Add support for FriendlyARM NanoPi R4S
++
++This adds support for the NanoPi R4S from FriendlyArm.
++
++Rockchip RK3399 SoC
++1GB DDR3 or 4GB LPDDR4 RAM
++Gigabit Ethernet (WAN)
++Gigabit Ethernet (PCIe) (LAN)
++USB 3.0 Host Port x 2
++MicroSD slot
++Reset button
++WAN - LAN - SYS LED
++
++Co-developed-by: Jensen Huang <jensenhuang@friendlyarm.com>
++Signed-off-by: Jensen Huang <jensenhuang@friendlyarm.com>
++[minor adjustments]
++Co-developed-by: Marty Jones <mj8263788@gmail.com>
++Signed-off-by: Marty Jones <mj8263788@gmail.com>
++[further adjustments, fixed format issues]
++Signed-off-by: Tianling Shen <cnsztl@gmail.com>
++---
++ arch/arm/dts/Makefile                      |   1 +
++ arch/arm/dts/rk3399-nanopi-r4s-u-boot.dtsi |   9 ++
++ arch/arm/dts/rk3399-nanopi-r4s.dts         | 133 +++++++++++++++++++++
++ configs/nanopi-r4s-rk3399_defconfig        |  63 ++++++++++
++ 4 files changed, 206 insertions(+)
++ create mode 100644 arch/arm/dts/rk3399-nanopi-r4s-u-boot.dtsi
++ create mode 100644 arch/arm/dts/rk3399-nanopi-r4s.dts
++ create mode 100644 configs/nanopi-r4s-rk3399_defconfig
++
++--- a/arch/arm/dts/Makefile
+++++ b/arch/arm/dts/Makefile
++@@ -132,6 +132,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
++ 	rk3399-nanopi-m4.dtb \
++ 	rk3399-nanopi-m4-2gb.dtb \
++ 	rk3399-nanopi-neo4.dtb \
+++	rk3399-nanopi-r4s.dtb \
++ 	rk3399-orangepi.dtb \
++ 	rk3399-pinebook-pro.dtb \
++ 	rk3399-puma-haikou.dtb \
++--- /dev/null
+++++ b/arch/arm/dts/rk3399-nanopi-r4s-u-boot.dtsi
++@@ -0,0 +1,9 @@
+++// SPDX-License-Identifier: GPL-2.0+
+++/*
+++ * (C) Copyright 2020 Jensen Huang <jensenhuang@friendlyarm.com>
+++ */
+++
+++#include "rk3399-nanopi4-u-boot.dtsi"
+++#include "rk3399-sdram-lpddr4-100.dtsi"
+++#include "rk3399-sdram-lpddr3-samsung-4GB-1866.dtsi"
+++#include "rk3399-sdram-ddr3-1866.dtsi"
++--- /dev/null
+++++ b/arch/arm/dts/rk3399-nanopi-r4s.dts
++@@ -0,0 +1,133 @@
+++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+++/*
+++ * FriendlyElec NanoPC-T4 board device tree source
+++ *
+++ * Copyright (c) 2020 FriendlyElec Computer Tech. Co., Ltd.
+++ * (http://www.friendlyarm.com)
+++ *
+++ * Copyright (c) 2018 Collabora Ltd.
+++ *
+++ * Copyright (c) 2020 Jensen Huang <jensenhuang@friendlyarm.com>
+++ * Copyright (c) 2020 Marty Jones <mj8263788@gmail.com>
+++ * Copyright (c) 2021 Tianling Shen <cnsztl@gmail.com>
+++ */
+++
+++/dts-v1/;
+++#include "rk3399-nanopi4.dtsi"
+++
+++/ {
+++	model = "FriendlyElec NanoPi R4S";
+++	compatible = "friendlyarm,nanopi-r4s", "rockchip,rk3399";
+++
+++	/delete-node/ display-subsystem;
+++
+++	gpio-leds {
+++		pinctrl-0 = <&lan_led_pin>, <&sys_led_pin>, <&wan_led_pin>;
+++
+++		/delete-node/ status;
+++
+++		lan_led: led-lan {
+++			gpios = <&gpio1 RK_PA1 GPIO_ACTIVE_HIGH>;
+++			label = "green:lan";
+++		};
+++
+++		sys_led: led-sys {
+++			gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
+++			label = "red:sys";
+++			default-state = "on";
+++		};
+++
+++		wan_led: led-wan {
+++			gpios = <&gpio1 RK_PA0 GPIO_ACTIVE_HIGH>;
+++			label = "green:wan";
+++		};
+++	};
+++
+++	gpio-keys {
+++		pinctrl-0 = <&reset_button_pin>;
+++
+++		/delete-node/ power;
+++
+++		reset {
+++			debounce-interval = <50>;
+++			gpios = <&gpio1 RK_PC6 GPIO_ACTIVE_LOW>;
+++			label = "reset";
+++			linux,code = <KEY_RESTART>;
+++		};
+++	};
+++
+++	vdd_5v: vdd-5v {
+++		compatible = "regulator-fixed";
+++		regulator-name = "vdd_5v";
+++		regulator-always-on;
+++		regulator-boot-on;
+++	};
+++};
+++
+++&emmc_phy {
+++	status = "disabled";
+++};
+++
+++&i2c4 {
+++	status = "disabled";
+++};
+++
+++&pcie0 {
+++	max-link-speed = <1>;
+++	num-lanes = <1>;
+++	vpcie3v3-supply = <&vcc3v3_sys>;
+++};
+++
+++&pinctrl {
+++	gpio-leds {
+++		/delete-node/ leds-gpio;
+++
+++		lan_led_pin: lan-led-pin {
+++			rockchip,pins = <1 RK_PA1 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++
+++		sys_led_pin: sys-led-pin {
+++			rockchip,pins = <0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++
+++		wan_led_pin: wan-led-pin {
+++			rockchip,pins = <1 RK_PA0 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++	};
+++
+++	rockchip-key {
+++		/delete-node/ power-key;
+++
+++		reset_button_pin: reset-button-pin {
+++			rockchip,pins = <1 RK_PC6 RK_FUNC_GPIO &pcfg_pull_up>;
+++		};
+++	};
+++};
+++
+++&sdhci {
+++	status = "disabled";
+++};
+++
+++&sdio0 {
+++	status = "disabled";
+++};
+++
+++&u2phy0_host {
+++	phy-supply = <&vdd_5v>;
+++};
+++
+++&u2phy1_host {
+++	status = "disabled";
+++};
+++
+++&uart0 {
+++	status = "disabled";
+++};
+++
+++&usbdrd_dwc3_0 {
+++	dr_mode = "host";
+++};
+++
+++&vcc3v3_sys {
+++	vin-supply = <&vcc5v0_sys>;
+++};
++--- /dev/null
+++++ b/configs/nanopi-r4s-rk3399_defconfig
++@@ -0,0 +1,63 @@
+++CONFIG_ARM=y
+++CONFIG_ARCH_ROCKCHIP=y
+++CONFIG_SYS_TEXT_BASE=0x00200000
+++CONFIG_NR_DRAM_BANKS=1
+++CONFIG_ENV_OFFSET=0x3F8000
+++CONFIG_ROCKCHIP_RK3399=y
+++CONFIG_TARGET_NANOPI4_RK3399=y
+++CONFIG_DEBUG_UART_BASE=0xFF1A0000
+++CONFIG_DEBUG_UART_CLOCK=24000000
+++CONFIG_DEFAULT_DEVICE_TREE="rk3399-nanopi-r4s"
+++CONFIG_DEBUG_UART=y
+++CONFIG_DEFAULT_FDT_FILE="rockchip/rk3399-nanopi-r4s.dtb"
+++CONFIG_MISC_INIT_R=y
+++# CONFIG_SPL_RAW_IMAGE_SUPPORT is not set
+++CONFIG_SPL_STACK_R=y
+++CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN=0x10000
+++CONFIG_TPL=y
+++CONFIG_CMD_BOOTZ=y
+++CONFIG_CMD_GPT=y
+++CONFIG_CMD_MMC=y
+++CONFIG_CMD_USB=y
+++# CONFIG_CMD_SETEXPR is not set
+++CONFIG_CMD_TIME=y
+++CONFIG_SPL_OF_CONTROL=y
+++CONFIG_OF_SPL_REMOVE_PROPS="pinctrl-0 pinctrl-names clock-names interrupt-parent assigned-clocks assigned-clock-rates assigned-clock-parents"
+++CONFIG_ENV_IS_IN_MMC=y
+++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
+++CONFIG_SYS_MMC_ENV_DEV=1
+++CONFIG_ROCKCHIP_GPIO=y
+++CONFIG_SYS_I2C_ROCKCHIP=y
+++CONFIG_MMC_DW=y
+++CONFIG_MMC_DW_ROCKCHIP=y
+++CONFIG_MMC_SDHCI=y
+++CONFIG_MMC_SDHCI_ROCKCHIP=y
+++CONFIG_DM_ETH=y
+++CONFIG_ETH_DESIGNWARE=y
+++CONFIG_GMAC_ROCKCHIP=y
+++CONFIG_PMIC_RK8XX=y
+++CONFIG_REGULATOR_PWM=y
+++CONFIG_REGULATOR_RK8XX=y
+++CONFIG_PWM_ROCKCHIP=y
+++CONFIG_RAM_RK3399_LPDDR4=y
+++CONFIG_BAUDRATE=1500000
+++CONFIG_DEBUG_UART_SHIFT=2
+++CONFIG_SYSRESET=y
+++CONFIG_USB=y
+++CONFIG_USB_XHCI_HCD=y
+++CONFIG_USB_XHCI_DWC3=y
+++CONFIG_USB_EHCI_HCD=y
+++CONFIG_USB_EHCI_GENERIC=y
+++CONFIG_USB_KEYBOARD=y
+++CONFIG_USB_HOST_ETHER=y
+++CONFIG_USB_ETHER_ASIX=y
+++CONFIG_USB_ETHER_ASIX88179=y
+++CONFIG_USB_ETHER_MCS7830=y
+++CONFIG_USB_ETHER_RTL8152=y
+++CONFIG_USB_ETHER_SMSC95XX=y
+++CONFIG_DM_VIDEO=y
+++CONFIG_DISPLAY=y
+++CONFIG_VIDEO_ROCKCHIP=y
+++CONFIG_DISPLAY_ROCKCHIP_HDMI=y
+++CONFIG_SPL_TINY_MEMSET=y
+++CONFIG_ERRNO_STR=y
 diff --git a/package/boot/uboot-rockchip/patches/200-rockchip-rk3399-split-nanopi-r4-rk3399-out-of-evb_rk.patch b/package/boot/uboot-rockchip/patches/200-rockchip-rk3399-split-nanopi-r4-rk3399-out-of-evb_rk.patch
 new file mode 100644
-index 0000000000..d8a118dd2e
+index 0000000000..3580ade7b7
 --- /dev/null
 +++ b/package/boot/uboot-rockchip/patches/200-rockchip-rk3399-split-nanopi-r4-rk3399-out-of-evb_rk.patch
-@@ -0,0 +1,509 @@
+@@ -0,0 +1,74 @@
 +From a765bb2678b6d1666caafef0fcf88fba88b5b26f Mon Sep 17 00:00:00 2001
 +From: hmz007 <hmz007@gmail.com>
 +Date: Fri, 18 Dec 2020 17:10:35 +0800
@@ -320,455 +585,20 @@ index 0000000000..d8a118dd2e
 + source "board/google/gru/Kconfig"
 + source "board/pine64/pinebook-pro-rk3399/Kconfig"
 + source "board/pine64/rockpro64_rk3399/Kconfig"
-+--- /dev/null
-++++ b/board/friendlyarm/nanopi4/Kconfig
-+@@ -0,0 +1,15 @@
-++if TARGET_NANOPI4_RK3399
-++
-++config SYS_BOARD
-++	default "nanopi4"
-++
-++config SYS_VENDOR
-++	default "friendlyarm"
-++
-++config SYS_CONFIG_NAME
-++	default "nanopi4"
-++
-++config BOARD_SPECIFIC_OPTIONS
-++	def_bool y
-++
-++endif
-+--- /dev/null
-++++ b/board/friendlyarm/nanopi4/MAINTAINERS
-+@@ -0,0 +1,5 @@
-++NanoPi 4 Series
-++M:      FriendlyElec <support@friendlyarm.com>
-++S:      Maintained
-++F:      board/friendlyarm/nanopi4/
-++F:      include/configs/nanopi4.h
-+--- /dev/null
-++++ b/board/friendlyarm/nanopi4/Makefile
-+@@ -0,0 +1,8 @@
-++#
-++# Copyright (C) Guangzhou FriendlyELEC Computer Tech. Co., Ltd.
-++# (http://www.friendlyarm.com)
-++#
-++# SPDX-License-Identifier:     GPL-2.0+
-++#
-++
-++obj-y	+= nanopi4.o hwrev.o
-+--- /dev/null
-++++ b/board/friendlyarm/nanopi4/hwrev.c
-+@@ -0,0 +1,185 @@
-++// SPDX-License-Identifier: GPL-2.0+
-++/*
-++ * Copyright (c) 2020 FriendlyElec Computer Tech. Co., Ltd.
-++ * (http://www.friendlyarm.com)
-++ */
-++
-++#include <common.h>
-++#include <dm.h>
-++#include <linux/delay.h>
-++#include <log.h>
-++#include <asm/io.h>
-++#include <asm/gpio.h>
-++#include <asm/arch-rockchip/gpio.h>
-++
-++/*
-++ * ID info:
-++ *  ID : Volts : ADC value :   Bucket
-++ *  ==   =====   =========   ===========
-++ *   0 : 0.102V:        58 :    0 -   81
-++ *   1 : 0.211V:       120 :   82 -  150
-++ *   2 : 0.319V:       181 :  151 -  211
-++ *   3 : 0.427V:       242 :  212 -  274
-++ *   4 : 0.542V:       307 :  275 -  342
-++ *   5 : 0.666V:       378 :  343 -  411
-++ *   6 : 0.781V:       444 :  412 -  477
-++ *   7 : 0.900V:       511 :  478 -  545
-++ *   8 : 1.023V:       581 :  546 -  613
-++ *   9 : 1.137V:       646 :  614 -  675
-++ *  10 : 1.240V:       704 :  676 -  733
-++ *  11 : 1.343V:       763 :  734 -  795
-++ *  12 : 1.457V:       828 :  796 -  861
-++ *  13 : 1.576V:       895 :  862 -  925
-++ *  14 : 1.684V:       956 :  926 -  989
-++ *  15 : 1.800V:      1023 :  990 - 1023
-++ */
-++static const int id_readings[] = {
-++	 81, 150, 211, 274, 342, 411, 477, 545,
-++	613, 675, 733, 795, 861, 925, 989, 1023
-++};
-++
-++static int cached_board_id = -1;
-++
-++#define SARADC_BASE		0xFF100000
-++#define SARADC_DATA		(SARADC_BASE + 0)
-++#define SARADC_CTRL		(SARADC_BASE + 8)
-++
-++static u32 get_saradc_value(int chn)
-++{
-++	int timeout = 0;
-++	u32 adc_value = 0;
-++
-++	writel(0, SARADC_CTRL);
-++	udelay(2);
-++
-++	writel(0x28 | chn, SARADC_CTRL);
-++	udelay(50);
-++
-++	timeout = 0;
-++	do {
-++		if (readl(SARADC_CTRL) & 0x40) {
-++			adc_value = readl(SARADC_DATA) & 0x3FF;
-++			goto stop_adc;
-++		}
-++
-++		udelay(10);
-++	} while (timeout++ < 100);
-++
-++stop_adc:
-++	writel(0, SARADC_CTRL);
-++
-++	return adc_value;
-++}
-++
-++static uint32_t get_adc_index(int chn)
-++{
-++	int i;
-++	int adc_reading;
-++
-++	if (cached_board_id != -1)
-++		return cached_board_id;
-++
-++	adc_reading = get_saradc_value(chn);
-++	for (i = 0; i < ARRAY_SIZE(id_readings); i++) {
-++		if (adc_reading <= id_readings[i]) {
-++			debug("ADC reading %d, ID %d\n", adc_reading, i);
-++			cached_board_id = i;
-++			return i;
-++		}
-++	}
-++
-++	/* should die for impossible value */
-++	return 0;
-++}
-++
-++/*
-++ * Board revision list: <GPIO4_D1 | GPIO4_D0>
-++ *  0b00 - NanoPC-T4
-++ *  0b01 - NanoPi M4
-++ *
-++ * Extended by ADC_IN4
-++ * Group A:
-++ *  0x04 - NanoPi NEO4
-++ *  0x06 - SOC-RK3399
-++ *  0x07 - SOC-RK3399 V2
-++ *  0x09 - NanoPi R4S 1GB
-++ *  0x0A - NanoPi R4S 4GB
-++ *
-++ * Group B:
-++ *  0x21 - NanoPi M4 Ver2.0
-++ *  0x22 - NanoPi M4B
-++ */
-++static int pcb_rev = -1;
-++
-++void bd_hwrev_init(void)
-++{
-++#define GPIO4_BASE	0xff790000
-++	struct rockchip_gpio_regs *regs = (void *)GPIO4_BASE;
-++
-++#ifdef CONFIG_SPL_BUILD
-++	struct udevice *dev;
-++
-++	if (uclass_get_device_by_driver(UCLASS_CLK,
-++				DM_GET_DRIVER(clk_rk3399), &dev))
-++		return;
-++#endif
-++
-++	if (pcb_rev >= 0)
-++		return;
-++
-++	/* D1, D0: input mode */
-++	clrbits_le32(&regs->swport_ddr, (0x3 << 24));
-++	pcb_rev = (readl(&regs->ext_port) >> 24) & 0x3;
-++
-++	if (pcb_rev == 0x3) {
-++		/* Revision group A: 0x04 ~ 0x13 */
-++		pcb_rev = 0x4 + get_adc_index(4);
-++
-++	} else if (pcb_rev == 0x1) {
-++		int idx = get_adc_index(4);
-++
-++		/* Revision group B: 0x21 ~ 0x2f */
-++		if (idx > 0) {
-++			pcb_rev = 0x20 + idx;
-++		}
-++	}
-++}
-++
-++#ifdef CONFIG_SPL_BUILD
-++static struct board_ddrtype {
-++	int rev;
-++	const char *type;
-++} ddrtypes[] = {
-++	{ 0x00, "lpddr3-samsung-4GB-1866" },
-++	{ 0x01, "lpddr3-samsung-4GB-1866" },
-++	{ 0x04,   "ddr3-1866" },
-++	{ 0x06,   "ddr3-1866" },
-++	{ 0x07, "lpddr4-100"  },
-++	{ 0x09,   "ddr3-1866" },
-++	{ 0x0a, "lpddr4-100"  },
-++	{ 0x21, "lpddr4-100"  },
-++	{ 0x22,   "ddr3-1866" },
-++};
-++
-++const char *rk3399_get_ddrtype(void) {
-++	int i;
-++
-++	bd_hwrev_init();
-++	printf("Board: rev%02x\n", pcb_rev);
-++
-++	for (i = 0; i < ARRAY_SIZE(ddrtypes); i++) {
-++		if (ddrtypes[i].rev == pcb_rev)
-++			return ddrtypes[i].type;
-++	}
-++
-++	/* fallback to first subnode (ie, first included dtsi) */
-++	return NULL;
-++}
-++#endif
-++
-++/* To override __weak symbols */
-++u32 get_board_rev(void)
-++{
-++	return pcb_rev;
-++}
-++
-+--- /dev/null
-++++ b/board/friendlyarm/nanopi4/hwrev.h
-+@@ -0,0 +1,27 @@
-++/*
-++ * Copyright (C) Guangzhou FriendlyARM Computer Tech. Co., Ltd.
-++ * (http://www.friendlyarm.com)
-++ *
-++ * This program is free software; you can redistribute it and/or
-++ * modify it under the terms of the GNU General Public License
-++ * as published by the Free Software Foundation; either version 2
-++ * of the License, or (at your option) any later version.
-++ *
-++ * This program is distributed in the hope that it will be useful,
-++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-++ * GNU General Public License for more details.
-++ *
-++ * You should have received a copy of the GNU General Public License
-++ * along with this program; if not, you can access it online at
-++ * http://www.gnu.org/licenses/gpl-2.0.html.
-++ */
-++
-++#ifndef __BD_HW_REV_H__
-++#define __BD_HW_REV_H__
-++
-++extern void bd_hwrev_config_gpio(void);
-++extern void bd_hwrev_init(void);
-++extern u32 get_board_rev(void);
-++
-++#endif /* __BD_HW_REV_H__ */
-+--- /dev/null
-++++ b/board/friendlyarm/nanopi4/nanopi4.c
-+@@ -0,0 +1,148 @@
-++// SPDX-License-Identifier: GPL-2.0+
-++/*
-++ * Copyright (c) 2020 FriendlyElec Computer Tech. Co., Ltd.
-++ * (http://www.friendlyarm.com)
-++ */
-++
-++#include <common.h>
-++#include <dm.h>
-++#include <env.h>
-++#include <hash.h>
-++#include <linux/bitops.h>
-++#include <i2c.h>
-++#include <init.h>
-++#include <net.h>
-++#include <netdev.h>
-++#include <syscon.h>
-++#include <asm/arch-rockchip/bootrom.h>
-++#include <asm/arch-rockchip/clock.h>
-++#include <asm/arch-rockchip/grf_rk3399.h>
-++#include <asm/arch-rockchip/hardware.h>
-++#include <asm/arch-rockchip/misc.h>
-++#include <asm/io.h>
-++#include <asm/setup.h>
-++#include <u-boot/sha256.h>
-++
-++#ifdef CONFIG_MISC_INIT_R
-++static void setup_iodomain(void)
-++{
-++	struct rk3399_grf_regs *grf =
-++	    syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-++
-++	/* BT565 and AUDIO is in 1.8v domain */
-++	rk_setreg(&grf->io_vsel, BIT(0) | BIT(1));
-++}
-++
-++static int __maybe_unused mac_read_from_generic_eeprom(u8 *addr)
-++{
-++	struct udevice *i2c_dev;
-++	int ret;
-++
-++	/* Microchip 24AA02xxx EEPROMs with EUI-48 Node Identity */
-++	ret = i2c_get_chip_for_busnum(2, 0x51, 1, &i2c_dev);
-++	if (!ret)
-++		ret = dm_i2c_read(i2c_dev, 0xfa, addr, 6);
-++
-++	return ret;
-++}
-++
-++static void setup_macaddr(void)
-++{
-++#if CONFIG_IS_ENABLED(CMD_NET)
-++	int ret;
-++	const char *cpuid = env_get("cpuid#");
-++	u8 hash[SHA256_SUM_LEN];
-++	int size = sizeof(hash);
-++	u8 mac_addr[6];
-++	int from_eeprom = 0;
-++	int lockdown = 0;
-++
-++#ifndef CONFIG_ENV_IS_NOWHERE
-++	lockdown = env_get_yesno("lockdown") == 1;
-++#endif
-++	if (lockdown && env_get("ethaddr"))
-++		return;
-++
-++	ret = mac_read_from_generic_eeprom(mac_addr);
-++	if (!ret && is_valid_ethaddr(mac_addr)) {
-++		eth_env_set_enetaddr("ethaddr", mac_addr);
-++		from_eeprom = 1;
-++	}
-++
-++	if (!cpuid) {
-++		debug("%s: could not retrieve 'cpuid#'\n", __func__);
-++		return;
-++	}
-++
-++	ret = hash_block("sha256", (void *)cpuid, strlen(cpuid), hash, &size);
-++	if (ret) {
-++		debug("%s: failed to calculate SHA256\n", __func__);
-++		return;
-++	}
-++
-++	/* Copy 6 bytes of the hash to base the MAC address on */
-++	memcpy(mac_addr, hash, 6);
-++
-++	/* Make this a valid MAC address and set it */
-++	mac_addr[0] &= 0xfe;  /* clear multicast bit */
-++	mac_addr[0] |= 0x02;  /* set local assignment bit (IEEE802) */
-++
-++	if (from_eeprom) {
-++		eth_env_set_enetaddr("eth1addr", mac_addr);
-++	} else {
-++		eth_env_set_enetaddr("ethaddr", mac_addr);
-++
-++		if (lockdown && env_get("eth1addr"))
-++			return;
-++
-++		/* Ugly, copy another 4 bytes to generate a similar address */
-++		memcpy(mac_addr + 2, hash + 8, 4);
-++		if (!memcmp(hash + 2, hash + 8, 4))
-++			mac_addr[5] ^= 0xff;
-++
-++		eth_env_set_enetaddr("eth1addr", mac_addr);
-++	}
-++#endif
-++
-++	return;
-++}
-++
-++int misc_init_r(void)
-++{
-++	const u32 cpuid_offset = 0x7;
-++	const u32 cpuid_length = 0x10;
-++	u8 cpuid[cpuid_length];
-++	int ret;
-++
-++	setup_iodomain();
-++
-++	ret = rockchip_cpuid_from_efuse(cpuid_offset, cpuid_length, cpuid);
-++	if (ret)
-++		return ret;
-++
-++	ret = rockchip_cpuid_set(cpuid, cpuid_length);
-++	if (ret)
-++		return ret;
-++
-++	setup_macaddr();
-++	bd_hwrev_init();
-++
-++	return 0;
-++}
-++#endif
-++
-++#ifdef CONFIG_SERIAL_TAG
-++void get_board_serial(struct tag_serialnr *serialnr)
-++{
-++	char *serial_string;
-++	u64 serial = 0;
-++
-++	serial_string = env_get("serial#");
-++
-++	if (serial_string)
-++		serial = simple_strtoull(serial_string, NULL, 16);
-++
-++	serialnr->high = (u32)(serial >> 32);
-++	serialnr->low = (u32)(serial & 0xffffffff);
-++}
-++#endif
-+diff --git a/drivers/clk/rockchip/clk_rk3399.c b/drivers/clk/rockchip/clk_rk3399.c
-+index 22c373a623..38975c0c65 100644
 +--- a/drivers/clk/rockchip/clk_rk3399.c
 ++++ b/drivers/clk/rockchip/clk_rk3399.c
-+@@ -1351,6 +1351,8 @@ static void rkclk_init(struct rockchip_cru *cru)
++@@ -1372,6 +1372,8 @@ static void rkclk_init(struct rockchip_c
 + 		     pclk_div << PCLK_PERILP1_DIV_CON_SHIFT |
 + 		     hclk_div << HCLK_PERILP1_DIV_CON_SHIFT |
 + 		     HCLK_PERILP1_PLL_SEL_GPLL << HCLK_PERILP1_PLL_SEL_SHIFT);
 ++
 ++	rk3399_saradc_set_clk(cru, 1000000);
 + }
-+ #endif
 + 
-+--- /dev/null
-++++ b/include/configs/nanopi4.h
-+@@ -0,0 +1,24 @@
-++/* SPDX-License-Identifier: GPL-2.0+ */
-++/*
-++ * Copyright (C) Guangzhou FriendlyELEC Computer Tech. Co., Ltd.
-++ * (http://www.friendlyarm.com)
-++ *
-++ * (C) Copyright 2016 Rockchip Electronics Co., Ltd
-++ */
-++
-++#ifndef __CONFIG_NANOPI4_H__
-++#define __CONFIG_NANOPI4_H__
-++
-++#define ROCKCHIP_DEVICE_SETTINGS \
-++		"stdin=serial,usbkbd\0" \
-++		"stdout=serial,vidconsole\0" \
-++		"stderr=serial,vidconsole\0"
-++
-++#include <configs/rk3399_common.h>
-++
-++#define SDRAM_BANK_SIZE			(2UL << 30)
-++
-++#define CONFIG_SERIAL_TAG
-++#define CONFIG_REVISION_TAG
-++
-++#endif
++ static int rk3399_clk_probe(struct udevice *dev)
 diff --git a/package/boot/uboot-rockchip/patches/201-ram-rk3399-Add-support-for-multiple-DDR-types.patch b/package/boot/uboot-rockchip/patches/201-ram-rk3399-Add-support-for-multiple-DDR-types.patch
 new file mode 100644
-index 0000000000..b624bcc763
+index 0000000000..ba1a143268
 --- /dev/null
 +++ b/package/boot/uboot-rockchip/patches/201-ram-rk3399-Add-support-for-multiple-DDR-types.patch
 @@ -0,0 +1,256 @@
@@ -950,10 +780,10 @@ index 0000000000..b624bcc763
 ++	return NULL;
 ++}
 ++
-+ static int rk3399_dmc_ofdata_to_platdata(struct udevice *dev)
++ static int rk3399_dmc_of_to_plat(struct udevice *dev)
 + {
 + #if !CONFIG_IS_ENABLED(OF_PLATDATA)
-+ 	struct rockchip_dmc_plat *plat = dev_get_platdata(dev);
++ 	struct rockchip_dmc_plat *plat = dev_get_plat(dev);
 ++	ofnode node = { .np = NULL };
 ++	const char *name;
 + 	int ret;
@@ -985,7 +815,7 @@ index 0000000000..b624bcc763
 + 	ret = regmap_init_mem(dev_ofnode(dev), &plat->map);
 + 	if (ret)
 + 		printf("%s: regmap failed %d\n", __func__, ret);
-+@@ -3051,18 +3070,20 @@ static int conv_of_platdata(struct udevice *dev)
++@@ -3050,18 +3069,20 @@ static int conv_of_plat(struct udevice *dev)
 + #endif
 + 
 + static const struct sdram_rk3399_ops rk3399_ops = {
@@ -1009,7 +839,7 @@ index 0000000000..b624bcc763
 + 
 + static int rk3399_dmc_init(struct udevice *dev)
 + {
-+@@ -3081,7 +3102,17 @@ static int rk3399_dmc_init(struct udevice *dev)
++@@ -3080,7 +3101,17 @@ static int rk3399_dmc_init(struct udevice *dev)
 + 		return ret;
 + #endif
 + 
@@ -1028,325 +858,6 @@ index 0000000000..b624bcc763
 + 	priv->cic = syscon_get_first_range(ROCKCHIP_SYSCON_CIC);
 + 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 + 	priv->pmu = syscon_get_first_range(ROCKCHIP_SYSCON_PMU);
-diff --git a/package/boot/uboot-rockchip/patches/202-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch b/package/boot/uboot-rockchip/patches/202-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
-new file mode 100644
-index 0000000000..74c7c3f4a5
---- /dev/null
-+++ b/package/boot/uboot-rockchip/patches/202-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
-@@ -0,0 +1,313 @@
-+From 8dc76bbce30c3f63f290f008f8410c00fee13c9a Mon Sep 17 00:00:00 2001
-+From: Tianling Shen <cnsztl@gmail.com>
-+Date: Fri, 8 Jan 2021 05:55:50 +0000
-+Subject: [PATCH] rockchip: rk3399: Add support for FriendlyARM NanoPi R4S
-+
-+This adds support for the NanoPi R4S from FriendlyArm.
-+
-+Rockchip RK3399 SoC
-+1GB DDR3 or 4GB LPDDR4 RAM
-+Gigabit Ethernet (WAN)
-+Gigabit Ethernet (PCIe) (LAN)
-+USB 3.0 Host Port x 2
-+MicroSD slot
-+Reset button
-+WAN - LAN - SYS LED
-+
-+Signed-off-by: Tianling Shen <cnsztl@gmail.com>
-+Co-authored-by: Jensen Huang <jensenhuang@friendlyarm.com>
-+Signed-off-by: Jensen Huang <jensenhuang@friendlyarm.com>
-+Co-authored-by: Marty Jones <mj8263788@gmail.com>
-+Signed-off-by: Marty Jones <mj8263788@gmail.com>
-+---
-+ arch/arm/dts/Makefile                      |   1 +
-+ arch/arm/dts/rk3399-nanopi-r4s-u-boot.dtsi |   9 ++
-+ arch/arm/dts/rk3399-nanopi-r4s.dts         | 178 +++++++++++++++++++++
-+ board/friendlyarm/nanopi4/MAINTAINERS      |   6 +
-+ configs/nanopi-r4s-rk3399_defconfig        |  63 ++++++++
-+ 5 files changed, 257 insertions(+)
-+ create mode 100644 arch/arm/dts/rk3399-nanopi-r4s-u-boot.dtsi
-+ create mode 100644 arch/arm/dts/rk3399-nanopi-r4s.dts
-+ create mode 100644 configs/nanopi-r4s-rk3399_defconfig
-+
-+--- a/arch/arm/dts/Makefile
-++++ b/arch/arm/dts/Makefile
-+@@ -132,6 +132,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
-+ 	rk3399-nanopi-m4.dtb \
-+ 	rk3399-nanopi-m4-2gb.dtb \
-+ 	rk3399-nanopi-neo4.dtb \
-++	rk3399-nanopi-r4s.dtb \
-+ 	rk3399-orangepi.dtb \
-+ 	rk3399-pinebook-pro.dtb \
-+ 	rk3399-puma-haikou.dtb \
-+--- /dev/null
-++++ b/arch/arm/dts/rk3399-nanopi-r4s-u-boot.dtsi
-+@@ -0,0 +1,9 @@
-++// SPDX-License-Identifier: GPL-2.0+
-++/*
-++ * (C) Copyright 2020 Jensen Huang <jensenhuang@friendlyarm.com>
-++ */
-++
-++#include "rk3399-nanopi4-u-boot.dtsi"
-++#include "rk3399-sdram-lpddr4-100.dtsi"
-++#include "rk3399-sdram-lpddr3-samsung-4GB-1866.dtsi"
-++#include "rk3399-sdram-ddr3-1866.dtsi"
-+--- /dev/null
-++++ b/arch/arm/dts/rk3399-nanopi-r4s.dts
-+@@ -0,0 +1,178 @@
-++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
-++/*
-++ * Copyright (c) 2020 Jensen Huang <jensenhuang@friendlyarm.com>
-++ * Copyright (c) 2020 Marty Jones <mj8263788@gmail.com>
-++ * Copyright (c) 2020 Tianling Shen <cnsztl@gmail.com>
-++ */
-++
-++/dts-v1/;
-++#include "rk3399-nanopi4.dtsi"
-++
-++/ {
-++	model = "FriendlyElec NanoPi R4S";
-++	compatible = "friendlyarm,nanopi-r4s", "rockchip,rk3399";
-++
-++	aliases {
-++		led-boot = &sys_led;
-++		led-failsafe = &sys_led;
-++		led-running = &sys_led;
-++		led-upgrade = &sys_led;
-++	};
-++
-++	/delete-node/ gpio-leds;
-++	gpio-leds {
-++		compatible = "gpio-leds";
-++		pinctrl-0 = <&lan_led_pin>, <&sys_led_pin>, <&wan_led_pin>;
-++		pinctrl-names = "default";
-++
-++		lan_led: led-0 {
-++			gpios = <&gpio1 RK_PA1 GPIO_ACTIVE_HIGH>;
-++			label = "nanopi-r4s:green:lan";
-++		};
-++
-++		sys_led: led-1 {
-++			gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
-++			label = "nanopi-r4s:red:sys";
-++		};
-++
-++		wan_led: led-2 {
-++			gpios = <&gpio1 RK_PA0 GPIO_ACTIVE_HIGH>;
-++			label = "nanopi-r4s:green:wan";
-++		};
-++	};
-++
-++	/delete-node/ gpio-keys;
-++	gpio-keys {
-++		compatible = "gpio-keys";
-++		pinctrl-names = "default";
-++		pinctrl-0 = <&reset_button_pin>;
-++
-++		reset {
-++			debounce-interval = <50>;
-++			gpios = <&gpio1 RK_PC6 GPIO_ACTIVE_LOW>;
-++			label = "reset";
-++			linux,code = <KEY_RESTART>;
-++		};
-++	};
-++
-++	vdd_5v: vdd-5v {
-++		compatible = "regulator-fixed";
-++		regulator-name = "vdd_5v";
-++		regulator-always-on;
-++		regulator-boot-on;
-++	};
-++
-++	fan: pwm-fan {
-++		compatible = "pwm-fan";
-++		/*
-++		 * With 20KHz PWM and an EVERCOOL EC4007H12SA fan, these levels
-++		 * work out to 0, ~1200, ~3000, and 5000RPM respectively.
-++		 */
-++		cooling-levels = <0 12 18 255>;
-++		#cooling-cells = <2>;
-++		fan-supply = <&vdd_5v>;
-++		pwms = <&pwm1 0 50000 0>;
-++	};
-++};
-++
-++&cpu_thermal {
-++	trips {
-++		cpu_warm: cpu_warm {
-++			temperature = <55000>;
-++			hysteresis = <2000>;
-++			type = "active";
-++		};
-++
-++		cpu_hot: cpu_hot {
-++			temperature = <65000>;
-++			hysteresis = <2000>;
-++			type = "active";
-++		};
-++	};
-++
-++	cooling-maps {
-++		map2 {
-++			trip = <&cpu_warm>;
-++			cooling-device = <&fan THERMAL_NO_LIMIT 1>;
-++		};
-++
-++		map3 {
-++			trip = <&cpu_hot>;
-++			cooling-device = <&fan 2 THERMAL_NO_LIMIT>;
-++		};
-++	};
-++};
-++
-++&emmc_phy {
-++	status = "disabled";
-++};
-++
-++&fusb0 {
-++	status = "disabled";
-++};
-++
-++&pcie0 {
-++	max-link-speed = <1>;
-++	num-lanes = <1>;
-++	vpcie3v3-supply = <&vcc3v3_sys>;
-++
-++	pcie@0 {
-++		reg = <0x00000000 0 0 0 0>;
-++		#address-cells = <3>;
-++		#size-cells = <2>;
-++	};
-++};
-++
-++&pinctrl {
-++	/delete-node/ gpio-leds;
-++	gpio-leds {
-++		lan_led_pin: lan-led-pin {
-++			rockchip,pins = <1 RK_PA1 RK_FUNC_GPIO &pcfg_pull_none>;
-++		};
-++
-++		sys_led_pin: sys-led-pin {
-++			rockchip,pins = <0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
-++		};
-++
-++		wan_led_pin: wan-led-pin {
-++			rockchip,pins = <1 RK_PA0 RK_FUNC_GPIO &pcfg_pull_none>;
-++		};
-++	};
-++
-++	/delete-node/ rockchip-key;
-++	rockchip-key {
-++		reset_button_pin: reset-button-pin {
-++			rockchip,pins = <1 RK_PC6 RK_FUNC_GPIO &pcfg_pull_up>;
-++		};
-++	};
-++};
-++
-++&sdhci {
-++	status = "disabled";
-++};
-++
-++&sdio0 {
-++	status = "disabled";
-++};
-++
-++&sdmmc {
-++	sd-uhs-sdr12;
-++	sd-uhs-sdr25;
-++	sd-uhs-sdr50;
-++};
-++
-++&u2phy0_host {
-++	phy-supply = <&vdd_5v>;
-++};
-++
-++&u2phy1_host {
-++	status = "disabled";
-++};
-++
-++&usbdrd_dwc3_0 {
-++	dr_mode = "host";
-++};
-++
-++&vcc3v3_sys {
-++	vin-supply = <&vcc5v0_sys>;
-++};
-+--- a/board/friendlyarm/nanopi4/MAINTAINERS
-++++ b/board/friendlyarm/nanopi4/MAINTAINERS
-+@@ -3,3 +3,9 @@ M:      FriendlyElec <support@friendlyarm.com>
-+ S:      Maintained
-+ F:      board/friendlyarm/nanopi4/
-+ F:      include/configs/nanopi4.h
-++
-++NANOPI-R4S
-++M:      Tianling Shen <cnsztl@gmail.com>
-++S:      Maintained
-++F:      configs/nanopi-r4s-rk3399_defconfig
-++F:      arch/arm/dts/rk3399-nanopi-r4s-u-boot.dtsi
-+--- /dev/null
-++++ b/configs/nanopi-r4s-rk3399_defconfig
-+@@ -0,0 +1,63 @@
-++CONFIG_ARM=y
-++CONFIG_ARCH_ROCKCHIP=y
-++CONFIG_SYS_TEXT_BASE=0x00200000
-++CONFIG_NR_DRAM_BANKS=1
-++CONFIG_ENV_OFFSET=0x3F8000
-++CONFIG_ROCKCHIP_RK3399=y
-++CONFIG_TARGET_NANOPI4_RK3399=y
-++CONFIG_DEBUG_UART_BASE=0xFF1A0000
-++CONFIG_DEBUG_UART_CLOCK=24000000
-++CONFIG_DEFAULT_DEVICE_TREE="rk3399-nanopi-r4s"
-++CONFIG_DEBUG_UART=y
-++CONFIG_DEFAULT_FDT_FILE="rockchip/rk3399-nanopi-r4s.dtb"
-++CONFIG_MISC_INIT_R=y
-++# CONFIG_SPL_RAW_IMAGE_SUPPORT is not set
-++CONFIG_SPL_STACK_R=y
-++CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN=0x10000
-++CONFIG_TPL=y
-++CONFIG_CMD_BOOTZ=y
-++CONFIG_CMD_GPT=y
-++CONFIG_CMD_MMC=y
-++CONFIG_CMD_USB=y
-++# CONFIG_CMD_SETEXPR is not set
-++CONFIG_CMD_TIME=y
-++CONFIG_SPL_OF_CONTROL=y
-++CONFIG_OF_SPL_REMOVE_PROPS="pinctrl-0 pinctrl-names clock-names interrupt-parent assigned-clocks assigned-clock-rates assigned-clock-parents"
-++CONFIG_ENV_IS_IN_MMC=y
-++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
-++CONFIG_SYS_MMC_ENV_DEV=1
-++CONFIG_ROCKCHIP_GPIO=y
-++CONFIG_SYS_I2C_ROCKCHIP=y
-++CONFIG_MMC_DW=y
-++CONFIG_MMC_DW_ROCKCHIP=y
-++CONFIG_MMC_SDHCI=y
-++CONFIG_MMC_SDHCI_ROCKCHIP=y
-++CONFIG_DM_ETH=y
-++CONFIG_ETH_DESIGNWARE=y
-++CONFIG_GMAC_ROCKCHIP=y
-++CONFIG_PMIC_RK8XX=y
-++CONFIG_REGULATOR_PWM=y
-++CONFIG_REGULATOR_RK8XX=y
-++CONFIG_PWM_ROCKCHIP=y
-++CONFIG_RAM_RK3399_LPDDR4=y
-++CONFIG_BAUDRATE=1500000
-++CONFIG_DEBUG_UART_SHIFT=2
-++CONFIG_SYSRESET=y
-++CONFIG_USB=y
-++CONFIG_USB_XHCI_HCD=y
-++CONFIG_USB_XHCI_DWC3=y
-++CONFIG_USB_EHCI_HCD=y
-++CONFIG_USB_EHCI_GENERIC=y
-++CONFIG_USB_KEYBOARD=y
-++CONFIG_USB_HOST_ETHER=y
-++CONFIG_USB_ETHER_ASIX=y
-++CONFIG_USB_ETHER_ASIX88179=y
-++CONFIG_USB_ETHER_MCS7830=y
-++CONFIG_USB_ETHER_RTL8152=y
-++CONFIG_USB_ETHER_SMSC95XX=y
-++CONFIG_DM_VIDEO=y
-++CONFIG_DISPLAY=y
-++CONFIG_VIDEO_ROCKCHIP=y
-++CONFIG_DISPLAY_ROCKCHIP_HDMI=y
-++CONFIG_SPL_TINY_MEMSET=y
-++CONFIG_ERRNO_STR=y
 diff --git a/target/linux/generic/hack-5.10/310-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch b/target/linux/generic/hack-5.10/310-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch
 new file mode 100644
 index 0000000000..70cfadca9c
@@ -1716,7 +1227,7 @@ index e97ea3312d..bfecd0874c 100644
  	ucidef_set_led_netdev "lan" "LAN" "$boardname:green:lan" "eth1"
  	;;
 diff --git a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
-index 99f55513aa..0c22601c95 100644
+index f5e88cc148..b4e623532b 100644
 --- a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 +++ b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 @@ -7,7 +7,8 @@ rockchip_setup_interfaces()
@@ -1755,7 +1266,7 @@ index 44716258bf..9e4a4cf4fc 100644
  esac
  
 diff --git a/target/linux/rockchip/armv8/config-5.10 b/target/linux/rockchip/armv8/config-5.10
-index eaef238c92..54e5cb0145 100644
+index c85984a982..c9a7887750 100644
 --- a/target/linux/rockchip/armv8/config-5.10
 +++ b/target/linux/rockchip/armv8/config-5.10
 @@ -18,6 +18,7 @@ CONFIG_ARC_EMAC_CORE=y
@@ -1774,15 +1285,7 @@ index eaef238c92..54e5cb0145 100644
  # CONFIG_ARM_RK3399_DMC_DEVFREQ is not set
  # CONFIG_ARM_SCMI_PROTOCOL is not set
  CONFIG_ARM_SCPI_CPUFREQ=y
-@@ -92,7 +94,6 @@ CONFIG_BRCMSTB_GISB_ARB=y
- CONFIG_BSD_PROCESS_ACCT=y
- CONFIG_BSD_PROCESS_ACCT_V3=y
- # CONFIG_CAVIUM_TX2_ERRATUM_219 is not set
--# CONFIG_CHARGER_BQ25980 is not set
- CONFIG_CHARGER_GPIO=y
- CONFIG_CLKDEV_LOOKUP=y
- CONFIG_CLKSRC_MMIO=y
-@@ -159,17 +160,62 @@ CONFIG_CRC_T10DIF=y
+@@ -158,18 +160,63 @@ CONFIG_CRC_T10DIF=y
  CONFIG_CROSS_MEMORY_ATTACH=y
  CONFIG_CRYPTO_AEAD=y
  CONFIG_CRYPTO_AEAD2=y
@@ -1799,7 +1302,7 @@ index eaef238c92..54e5cb0145 100644
  CONFIG_CRYPTO_CRC32=y
  CONFIG_CRYPTO_CRC32C=y
  CONFIG_CRYPTO_CRCT10DIF=y
-+CONFIG_CRYPTO_CRCT10DIF_ARM64_CE=y
++CONFIG_CRYPTO_CRCT10DIF_ARM64_CE=
 +CONFIG_CRYPTO_CRYPTD=y
 +CONFIG_CRYPTO_CTR=y
 +CONFIG_CRYPTO_DRBG=y
@@ -1809,6 +1312,7 @@ index eaef238c92..54e5cb0145 100644
 +CONFIG_CRYPTO_GF128MUL=y
 +CONFIG_CRYPTO_GHASH=y
 +CONFIG_CRYPTO_GHASH_ARM64_CE=y
+ # CONFIG_CRYPTO_DEV_ROCKCHIP is not set
  CONFIG_CRYPTO_HASH=y
  CONFIG_CRYPTO_HASH2=y
 +CONFIG_CRYPTO_HMAC=y
@@ -1845,73 +1349,23 @@ index eaef238c92..54e5cb0145 100644
  # CONFIG_DEVFREQ_GOV_PASSIVE is not set
  CONFIG_DEVFREQ_GOV_PERFORMANCE=y
  CONFIG_DEVFREQ_GOV_POWERSAVE=y
-@@ -258,7 +304,6 @@ CONFIG_HAS_IOMEM=y
- CONFIG_HAS_IOPORT_MAP=y
- CONFIG_HID=y
- CONFIG_HID_GENERIC=y
--# CONFIG_HISI_HIKEY_USB is not set
- CONFIG_HOLES_IN_ZONE=y
- CONFIG_HOTPLUG_CPU=y
- CONFIG_HOTPLUG_PCI=y
-@@ -270,6 +315,8 @@ CONFIG_HUGETLB_PAGE=y
+@@ -270,6 +317,8 @@ CONFIG_HUGETLB_PAGE=y
  CONFIG_HWMON=y
  CONFIG_HWSPINLOCK=y
  CONFIG_HW_CONSOLE=y
 +CONFIG_HW_RANDOM=y
 +CONFIG_HW_RANDOM_ROCKCHIP=y
- CONFIG_HZ=250
- CONFIG_HZ_250=y
  CONFIG_I2C=y
-@@ -316,7 +363,6 @@ CONFIG_KEXEC_FILE=y
- CONFIG_KSM=y
- # CONFIG_LEDS_BRIGHTNESS_HW_CHANGED is not set
- CONFIG_LEDS_GPIO=y
--# CONFIG_LEDS_LP50XX is not set
- CONFIG_LEDS_PWM=y
- CONFIG_LEDS_SYSCON=y
- CONFIG_LEDS_TRIGGER_CPU=y
-@@ -345,7 +391,6 @@ CONFIG_MEMORY_ISOLATION=y
- CONFIG_MFD_CORE=y
- # CONFIG_MFD_KHADAS_MCU is not set
- CONFIG_MFD_RK808=y
--# CONFIG_MFD_ROHM_BD71828 is not set
- CONFIG_MFD_SYSCON=y
- CONFIG_MIGRATION=y
- CONFIG_MMC=y
-@@ -453,7 +498,7 @@ CONFIG_PLATFORM_MHU=y
- CONFIG_PM=y
+ CONFIG_I2C_BOARDINFO=y
+ CONFIG_I2C_CHARDEV=y
+@@ -450,6 +499,7 @@ CONFIG_PM=y
  CONFIG_PM_CLK=y
  CONFIG_PM_DEVFREQ=y
--# CONFIG_PM_DEVFREQ_EVENT is not set
+ # CONFIG_PM_DEVFREQ_EVENT is not set
 +CONFIG_PM_DEVFREQ_EVENT=y
  CONFIG_PM_GENERIC_DOMAINS=y
  CONFIG_PM_GENERIC_DOMAINS_OF=y
  CONFIG_PM_OPP=y
-@@ -501,8 +546,6 @@ CONFIG_REGULATOR_FIXED_VOLTAGE=y
- CONFIG_REGULATOR_GPIO=y
- CONFIG_REGULATOR_PWM=y
- CONFIG_REGULATOR_RK808=y
--# CONFIG_REGULATOR_RT4801 is not set
--# CONFIG_REGULATOR_RTMV20 is not set
- CONFIG_RELOCATABLE=y
- CONFIG_RESET_CONTROLLER=y
- CONFIG_RFS_ACCEL=y
-@@ -521,7 +564,6 @@ CONFIG_RPS=y
- CONFIG_RSEQ=y
- CONFIG_RTC_CLASS=y
- CONFIG_RTC_DRV_RK808=y
--# CONFIG_RTC_DRV_RV3032 is not set
- CONFIG_RTC_I2C_AND_SPI=y
- CONFIG_RTC_NVMEM=y
- # CONFIG_RUNTIME_TESTING_MENU is not set
-@@ -535,7 +577,6 @@ CONFIG_SCSI_SAS_HOST_SMP=y
- CONFIG_SCSI_SAS_LIBSAS=y
- # CONFIG_SECURITY_DMESG_RESTRICT is not set
- CONFIG_SENSORS_ARM_SCPI=y
--# CONFIG_SENSORS_MR75203 is not set
- CONFIG_SERIAL_8250_DEPRECATED_OPTIONS=y
- CONFIG_SERIAL_8250_DW=y
- CONFIG_SERIAL_8250_DWLIB=y
 diff --git a/target/linux/rockchip/files/arch/arm64/boot/dts/rockchip/rk3328-dram-nanopi2-timing.dtsi b/target/linux/rockchip/files/arch/arm64/boot/dts/rockchip/rk3328-dram-nanopi2-timing.dtsi
 new file mode 100644
 index 0000000000..a3f5ff4bdc
@@ -5017,10 +4471,10 @@ index 0000000000..c85da5fb07
 + 	amba: bus {
 diff --git a/target/linux/rockchip/patches-5.10/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch b/target/linux/rockchip/patches-5.10/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
 new file mode 100644
-index 0000000000..9d393c5771
+index 0000000000..0ea189b886
 --- /dev/null
 +++ b/target/linux/rockchip/patches-5.10/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
-@@ -0,0 +1,186 @@
+@@ -0,0 +1,182 @@
 +From 04202df5cb497b1934c95211cf43784ef62245a4 Mon Sep 17 00:00:00 2001
 +From: Tianling Shen <cnsztl@gmail.com>
 +Date: Sat, 19 Dec 2020 12:42:27 +0000
@@ -5039,7 +4493,7 @@ index 0000000000..9d393c5771
 +
 +--- /dev/null
 ++++ b/arch/arm64/boot/dts/rockchip/rk3399-nanopi4-opp.dtsi
-+@@ -0,0 +1,156 @@
++@@ -0,0 +1,152 @@
 ++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 ++/*
 ++ * Copyright (c) 2016-2017 Fuzhou Rockchip Electronics Co., Ltd
@@ -5076,19 +4530,15 @@ index 0000000000..9d393c5771
 ++		};
 ++		opp05 {
 ++			opp-hz = /bits/ 64 <1416000000>;
-++			opp-microvolt = <1150000>;
+++			opp-microvolt = <1125000>;
 ++		};
 ++		opp06 {
-++			opp-hz = /bits/ 64 <1512000000>;
-++			opp-microvolt = <1200000>;
-++		};
-++ 		opp07 {
 ++			opp-hz = /bits/ 64 <1608000000>;
-++			opp-microvolt = <1250000>;
+++			opp-microvolt = <1225000>;
 ++		};
-++		opp08 {
+++		opp07 {
 ++			opp-hz = /bits/ 64 <1800000000>;
-++			opp-microvolt = <1300000>;
+++			opp-microvolt = <1275000>;
 ++		};
 ++	};
 ++
@@ -5127,15 +4577,15 @@ index 0000000000..9d393c5771
 ++		};
 ++		opp07 {
 ++			opp-hz = /bits/ 64 <1800000000>;
-++			opp-microvolt = <1250000>;
+++			opp-microvolt = <1200000>;
 ++		};
 ++		opp08 {
 ++			opp-hz = /bits/ 64 <2016000000>;
-++			opp-microvolt = <1350000>;
+++			opp-microvolt = <1250000>;
 ++		};
 ++		opp09 {
 ++			opp-hz = /bits/ 64 <2208000000>;
-++			opp-microvolt = <1400000>;
+++			opp-microvolt = <1325000>;
 ++		};
 ++	};
 ++
