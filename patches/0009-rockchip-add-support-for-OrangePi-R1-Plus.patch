@@ -1,6 +1,6 @@
-From e67bd1a1db94d487fa3747d57aea17b83ff39a27 Mon Sep 17 00:00:00 2001
+From 23a22c19813d772ddce8f18d9bee00526463d524 Mon Sep 17 00:00:00 2001
 From: AmadeusGhost <42570690+AmadeusGhost@users.noreply.github.com>
-Date: Sun, 28 Mar 2021 21:00:18 +0800
+Date: Wed, 28 Apr 2021 04:31:03 +0800
 Subject: [PATCH] rockchip: add support for OrangePi R1 Plus
 
 Hardware Specification:
@@ -22,26 +22,38 @@ Installation:
 
 Signed-off-by: AmadeusGhost <amadeus@jmu.edu.cn>
 Signed-off-by: Tianling Shen <cnsztl@immortalwrt.org>
+
+  modified:   package/boot/uboot-rockchip/Makefile 
+  new file:   package/boot/uboot-rockchip/patches/103-rockchip-rk3328-Add-support-for-Orangepi-R1-Plus.patch
+  new file:   package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-plat.c
+  new file:   package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-structs-gen.h
+  modified:   target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
+  modified:   target/linux/rockchip/armv8/base-files/etc/board.d/02_network   
+  modified:   target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity 
+  modified:   target/linux/rockchip/image/armv8.mk  
+  new file:   target/linux/rockchip/patches-5.10/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
+  new file:   target/linux/rockchip/patches-5.4/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
+
 ---
  package/boot/uboot-rockchip/Makefile          |  15 +-
- ...328-Add-support-for-Orangepi-R1-Plus.patch | 173 +++++++++++++++++
- .../orangepi-r1-plus-rk3328/dt-platdata.c     | 174 ++++++++++++++++++
- .../orangepi-r1-plus-rk3328/dt-structs-gen.h  |  71 +++++++
+ ...328-Add-support-for-Orangepi-R1-Plus.patch | 172 ++++++++++++++++++
+ .../orangepi-r1-plus-rk3328/dt-plat.c         | 127 +++++++++++++
+ .../orangepi-r1-plus-rk3328/dt-structs-gen.h  |  51 ++++++
  .../armv8/base-files/etc/board.d/01_leds      |   3 +-
  .../armv8/base-files/etc/board.d/02_network   |   7 +-
  .../etc/hotplug.d/net/40-net-smp-affinity     |   3 +-
  target/linux/rockchip/image/armv8.mk          |  10 +
  ...328-Add-support-for-OrangePi-R1-Plus.patch |  52 ++++++
  ...328-Add-support-for-OrangePi-R1-Plus.patch |  52 ++++++
- 10 files changed, 556 insertions(+), 4 deletions(-)
+ 10 files changed, 488 insertions(+), 4 deletions(-)
  create mode 100644 package/boot/uboot-rockchip/patches/103-rockchip-rk3328-Add-support-for-Orangepi-R1-Plus.patch
- create mode 100644 package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-platdata.c
+ create mode 100644 package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-plat.c
  create mode 100644 package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-structs-gen.h
  create mode 100644 target/linux/rockchip/patches-5.10/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
  create mode 100644 target/linux/rockchip/patches-5.4/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
 
 diff --git a/package/boot/uboot-rockchip/Makefile b/package/boot/uboot-rockchip/Makefile
-index a0e6d06383..86a4084392 100644
+index 9d240e464c..d197ff0fd3 100644
 --- a/package/boot/uboot-rockchip/Makefile
 +++ b/package/boot/uboot-rockchip/Makefile
 @@ -36,6 +36,18 @@ define U-Boot/nanopi-r2s-rk3328
@@ -75,65 +87,64 @@ index a0e6d06383..86a4084392 100644
  
 diff --git a/package/boot/uboot-rockchip/patches/103-rockchip-rk3328-Add-support-for-Orangepi-R1-Plus.patch b/package/boot/uboot-rockchip/patches/103-rockchip-rk3328-Add-support-for-Orangepi-R1-Plus.patch
 new file mode 100644
-index 0000000000..0893a3fd58
+index 0000000000..de94544e15
 --- /dev/null
 +++ b/package/boot/uboot-rockchip/patches/103-rockchip-rk3328-Add-support-for-Orangepi-R1-Plus.patch
-@@ -0,0 +1,173 @@
+@@ -0,0 +1,172 @@
 +--- a/arch/arm/dts/Makefile
 ++++ b/arch/arm/dts/Makefile
-+@@ -111,6 +111,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3308) += \
++@@ -109,6 +109,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3308) += \
 + dtb-$(CONFIG_ROCKCHIP_RK3328) += \
-+ 	rk3328-evb.dtb \
-+ 	rk3328-nanopi-r2s.dtb \
-++	rk3328-orangepi-r1-plus.dtb \
-+ 	rk3328-roc-cc.dtb \
-+ 	rk3328-rock64.dtb \
-+ 	rk3328-rock-pi-e.dtb
++   rk3328-evb.dtb \
++   rk3328-nanopi-r2s.dtb \
+++  rk3328-orangepi-r1-plus.dtb \
++   rk3328-roc-cc.dtb \
++   rk3328-rock64.dtb \
++   rk3328-rock-pi-e.dtb
 +--- /dev/null
 ++++ b/arch/arm/dts/rk3328-orangepi-r1-plus-u-boot.dtsi
 +@@ -0,0 +1,1 @@
 ++#include "rk3328-nanopi-r2s-u-boot.dtsi"
 +--- /dev/null
 ++++ b/arch/arm/dts/rk3328-orangepi-r1-plus.dts
-+@@ -0,0 +1,39 @@
++@@ -0,0 +1,38 @@
 ++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 ++#include "rk3328-nanopi-r2s.dts"
 ++
 ++/ {
-++	model = "Xunlong Orange Pi R1 PLUS";
-++	compatible = "xunlong,orangepi-r1-plus", "rockchip,rk3328";
+++  model = "Xunlong Orange Pi R1 Plus";
+++  compatible = "xunlong,orangepi-r1-plus", "rockchip,rk3328";
 ++};
 ++
 ++&lan_led {
-++	label = "orangepi-r1-plus:green:lan";
+++  label = "orangepi-r1-plus:green:lan";
 ++};
 ++
 ++&spi0 {
-++	max-freq = <48000000>;
-++	status = "okay";
+++  status = "okay";
 ++
-++	flash@0 {
-++		compatible = "jedec,spi-nor";
-++		reg = <0>;
-++		spi-max-frequency = <10000000>;
-++	};
+++  flash@0 {
+++    compatible = "jedec,spi-nor";
+++    reg = <0>;
+++    spi-max-frequency = <10000000>;
+++  };
 ++};
 ++
 ++&sys_led {
-++	gpios = <&gpio3 RK_PC5 GPIO_ACTIVE_HIGH>;
-++	label = "orangepi-r1-plus:red:sys";
+++  gpios = <&gpio3 RK_PC5 GPIO_ACTIVE_HIGH>;
+++  label = "orangepi-r1-plus:red:sys";
 ++};
 ++
 ++&sys_led_pin {
-++	rockchip,pins = <3 RK_PC5 RK_FUNC_GPIO &pcfg_pull_none>;
+++  rockchip,pins = <3 RK_PC5 RK_FUNC_GPIO &pcfg_pull_none>;
 ++};
 ++
 ++&uart1 {
-++	status = "okay";
+++  status = "okay";
 ++};
 ++
 ++&wan_led {
-++	label = "orangepi-r1-plus:green:wan";
+++  label = "orangepi-r1-plus:green:wan";
 ++};
 +--- a/board/rockchip/evb_rk3328/MAINTAINERS
 ++++ b/board/rockchip/evb_rk3328/MAINTAINERS
@@ -252,20 +263,21 @@ index 0000000000..0893a3fd58
 ++CONFIG_SPL_TINY_MEMSET=y
 ++CONFIG_TPL_TINY_MEMSET=y
 ++CONFIG_ERRNO_STR=y
-diff --git a/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-platdata.c b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-platdata.c
+diff --git a/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-plat.c b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-plat.c
 new file mode 100644
-index 0000000000..17e1e302a5
+index 0000000000..1818461ec8
 --- /dev/null
-+++ b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-platdata.c
-@@ -0,0 +1,174 @@
++++ b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-plat.c
+@@ -0,0 +1,127 @@
 +/*
 + * DO NOT MODIFY
 + *
-+ * This file was generated by dtoc from a .dtb (device tree binary) file.
++ * Declares the U_BOOT_DRIVER() records and platform data.
++ * This was generated by dtoc from a .dtb (device tree binary) file.
 + */
 +
-+/* Allow use of U_BOOT_DEVICE() in this file */
-+#define DT_PLATDATA_C
++/* Allow use of U_BOOT_DRVINFO() in this file */
++#define DT_PLAT_C
 +
 +#include <common.h>
 +#include <dm.h>
@@ -273,241 +285,173 @@ index 0000000000..17e1e302a5
 +
 +/* Node /clock-controller@ff440000 index 0 */
 +static struct dtd_rockchip_rk3328_cru dtv_clock_controller_at_ff440000 = {
-+	.reg			= {0xff440000, 0x1000},
-+	.rockchip_grf		= 0x3a,
++ .reg      = {0xff440000, 0x1000},
++ .rockchip_grf   = 0x3a,
 +};
-+U_BOOT_DEVICE(clock_controller_at_ff440000) = {
-+	.name		= "rockchip_rk3328_cru",
-+	.platdata	= &dtv_clock_controller_at_ff440000,
-+	.platdata_size	= sizeof(dtv_clock_controller_at_ff440000),
-+	.parent_idx	= -1,
++U_BOOT_DRVINFO(clock_controller_at_ff440000) = {
++ .name   = "rockchip_rk3328_cru",
++ .plat = &dtv_clock_controller_at_ff440000,
++ .plat_size  = sizeof(dtv_clock_controller_at_ff440000),
++ .parent_idx = -1,
 +};
 +
 +/* Node /dmc index 1 */
 +static struct dtd_rockchip_rk3328_dmc dtv_dmc = {
-+	.reg			= {0xff400000, 0x1000, 0xff780000, 0x3000, 0xff100000, 0x1000, 0xff440000, 0x1000,
-+		0xff720000, 0x1000, 0xff798000, 0x1000},
-+	.rockchip_sdram_params	= {0x1, 0xa, 0x2, 0x1, 0x0, 0x0, 0x11, 0x0,
-+		0x11, 0x0, 0x0, 0x94291288, 0x0, 0x27, 0x462, 0x15,
-+		0x242, 0xff, 0x14d, 0x0, 0x1, 0x0, 0x0, 0x0,
-+		0x43049010, 0x64, 0x28003b, 0xd0, 0x20053, 0xd4, 0x220000, 0xd8,
-+		0x100, 0xdc, 0x40000, 0xe0, 0x0, 0xe4, 0x110000, 0xe8,
-+		0x420, 0xec, 0x400, 0xf4, 0xf011f, 0x100, 0x9060b06, 0x104,
-+		0x20209, 0x108, 0x505040a, 0x10c, 0x40400c, 0x110, 0x5030206, 0x114,
-+		0x3030202, 0x120, 0x3030b03, 0x124, 0x20208, 0x180, 0x1000040, 0x184,
-+		0x0, 0x190, 0x7030003, 0x198, 0x5001100, 0x1a0, 0xc0400003, 0x240,
-+		0x6000604, 0x244, 0x201, 0x250, 0xf00, 0x490, 0x1, 0xffffffff,
-+		0xffffffff, 0xffffffff, 0xffffffff, 0x4, 0xc, 0x28, 0xa, 0x2c,
-+		0x0, 0x30, 0x9, 0xffffffff, 0xffffffff, 0x77, 0x88, 0x79,
-+		0x79, 0x87, 0x97, 0x87, 0x78, 0x77, 0x78, 0x87,
-+		0x88, 0x87, 0x87, 0x77, 0x78, 0x78, 0x78, 0x78,
-+		0x78, 0x78, 0x78, 0x78, 0x78, 0x69, 0x9, 0x77,
-+		0x78, 0x77, 0x78, 0x77, 0x78, 0x77, 0x78, 0x77,
-+		0x79, 0x9, 0x78, 0x78, 0x78, 0x78, 0x78, 0x78,
-+		0x78, 0x78, 0x78, 0x69, 0x9, 0x77, 0x78, 0x77,
-+		0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x79, 0x9,
-+		0x78, 0x78, 0x78, 0x78, 0x78, 0x78, 0x78, 0x78,
-+		0x78, 0x69, 0x9, 0x77, 0x78, 0x77, 0x78, 0x77,
-+		0x78, 0x77, 0x78, 0x77, 0x79, 0x9, 0x78, 0x78,
-+		0x78, 0x78, 0x78, 0x78, 0x78, 0x78, 0x78, 0x69,
-+		0x9, 0x77, 0x78, 0x77, 0x77, 0x77, 0x77, 0x77,
-+		0x77, 0x77, 0x79, 0x9},
++ .reg      = {0xff400000, 0x1000, 0xff780000, 0x3000, 0xff100000, 0x1000, 0xff440000, 0x1000,
++   0xff720000, 0x1000, 0xff798000, 0x1000},
++ .rockchip_sdram_params  = {0x1, 0xa, 0x2, 0x1, 0x0, 0x0, 0x11, 0x0,
++   0x11, 0x0, 0x0, 0x94291288, 0x0, 0x27, 0x462, 0x15,
++   0x242, 0xff, 0x14d, 0x0, 0x1, 0x0, 0x0, 0x0,
++   0x43049010, 0x64, 0x28003b, 0xd0, 0x20053, 0xd4, 0x220000, 0xd8,
++   0x100, 0xdc, 0x40000, 0xe0, 0x0, 0xe4, 0x110000, 0xe8,
++   0x420, 0xec, 0x400, 0xf4, 0xf011f, 0x100, 0x9060b06, 0x104,
++   0x20209, 0x108, 0x505040a, 0x10c, 0x40400c, 0x110, 0x5030206, 0x114,
++   0x3030202, 0x120, 0x3030b03, 0x124, 0x20208, 0x180, 0x1000040, 0x184,
++   0x0, 0x190, 0x7030003, 0x198, 0x5001100, 0x1a0, 0xc0400003, 0x240,
++   0x6000604, 0x244, 0x201, 0x250, 0xf00, 0x490, 0x1, 0xffffffff,
++   0xffffffff, 0xffffffff, 0xffffffff, 0x4, 0xc, 0x28, 0xa, 0x2c,
++   0x0, 0x30, 0x9, 0xffffffff, 0xffffffff, 0x77, 0x88, 0x79,
++   0x79, 0x87, 0x97, 0x87, 0x78, 0x77, 0x78, 0x87,
++   0x88, 0x87, 0x87, 0x77, 0x78, 0x78, 0x78, 0x78,
++   0x78, 0x78, 0x78, 0x78, 0x78, 0x69, 0x9, 0x77,
++   0x78, 0x77, 0x78, 0x77, 0x78, 0x77, 0x78, 0x77,
++   0x79, 0x9, 0x78, 0x78, 0x78, 0x78, 0x78, 0x78,
++   0x78, 0x78, 0x78, 0x69, 0x9, 0x77, 0x78, 0x77,
++   0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x79, 0x9,
++   0x78, 0x78, 0x78, 0x78, 0x78, 0x78, 0x78, 0x78,
++   0x78, 0x69, 0x9, 0x77, 0x78, 0x77, 0x78, 0x77,
++   0x78, 0x77, 0x78, 0x77, 0x79, 0x9, 0x78, 0x78,
++   0x78, 0x78, 0x78, 0x78, 0x78, 0x78, 0x78, 0x69,
++   0x9, 0x77, 0x78, 0x77, 0x77, 0x77, 0x77, 0x77,
++   0x77, 0x77, 0x79, 0x9},
 +};
-+U_BOOT_DEVICE(dmc) = {
-+	.name		= "rockchip_rk3328_dmc",
-+	.platdata	= &dtv_dmc,
-+	.platdata_size	= sizeof(dtv_dmc),
-+	.parent_idx	= -1,
-+};
-+
-+/* Node /pinctrl/gpio0@ff210000 index 2 */
-+static struct dtd_rockchip_gpio_bank dtv_gpio0_at_ff210000 = {
-+	.clocks			= {
-+			{0, {200}},},
-+	.gpio_controller	= true,
-+	.interrupt_controller	= true,
-+	.interrupts		= {0x0, 0x33, 0x4},
-+	.reg			= {0xff210000, 0x100},
-+};
-+U_BOOT_DEVICE(gpio0_at_ff210000) = {
-+	.name		= "rockchip_gpio_bank",
-+	.platdata	= &dtv_gpio0_at_ff210000,
-+	.platdata_size	= sizeof(dtv_gpio0_at_ff210000),
-+	.parent_idx	= 4,
++U_BOOT_DRVINFO(dmc) = {
++ .name   = "rockchip_rk3328_dmc",
++ .plat = &dtv_dmc,
++ .plat_size  = sizeof(dtv_dmc),
++ .parent_idx = -1,
 +};
 +
-+/* Node /mmc@ff500000 index 3 */
++/* Node /mmc@ff500000 index 2 */
 +static struct dtd_rockchip_rk3288_dw_mshc dtv_mmc_at_ff500000 = {
-+	.bus_width		= 0x4,
-+	.cap_sd_highspeed	= true,
-+	.clocks			= {
-+			{0, {317}},
-+			{0, {33}},
-+			{0, {74}},
-+			{0, {78}},},
-+	.disable_wp		= true,
-+	.fifo_depth		= 0x100,
-+	.interrupts		= {0x0, 0xc, 0x4},
-+	.max_frequency		= 0x8f0d180,
-+	.pinctrl_0		= {0x47, 0x48, 0x49, 0x4a},
-+	.pinctrl_names		= "default",
-+	.reg			= {0xff500000, 0x4000},
-+	.sd_uhs_sdr104		= true,
-+	.sd_uhs_sdr12		= true,
-+	.sd_uhs_sdr25		= true,
-+	.sd_uhs_sdr50		= true,
-+	.u_boot_spl_fifo_mode	= true,
-+	.vmmc_supply		= 0x4b,
-+	.vqmmc_supply		= 0x1e,
++ .bus_width    = 0x4,
++ .cap_sd_highspeed = true,
++ .clocks     = {
++     {0, {317}},
++     {0, {33}},
++     {0, {74}},
++     {0, {78}},},
++ .disable_wp   = true,
++ .fifo_depth   = 0x100,
++ .interrupts   = {0x0, 0xc, 0x4},
++ .max_frequency    = 0x8f0d180,
++ .pinctrl_0    = {0x47, 0x48, 0x49, 0x4a},
++ .pinctrl_names    = "default",
++ .reg      = {0xff500000, 0x4000},
++ .sd_uhs_sdr104    = true,
++ .sd_uhs_sdr12   = true,
++ .sd_uhs_sdr25   = true,
++ .sd_uhs_sdr50   = true,
++ .u_boot_spl_fifo_mode = true,
++ .vmmc_supply    = 0x4b,
++ .vqmmc_supply   = 0x1e,
 +};
-+U_BOOT_DEVICE(mmc_at_ff500000) = {
-+	.name		= "rockchip_rk3288_dw_mshc",
-+	.platdata	= &dtv_mmc_at_ff500000,
-+	.platdata_size	= sizeof(dtv_mmc_at_ff500000),
-+	.parent_idx	= -1,
-+};
-+
-+/* Node /pinctrl index 4 */
-+static struct dtd_rockchip_rk3328_pinctrl dtv_pinctrl = {
-+	.ranges			= true,
-+	.rockchip_grf		= 0x3a,
-+};
-+U_BOOT_DEVICE(pinctrl) = {
-+	.name		= "rockchip_rk3328_pinctrl",
-+	.platdata	= &dtv_pinctrl,
-+	.platdata_size	= sizeof(dtv_pinctrl),
-+	.parent_idx	= -1,
++U_BOOT_DRVINFO(mmc_at_ff500000) = {
++ .name   = "rockchip_rk3288_dw_mshc",
++ .plat = &dtv_mmc_at_ff500000,
++ .plat_size  = sizeof(dtv_mmc_at_ff500000),
++ .parent_idx = -1,
 +};
 +
-+/* Node /sdmmc-regulator index 5 */
-+static struct dtd_regulator_fixed dtv_sdmmc_regulator = {
-+	.gpio			= {0x61, 0x1e, 0x1},
-+	.pinctrl_0		= 0x67,
-+	.pinctrl_names		= "default",
-+	.regulator_boot_on	= true,
-+	.regulator_max_microvolt = 0x325aa0,
-+	.regulator_min_microvolt = 0x325aa0,
-+	.regulator_name		= "vcc_sd",
-+	.vin_supply		= 0x1c,
-+};
-+U_BOOT_DEVICE(sdmmc_regulator) = {
-+	.name		= "regulator_fixed",
-+	.platdata	= &dtv_sdmmc_regulator,
-+	.platdata_size	= sizeof(dtv_sdmmc_regulator),
-+	.parent_idx	= -1,
-+};
-+
-+/* Node /serial@ff130000 index 6 */
++/* Node /serial@ff130000 index 3 */
 +static struct dtd_ns16550_serial dtv_serial_at_ff130000 = {
-+	.clock_frequency	= 0x16e3600,
-+	.clocks			= {
-+			{0, {40}},
-+			{0, {212}},},
-+	.dma_names		= {"tx", "rx"},
-+	.dmas			= {0x10, 0x6, 0x10, 0x7},
-+	.interrupts		= {0x0, 0x39, 0x4},
-+	.pinctrl_0		= 0x26,
-+	.pinctrl_names		= "default",
-+	.reg			= {0xff130000, 0x100},
-+	.reg_io_width		= 0x4,
-+	.reg_shift		= 0x2,
++ .clock_frequency  = 0x16e3600,
++ .clocks     = {
++     {0, {40}},
++     {0, {212}},},
++ .dma_names    = {"tx", "rx"},
++ .dmas     = {0x10, 0x6, 0x10, 0x7},
++ .interrupts   = {0x0, 0x39, 0x4},
++ .pinctrl_0    = 0x26,
++ .pinctrl_names    = "default",
++ .reg      = {0xff130000, 0x100},
++ .reg_io_width   = 0x4,
++ .reg_shift    = 0x2,
 +};
-+U_BOOT_DEVICE(serial_at_ff130000) = {
-+	.name		= "ns16550_serial",
-+	.platdata	= &dtv_serial_at_ff130000,
-+	.platdata_size	= sizeof(dtv_serial_at_ff130000),
-+	.parent_idx	= -1,
++U_BOOT_DRVINFO(serial_at_ff130000) = {
++ .name   = "ns16550_serial",
++ .plat = &dtv_serial_at_ff130000,
++ .plat_size  = sizeof(dtv_serial_at_ff130000),
++ .parent_idx = -1,
 +};
 +
-+/* Node /syscon@ff100000 index 7 */
++/* Node /syscon@ff100000 index 4 */
 +static struct dtd_rockchip_rk3328_grf dtv_syscon_at_ff100000 = {
-+	.reg			= {0xff100000, 0x1000},
++ .reg      = {0xff100000, 0x1000},
 +};
-+U_BOOT_DEVICE(syscon_at_ff100000) = {
-+	.name		= "rockchip_rk3328_grf",
-+	.platdata	= &dtv_syscon_at_ff100000,
-+	.platdata_size	= sizeof(dtv_syscon_at_ff100000),
-+	.parent_idx	= -1,
++U_BOOT_DRVINFO(syscon_at_ff100000) = {
++ .name   = "rockchip_rk3328_grf",
++ .plat = &dtv_syscon_at_ff100000,
++ .plat_size  = sizeof(dtv_syscon_at_ff100000),
++ .parent_idx = -1,
 +};
 +
-+void dm_populate_phandle_data(void) {
-+}
 diff --git a/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-structs-gen.h b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-structs-gen.h
 new file mode 100644
-index 0000000000..847b121a34
+index 0000000000..b1ff08a927
 --- /dev/null
 +++ b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-structs-gen.h
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,51 @@
 +/*
 + * DO NOT MODIFY
 + *
-+ * This file was generated by dtoc from a .dtb (device tree binary) file.
++ * Defines the structs used to hold devicetree data.
++ * This was generated by dtoc from a .dtb (device tree binary) file.
 + */
 +
 +#include <stdbool.h>
 +#include <linux/libfdt.h>
 +struct dtd_ns16550_serial {
-+	fdt32_t		clock_frequency;
-+	struct phandle_1_arg clocks[2];
-+	const char *	dma_names[2];
-+	fdt32_t		dmas[4];
-+	fdt32_t		interrupts[3];
-+	fdt32_t		pinctrl_0;
-+	const char *	pinctrl_names;
-+	fdt64_t		reg[2];
-+	fdt32_t		reg_io_width;
-+	fdt32_t		reg_shift;
-+};
-+struct dtd_regulator_fixed {
-+	fdt32_t		gpio[3];
-+	fdt32_t		pinctrl_0;
-+	const char *	pinctrl_names;
-+	bool		regulator_boot_on;
-+	fdt32_t		regulator_max_microvolt;
-+	fdt32_t		regulator_min_microvolt;
-+	const char *	regulator_name;
-+	fdt32_t		vin_supply;
-+};
-+struct dtd_rockchip_gpio_bank {
-+	struct phandle_1_arg clocks[1];
-+	bool		gpio_controller;
-+	bool		interrupt_controller;
-+	fdt32_t		interrupts[3];
-+	fdt64_t		reg[2];
++ fdt32_t   clock_frequency;
++ struct phandle_1_arg clocks[2];
++ const char *  dma_names[2];
++ fdt32_t   dmas[4];
++ fdt32_t   interrupts[3];
++ fdt32_t   pinctrl_0;
++ const char *  pinctrl_names;
++ fdt64_t   reg[2];
++ fdt32_t   reg_io_width;
++ fdt32_t   reg_shift;
 +};
 +struct dtd_rockchip_rk3288_dw_mshc {
-+	fdt32_t		bus_width;
-+	bool		cap_sd_highspeed;
-+	struct phandle_1_arg clocks[4];
-+	bool		disable_wp;
-+	fdt32_t		fifo_depth;
-+	fdt32_t		interrupts[3];
-+	fdt32_t		max_frequency;
-+	fdt32_t		pinctrl_0[4];
-+	const char *	pinctrl_names;
-+	fdt64_t		reg[2];
-+	bool		sd_uhs_sdr104;
-+	bool		sd_uhs_sdr12;
-+	bool		sd_uhs_sdr25;
-+	bool		sd_uhs_sdr50;
-+	bool		u_boot_spl_fifo_mode;
-+	fdt32_t		vmmc_supply;
-+	fdt32_t		vqmmc_supply;
++ fdt32_t   bus_width;
++ bool    cap_sd_highspeed;
++ struct phandle_1_arg clocks[4];
++ bool    disable_wp;
++ fdt32_t   fifo_depth;
++ fdt32_t   interrupts[3];
++ fdt32_t   max_frequency;
++ fdt32_t   pinctrl_0[4];
++ const char *  pinctrl_names;
++ fdt64_t   reg[2];
++ bool    sd_uhs_sdr104;
++ bool    sd_uhs_sdr12;
++ bool    sd_uhs_sdr25;
++ bool    sd_uhs_sdr50;
++ bool    u_boot_spl_fifo_mode;
++ fdt32_t   vmmc_supply;
++ fdt32_t   vqmmc_supply;
 +};
 +struct dtd_rockchip_rk3328_cru {
-+	fdt64_t		reg[2];
-+	fdt32_t		rockchip_grf;
++ fdt64_t   reg[2];
++ fdt32_t   rockchip_grf;
 +};
 +struct dtd_rockchip_rk3328_dmc {
-+	fdt64_t		reg[12];
-+	fdt32_t		rockchip_sdram_params[196];
++ fdt64_t   reg[12];
++ fdt32_t   rockchip_sdram_params[196];
 +};
 +struct dtd_rockchip_rk3328_grf {
-+	fdt64_t		reg[2];
-+};
-+struct dtd_rockchip_rk3328_pinctrl {
-+	bool		ranges;
-+	fdt32_t		rockchip_grf;
++ fdt64_t   reg[2];
 +};
 diff --git a/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds b/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
 index bfecd0874c..fd42fb2302 100644
@@ -520,34 +464,34 @@ index bfecd0874c..fd42fb2302 100644
 -friendlyarm,nanopi-r4s)
 +friendlyarm,nanopi-r4s|\
 +xunlong,orangepi-r1-plus)
- 	ucidef_set_led_netdev "wan" "WAN" "$boardname:green:wan" "eth0"
- 	ucidef_set_led_netdev "lan" "LAN" "$boardname:green:lan" "eth1"
- 	;;
+  ucidef_set_led_netdev "wan" "WAN" "$boardname:green:wan" "eth0"
+  ucidef_set_led_netdev "lan" "LAN" "$boardname:green:lan" "eth1"
+  ;;
 diff --git a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
-index 0c22601c95..d663ab49f0 100644
+index b4e623532b..541edd6081 100644
 --- a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 +++ b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 @@ -8,7 +8,8 @@ rockchip_setup_interfaces()
  
- 	case "$board" in
- 	friendlyarm,nanopi-r2s|\
--	friendlyarm,nanopi-r4s)
-+	friendlyarm,nanopi-r4s|\
-+	xunlong,orangepi-r1-plus)
- 		ucidef_set_interfaces_lan_wan 'eth1' 'eth0'
- 		;;
- 	*)
+  case "$board" in
+  friendlyarm,nanopi-r2s|\
+- friendlyarm,nanopi-r4s)
++ friendlyarm,nanopi-r4s|\
++ xunlong,orangepi-r1-plus)
+    ucidef_set_interfaces_lan_wan 'eth1' 'eth0'
+    ;;
+  *)
 @@ -40,6 +41,10 @@ rockchip_setup_macs()
- 		wan_mac=$(cat /sys/class/net/eth0/address)
- 		lan_mac=$(macaddr_add "$wan_mac" +1)
- 		;;
-+	xunlong,orangepi-r1-plus)
-+		lan_mac=$(cat /sys/class/net/eth1/address)
-+		wan_mac=$(macaddr_add "$1an_mac" -1)
-+		;;
- 	esac
+    wan_mac=$(cat /sys/class/net/eth0/address)
+    lan_mac=$(macaddr_add "$wan_mac" +1)
+    ;;
++ xunlong,orangepi-r1-plus)
++   lan_mac=$(cat /sys/class/net/eth1/address)
++   wan_mac=$(macaddr_add "$1an_mac" -1)
++   ;;
+  esac
  
- 	[ -n "$lan_mac" ] && ucidef_set_interface_macaddr "lan" $lan_mac
+  [ -n "$lan_mac" ] && ucidef_set_interface_macaddr "lan" $lan_mac
 diff --git a/target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity b/target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity
 index 9e4a4cf4fc..d8e513f560 100644
 --- a/target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity
@@ -559,9 +503,9 @@ index 9e4a4cf4fc..d8e513f560 100644
 -friendlyarm,nanopi-r2s)
 +friendlyarm,nanopi-r2s|\
 +xunlong,orangepi-r1-plus)
- 	set_interface_core 2 "eth0"
- 	set_interface_core 4 "eth1" "xhci-hcd:usb3"
- 	;;
+  set_interface_core 2 "eth0"
+  set_interface_core 4 "eth1" "xhci-hcd:usb3"
+  ;;
 diff --git a/target/linux/rockchip/image/armv8.mk b/target/linux/rockchip/image/armv8.mk
 index b3ef5a28d4..8d00cc46db 100644
 --- a/target/linux/rockchip/image/armv8.mk
@@ -582,7 +526,7 @@ index b3ef5a28d4..8d00cc46db 100644
 +TARGET_DEVICES += xunlong_orangepi-r1-plus
 diff --git a/target/linux/rockchip/patches-5.10/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch b/target/linux/rockchip/patches-5.10/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
 new file mode 100644
-index 0000000000..c529427791
+index 0000000000..f9fb9ee8bd
 --- /dev/null
 +++ b/target/linux/rockchip/patches-5.10/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
 @@ -0,0 +1,52 @@
@@ -603,40 +547,40 @@ index 0000000000..c529427791
 ++#include "rk3328-nanopi-r2s.dts"
 ++
 ++/ {
-++	model = "Xunlong Orange Pi R1 PLUS";
-++	compatible = "xunlong,orangepi-r1-plus", "rockchip,rk3328";
+++  model = "Xunlong Orange Pi R1 Plus";
+++  compatible = "xunlong,orangepi-r1-plus", "rockchip,rk3328";
 ++};
 ++
 ++&lan_led {
-++	label = "orangepi-r1-plus:green:lan";
+++  label = "orangepi-r1-plus:green:lan";
 ++};
 ++
 ++&spi0 {
-++	max-freq = <48000000>;
-++	status = "okay";
+++  max-freq = <48000000>;
+++  status = "okay";
 ++
-++	flash@0 {
-++		compatible = "jedec,spi-nor";
-++		reg = <0>;
-++		spi-max-frequency = <10000000>;
-++	};
+++  flash@0 {
+++    compatible = "jedec,spi-nor";
+++    reg = <0>;
+++    spi-max-frequency = <10000000>;
+++  };
 ++};
 ++
 ++&sys_led {
-++	gpios = <&gpio3 RK_PC5 GPIO_ACTIVE_HIGH>;
-++	label = "orangepi-r1-plus:red:sys";
+++  gpios = <&gpio3 RK_PC5 GPIO_ACTIVE_HIGH>;
+++  label = "orangepi-r1-plus:red:sys";
 ++};
 ++
 ++&sys_led_pin {
-++	rockchip,pins = <3 RK_PC5 RK_FUNC_GPIO &pcfg_pull_none>;
+++  rockchip,pins = <3 RK_PC5 RK_FUNC_GPIO &pcfg_pull_none>;
 ++};
 ++
 ++&uart1 {
-++	status = "okay";
+++  status = "okay";
 ++};
 ++
 ++&wan_led {
-++	label = "orangepi-r1-plus:green:wan";
+++  label = "orangepi-r1-plus:green:wan";
 ++};
 diff --git a/target/linux/rockchip/patches-5.4/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch b/target/linux/rockchip/patches-5.4/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
 new file mode 100644
@@ -661,40 +605,40 @@ index 0000000000..f83a71b957
 ++#include "rk3328-nanopi-r2s.dts"
 ++
 ++/ {
-++	model = "Xunlong Orange Pi R1 PLUS";
-++	compatible = "xunlong,orangepi-r1-plus", "rockchip,rk3328";
+++  model = "Xunlong Orange Pi R1 PLUS";
+++  compatible = "xunlong,orangepi-r1-plus", "rockchip,rk3328";
 ++};
 ++
 ++&lan_led {
-++	label = "orangepi-r1-plus:green:lan";
+++  label = "orangepi-r1-plus:green:lan";
 ++};
 ++
 ++&spi0 {
-++	max-freq = <48000000>;
-++	status = "okay";
+++  max-freq = <48000000>;
+++  status = "okay";
 ++
-++	flash@0 {
-++		compatible = "jedec,spi-nor";
-++		reg = <0>;
-++		spi-max-frequency = <10000000>;
-++	};
+++  flash@0 {
+++    compatible = "jedec,spi-nor";
+++    reg = <0>;
+++    spi-max-frequency = <10000000>;
+++  };
 ++};
 ++
 ++&sys_led {
-++	gpios = <&gpio3 RK_PC5 GPIO_ACTIVE_HIGH>;
-++	label = "orangepi-r1-plus:red:sys";
+++  gpios = <&gpio3 RK_PC5 GPIO_ACTIVE_HIGH>;
+++  label = "orangepi-r1-plus:red:sys";
 ++};
 ++
 ++&sys_led_pin {
-++	rockchip,pins = <3 RK_PC5 RK_FUNC_GPIO &pcfg_pull_none>;
+++  rockchip,pins = <3 RK_PC5 RK_FUNC_GPIO &pcfg_pull_none>;
 ++};
 ++
 ++&uart1 {
-++	status = "okay";
+++  status = "okay";
 ++};
 ++
 ++&wan_led {
-++	label = "orangepi-r1-plus:green:wan";
+++  label = "orangepi-r1-plus:green:wan";
 ++};
 -- 
 2.25.1
