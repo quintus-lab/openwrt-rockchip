@@ -159,14 +159,14 @@ jobs:
           gzip *.img
           sha256sum openwrt*r2s* | tee R2S-QC-$(date +%Y-%m-%d).sha256sum
           sha256sum openwrt*r4s* | tee R4S-QC-$(date +%Y-%m-%d).sha256sum
-          sha256sum openwrt*r1-plus* | tee R1-plus-QC-$(date +%Y-%m-%d).sha256sum
+#          sha256sum openwrt*r1-plus* | tee R1-plus-QC-$(date +%Y-%m-%d).sha256sum
           ls -Ahl
           zip R2S-QC-$(date +%Y-%m-%d)-ext4.zip *r2s*ext4*
           zip R2S-QC-$(date +%Y-%m-%d)-sfs.zip *r2s*squashfs*
           zip R4S-QC-$(date +%Y-%m-%d)-ext4.zip *r4s*ext4*
           zip R4S-QC-$(date +%Y-%m-%d)-sfs.zip *r4s*squashfs*
-          zip R1-plus-QC-$(date +%Y-%m-%d)-ext4.zip *r1-plus*ext4*
-          zip R1-plus-QC-$(date +%Y-%m-%d)-sfs.zip *r1-plus*squashfs*          
+#          zip R1-plus-QC-$(date +%Y-%m-%d)-ext4.zip *r1-plus*ext4*
+#          zip R1-plus-QC-$(date +%Y-%m-%d)-sfs.zip *r1-plus*squashfs*          
           cp ../openwrt/*.config ./
           ls -Ahl
 
