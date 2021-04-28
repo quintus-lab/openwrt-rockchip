@@ -56,7 +56,6 @@ Subject: [PATCH] new_rk33xx_support_with_ARMv8_CE_k5.10
  	new file:   target/linux/rockchip/patches-5.10/911-kernel-dma-adjust-default-coherent_pool-to-2MiB.patch
  	new file:   target/linux/rockchip/patches-5.10/991-arm64-dts-rockchip-add-more-cpu-operating-points-for.patch
  	new file:   target/linux/rockchip/patches-5.10/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
-
 ---
  .../boot/arm-trusted-firmware-rk3328/Makefile |  55 ++
  .../arm-trusted-firmware-rk3328/src/trust.ini |  15 +
