@@ -87,7 +87,7 @@ index 9d240e464c..d197ff0fd3 100644
  
 diff --git a/package/boot/uboot-rockchip/patches/103-rockchip-rk3328-Add-support-for-Orangepi-R1-Plus.patch b/package/boot/uboot-rockchip/patches/103-rockchip-rk3328-Add-support-for-Orangepi-R1-Plus.patch
 new file mode 100644
-index 0000000000..de94544e15
+index 0000000000..788509b032
 --- /dev/null
 +++ b/package/boot/uboot-rockchip/patches/103-rockchip-rk3328-Add-support-for-Orangepi-R1-Plus.patch
 @@ -0,0 +1,172 @@
@@ -95,12 +95,12 @@ index 0000000000..de94544e15
 ++++ b/arch/arm/dts/Makefile
 +@@ -109,6 +109,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3308) += \
 + dtb-$(CONFIG_ROCKCHIP_RK3328) += \
-+  rk3328-evb.dtb \
-+  rk3328-nanopi-r2s.dtb \
++   rk3328-evb.dtb \
++   rk3328-nanopi-r2s.dtb \
 ++       rk3328-orangepi-r1-plus.dtb \
-+  rk3328-roc-cc.dtb \
-+  rk3328-rock64.dtb \
-+  rk3328-rock-pi-e.dtb
++   rk3328-roc-cc.dtb \
++   rk3328-rock64.dtb \
++   rk3328-rock-pi-e.dtb
 +--- /dev/null
 ++++ b/arch/arm/dts/rk3328-orangepi-r1-plus-u-boot.dtsi
 +@@ -0,0 +1,1 @@
@@ -265,7 +265,7 @@ index 0000000000..de94544e15
 ++CONFIG_ERRNO_STR=y
 diff --git a/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-plat.c b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-plat.c
 new file mode 100644
-index 0000000000..1818461ec8
+index 0000000000..e0f2041f72
 --- /dev/null
 +++ b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-plat.c
 @@ -0,0 +1,127 @@
@@ -398,7 +398,7 @@ index 0000000000..1818461ec8
 +
 diff --git a/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-structs-gen.h b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-structs-gen.h
 new file mode 100644
-index 0000000000..b1ff08a927
+index 0000000000..b5590c2a5b
 --- /dev/null
 +++ b/package/boot/uboot-rockchip/src/of-platdata/orangepi-r1-plus-rk3328/dt-structs-gen.h
 @@ -0,0 +1,51 @@
@@ -454,21 +454,21 @@ index 0000000000..b1ff08a927
 + fdt64_t   reg[2];
 +};
 diff --git a/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds b/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
-index bfecd0874c..fd42fb2302 100644
+index b10c43ba60..53ae6d023a 100644
 --- a/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
 +++ b/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
-@@ -9,7 +9,8 @@ board_config_update
+@@ -8,7 +8,8 @@ boardname="${board##*,}"
+ board_config_update
  
  case $board in
- friendlyarm,nanopi-r2s|\
--friendlyarm,nanopi-r4s)
-+friendlyarm,nanopi-r4s|\
+-friendlyarm,nanopi-r2s)
++friendlyarm,nanopi-r2s|\
 +xunlong,orangepi-r1-plus)
   ucidef_set_led_netdev "wan" "WAN" "$boardname:green:wan" "eth0"
   ucidef_set_led_netdev "lan" "LAN" "$boardname:green:lan" "eth1"
   ;;
 diff --git a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
-index b4e623532b..541edd6081 100644
+index b4e623532b..9c1696db02 100644
 --- a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 +++ b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 @@ -8,7 +8,8 @@ rockchip_setup_interfaces()
@@ -487,7 +487,7 @@ index b4e623532b..541edd6081 100644
     ;;
 + xunlong,orangepi-r1-plus)
 +   lan_mac=$(cat /sys/class/net/eth1/address)
-+   wan_mac=$(macaddr_add "$1an_mac" -1)
++   wan_mac=$(macaddr_add "$lan_mac" -1)
 +   ;;
   esac
  
@@ -526,7 +526,7 @@ index b3ef5a28d4..8d00cc46db 100644
 +TARGET_DEVICES += xunlong_orangepi-r1-plus
 diff --git a/target/linux/rockchip/patches-5.10/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch b/target/linux/rockchip/patches-5.10/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
 new file mode 100644
-index 0000000000..f9fb9ee8bd
+index 0000000000..981c9692e8
 --- /dev/null
 +++ b/target/linux/rockchip/patches-5.10/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
 @@ -0,0 +1,52 @@
@@ -584,7 +584,7 @@ index 0000000000..f9fb9ee8bd
 ++};
 diff --git a/target/linux/rockchip/patches-5.4/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch b/target/linux/rockchip/patches-5.4/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
 new file mode 100644
-index 0000000000..f83a71b957
+index 0000000000..af8b555c5e
 --- /dev/null
 +++ b/target/linux/rockchip/patches-5.4/202-rockchip-rk3328-Add-support-for-OrangePi-R1-Plus.patch
 @@ -0,0 +1,52 @@
