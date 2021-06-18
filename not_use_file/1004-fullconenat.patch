@@ -1,0 +1,144 @@
+From ad32f898937d6491eab35ef72b97f323e8fb256e Mon Sep 17 00:00:00 2001
+From: Quintus Chu <31897806+ardanzhu@users.noreply.github.com>
+Date: Wed, 30 Dec 2020 04:19:03 +0800
+Subject: [PATCH] fullconenat
+
+---
+ package/network/fullconenat/Makefile          | 78 +++++++++++++++++++
+ package/network/fullconenat/files/Makefile    | 11 +++
+ .../fullconenat/patches/000-printk.patch      | 17 ++++
+ 3 files changed, 106 insertions(+)
+ create mode 100755 package/network/fullconenat/Makefile
+ create mode 100755 package/network/fullconenat/files/Makefile
+ create mode 100755 package/network/fullconenat/patches/000-printk.patch
+
+diff --git a/package/network/fullconenat/Makefile b/package/network/fullconenat/Makefile
+new file mode 100755
+index 0000000..e4f65a9
+--- /dev/null
++++ b/package/network/fullconenat/Makefile
+@@ -0,0 +1,78 @@
++#
++# Copyright (C) 2018 Chion Tang <tech@chionlab.moe>
++#
++# This is free software, licensed under the GNU General Public License v2.
++# See /LICENSE for more information.
++#
++
++include $(TOPDIR)/rules.mk
++include $(INCLUDE_DIR)/kernel.mk
++
++PKG_NAME:=fullconenat
++PKG_RELEASE:=1
++
++PKG_SOURCE_DATE:=2020-05-09
++PKG_SOURCE_PROTO:=git
++PKG_SOURCE_URL:=https://github.com/llccd/netfilter-full-cone-nat.git
++PKG_SOURCE_VERSION:=cc30ca6031ef5dca5bdb10cfd5ffc0c79425af9e
++
++PKG_LICENSE:=GPL-2.0
++PKG_LICENSE_FILES:=LICENSE
++
++include $(INCLUDE_DIR)/package.mk
++
++define Package/iptables-mod-fullconenat
++  SUBMENU:=Firewall
++  SECTION:=net
++  CATEGORY:=Network
++  TITLE:=FULLCONENAT iptables extension
++  DEPENDS:=iptables +kmod-ipt-fullconenat
++  MAINTAINER:=Chion Tang <tech@chionlab.moe>
++endef
++
++define Package/iptables-mod-fullconenat/install
++	$(INSTALL_DIR) $(1)/usr/lib/iptables
++	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libipt_FULLCONENAT.so $(1)/usr/lib/iptables
++endef
++
++define Package/ip6tables-mod-fullconenat
++  SUBMENU:=Firewall
++  SECTION:=net
++  CATEGORY:=Network
++  TITLE:=FULLCONENAT ip6tables extension
++  DEPENDS:=ip6tables +kmod-nf-nat6 +kmod-ipt-fullconenat
++  MAINTAINER:=Chion Tang <tech@chionlab.moe>
++endef
++
++define Package/ip6tables-mod-fullconenat/install
++	$(INSTALL_DIR) $(1)/usr/lib/iptables
++	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libip6t_FULLCONENAT.so $(1)/usr/lib/iptables
++endef
++
++define KernelPackage/ipt-fullconenat
++  SUBMENU:=Netfilter Extensions
++  TITLE:=FULLCONENAT netfilter module
++  DEPENDS:=+kmod-nf-ipt +kmod-nf-nat
++  MAINTAINER:=Chion Tang <tech@chionlab.moe>
++  KCONFIG:=CONFIG_NF_CONNTRACK_EVENTS=y CONFIG_NF_CONNTRACK_CHAIN_EVENTS=y
++  FILES:=$(PKG_BUILD_DIR)/xt_FULLCONENAT.ko
++endef
++
++include $(INCLUDE_DIR)/kernel-defaults.mk
++
++define Build/Prepare
++	$(call Build/Prepare/Default)
++	$(CP) ./files/Makefile $(PKG_BUILD_DIR)/
++endef
++
++define Build/Compile
++	$(KERNEL_MAKE) M="$(PKG_BUILD_DIR)" \
++	EXTRA_CFLAGS="$(EXTRA_CFLAGS)" \
++	$(PKG_EXTRA_KCONFIG) \
++	modules
++	$(call Build/Compile/Default)
++endef
++
++$(eval $(call BuildPackage,iptables-mod-fullconenat))
++$(eval $(call BuildPackage,ip6tables-mod-fullconenat))
++$(eval $(call KernelPackage,ipt-fullconenat))
+\ No newline at end of file
+diff --git a/package/network/fullconenat/files/Makefile b/package/network/fullconenat/files/Makefile
+new file mode 100755
+index 0000000..0bbdc5c
+--- /dev/null
++++ b/package/network/fullconenat/files/Makefile
+@@ -0,0 +1,11 @@
++all: libipt_FULLCONENAT.so libip6t_FULLCONENAT.so
++libipt_FULLCONENAT.so: libipt_FULLCONENAT.o
++	$(CC) -shared -lxtables -o $@ $^;
++libipt_FULLCONENAT.o: libipt_FULLCONENAT.c
++	$(CC) ${CFLAGS} -fPIC -D_INIT=$*_init -c -o $@ $<;
++libip6t_FULLCONENAT.so: libip6t_FULLCONENAT.o
++	$(CC) -shared -lxtables -o $@ $^;
++libip6t_FULLCONENAT.o: libip6t_FULLCONENAT.c
++	$(CC) ${CFLAGS} -fPIC -D_INIT=$*_init -c -o $@ $<;
++
++obj-m += xt_FULLCONENAT.o
+\ No newline at end of file
+diff --git a/package/network/fullconenat/patches/000-printk.patch b/package/network/fullconenat/patches/000-printk.patch
+new file mode 100755
+index 0000000..778d5e5
+--- /dev/null
++++ b/package/network/fullconenat/patches/000-printk.patch
+@@ -0,0 +1,17 @@
++diff --git a/xt_FULLCONENAT.c b/xt_FULLCONENAT.c
++index 9e52eba..8658c5f 100644
++--- a/xt_FULLCONENAT.c
+++++ b/xt_FULLCONENAT.c
++@@ -697,9 +697,11 @@ static struct xt_target tg_reg[] __read_mostly = {
++ 
++ static int __init fullconenat_tg_init(void)
++ {
+++  printk(KERN_INFO "xt_FULLCONENAT: RFC3489 Full Cone NAT module\n"
+++	"xt_FULLCONENAT: Copyright (C) 2018 Chion Tang <tech@chionlab.moe>\n");
++   wq = create_singlethread_workqueue("xt_FULLCONENAT");
++   if (wq == NULL) {
++-    printk("xt_FULLCONENAT: warning: failed to create workqueue\n");
+++    printk(KERN_WARNING "xt_FULLCONENAT: warning: failed to create workqueue\n");
++   }
++ 
++   return xt_register_targets(tg_reg, ARRAY_SIZE(tg_reg));
+\ No newline at end of file
+-- 
+2.28.0
+

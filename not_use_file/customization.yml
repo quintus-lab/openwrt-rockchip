@@ -1,0 +1,138 @@
+#=================================================
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+# Author: Mod from P3TERX
+# For NanoPi R2S org
+#=================================================
+
+name: OpenWrt R2S cod
+
+#on:
+#  release:
+#    types: published
+#  push:
+#    branches:
+#      - master
+#    paths:
+#      - '.github/workflows/customization.yml'
+#      - 'step/01-prepare_package.sh'
+#      - 'seed/cod.seed'
+#  schedule:
+#    - cron: 35 20 * * *
+#  watch:
+#    types: started
+
+env:
+  SSH_ACTIONS: false
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: false
+  UPLOAD_RELEASE: true
+  CONFIG_FILE: cod.seed
+  TZ: Asia/Shanghai
+
+jobs:
+    build:
+      runs-on: ubuntu-18.04
+      if: github.event.repository.owner.id == github.event.sender.id
+
+      steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: free disk space
+        run: |
+          df -h
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+          /bin/bash ./script/free_disk_space.sh
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /etc/apt/sources.list.d
+          sudo apt-get -y purge dotnet* ghc* google* llvm* mysql* php* zulu* firefox hhvm
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
+          sudo apt-get update
+          sudo apt-get -y --no-install-recommends install build-essential asciidoc binutils bison bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf python3
+          curl https://raw.githubusercontent.com/friendlyarm/build-env-on-ubuntu-bionic/master/install.sh  | sed '/#/d' | sed 's/\\//g' | sed 's/exit 0//g' | sed 's/sudo apt -y install//g' | sed 's/sudo apt-get -y install//g' | sed 's/:i386//g' | xargs sudo apt-get -y --no-install-recommends install
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android/sdk
+          git config --global user.name "Actions"
+          git config --global user.email "actions@github.com"
+      - name: Install OpenWrt source
+        run: |
+          git clone https://git.openwrt.org/openwrt/openwrt.git
+
+      - name: Prepare openwrt package
+        run: |
+          cd openwrt
+          cp -r ../step/* ./
+          /bin/bash 01-prepare_package.sh
+
+      - name: Convert Translation
+        run: |
+          cd openwrt
+          /bin/bash 02-convert_translation.sh
+
+      - name: Remove Upx
+        run: |
+          cd openwrt
+          /bin/bash 03-remove_upx.sh
+      - name: Load Config
+        run: |
+          cd openwrt
+          mv ../seed/$CONFIG_FILE .config
+          make defconfig
+          chmod -R 755 ./
+      - name: Make Toolchain
+        run: |
+          cd openwrt
+          let make_process=$(nproc)+1
+          make toolchain/install -j${make_process} V=s
+      - name: Compile Openwrt
+        run: |
+          cd openwrt
+          let make_process=$(nproc)+1
+          make -j${make_process} V=s || make -j${make_process} V=s
+
+      - name: Organize files
+        id: organize
+        run: |
+          rm -rf ./artifact/
+          mkdir -p ./artifact/
+          mv openwrt/bin/targets/*/*/*squashfs-sysupgrade.img* ./artifact/
+          cd ./artifact/
+          gzip -d *.gz && exit 0
+          gzip *.img
+          zip R2S-cod-$(date +%Y-%m-%d)-squashfs.zip *.img*
+          echo "::set-env name=FIRMWARE::$PWD"
+          echo "::set-output name=status::success"
+          release_tag="R2S-origin-full ${{ env.DATE }}"
+          echo "##[set-output name=Release_tag;]$release_tag"
+          cd ../openwrt
+          cp .config ../artifact/config-origin-full
+          ./scripts/diffconfig.sh > ../artifact/config-full.seed
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        with:
+          name: OpenWrt_R2S_origin_firmware
+          path: ${{ env.FIRMWARE }}
+
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1.6.1
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          name: OpenWrt-R2S固件
+          allowUpdates: true
+          tag: OpenWrt
+          commit: master
+          replacesArtifacts: true
+          token: ${{ secrets.RELEASES_TOKEN }}
+          bodyFile: "body-origin.md"
+          artifacts: ${{ env.FIRMWARE }}/*.zip,${{ env.FIRMWARE }}/config*

@@ -1,0 +1,138 @@
+#=================================================
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+# Author: Mod from P3TERX
+# For NanoPi R2S org
+#=================================================
+
+name: OpenWrt R2S-18.06
+
+on:
+#  release:
+#    types: published
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/r2s-18.06.yml'
+      - 'step/18.06.sh'
+      - 'seed/18.06.seed'
+  #schedule:
+  #  - cron: 35 20 * * *
+  watch:
+    types: started
+
+jobs:
+    build:
+      runs-on: ubuntu-18.04
+      if: github.event.repository.owner.id == github.event.sender.id
+
+      steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: Set env
+        run: |
+          echo "SSH_ACTIONS=false" >> $GITHUB_ENV
+          echo "UPLOAD_BIN_DIR=false" >> $GITHUB_ENV
+          echo "UPLOAD_FIRMWARE=true" >> $GITHUB_ENV
+          echo "UPLOAD_RELEASE=true" >> $GITHUB_ENV
+          echo "CONFIG_FILE=18.06.seed" >> $GITHUB_ENV
+          echo "TZ=Asia/Shanghai" >>$GITHUB_ENV
+      - name: Show env
+        run: echo $GITHUB_ENV
+
+      - name: free disk space
+        run: |
+          df -h
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+          /bin/bash ./script/free_disk_space.sh
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo -E rm -rf /etc/apt/sources.list.d
+          sudo -E apt-get update -y
+          sudo -E apt-get install -y build-essential rsync asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core p7zip p7zip-full msmtp libssl-dev texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint ccache curl wget vim nano python3 python3-pip python3-ply haveged lrzsz device-tree-compiler scons
+          wget -qO - https://raw.githubusercontent.com/friendlyarm/build-env-on-ubuntu-bionic/master/install.sh | sed 's/python-/python3-/g' | /bin/bash
+          sudo -E apt-get clean -y
+          git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+          df -h
+          git config --global user.name "Actions"
+          git config --global user.email "actions@github.com"
+      - name: Install OpenWrt source
+        run: |
+          git clone --branch "openwrt-18.06-k5.4" --single-branch "https://github.com/project-openwrt/openwrt" "openwrt"
+
+      - name: Prepare openwrt package
+        run: |
+          cd openwrt
+          cp -r ../step/* ./
+          /bin/bash 18.06.sh
+
+      - name: Remove Upx
+        run: |
+          cd openwrt
+          /bin/bash 03-remove_upx.sh
+
+      - name: Load Config
+        run: |
+          cd openwrt
+          mv ../seed/$CONFIG_FILE .config
+          make defconfig
+          chmod -R 755 ./
+      - name: Make Toolchain
+        run: |
+          cd openwrt
+          let make_process=$(nproc)+1
+          make toolchain/install -j${make_process} V=s
+      - name: Compile Openwrt
+        run: |
+          cd openwrt
+          let make_process=$(nproc)+1
+          make -j${make_process} V=s || make -j${make_process} V=s
+
+      - name: Organize files
+        id: organize
+        run: |
+          rm -rf ./artifact/
+          mkdir -p ./artifact/
+          mv openwrt/bin/targets/*/*/*sysupgrade.img* ./artifact/
+          cd ./artifact/
+          gzip -d *.gz && exit 0
+          gzip *.img
+          zip R2S-18.06-$(date +%Y-%m-%d)-squashfs.zip *squashfs*
+          zip R2S-18.06-$(date +%Y-%m-%d)-ext4.zip *ext4*
+          echo "::set-env name=FIRMWARE::$PWD"
+          echo "::set-output name=status::success"
+          release_tag="R2S-18.06 ${{ env.DATE }}"
+          echo "##[set-output name=Release_tag;]$release_tag"
+          cd ../openwrt
+          cp .config ../artifact/18.06.config
+          ./scripts/diffconfig.sh > ../artifact/18.06.seed
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        with:
+          name: OpenWrt_R2S_origin_firmware
+          path: ${{ env.FIRMWARE }}
+
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1.6.1
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          name: OpenWrt-R2S FIRMWARES
+          allowUpdates: true
+          tag: OpenWrt
+          commit: master
+          replacesArtifacts: true
+          token: ${{ secrets.RELEASES_TOKEN }}
+          bodyFile: "body-origin.md"
+          artifacts: ${{ env.FIRMWARE }}/*.zip,${{ env.FIRMWARE }}/18.06*
