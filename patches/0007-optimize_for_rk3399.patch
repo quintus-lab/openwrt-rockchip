@@ -1,0 +1,22 @@
+diff --git a/include/target.mk b/include/target.mk
+index edc6a146de..e7217c6181 100644
+--- a/include/target.mk
++++ b/include/target.mk
+@@ -191,7 +191,7 @@ LINUX_RECONF_DIFF = $(SCRIPT_DIR)/kconfig.pl - '>' $(call __linux_confcmd,$(filt
+ ifeq ($(DUMP),1)
+   BuildTarget=$(BuildTargets/DumpCurrent)
+ 
+-  CPU_CFLAGS = -Os -pipe
++  CPU_CFLAGS = -O3 -pipe
+   ifneq ($(findstring mips,$(ARCH)),)
+     ifneq ($(findstring mips64,$(ARCH)),)
+       CPU_TYPE ?= mips64
+@@ -232,7 +232,7 @@ ifeq ($(DUMP),1)
+   endif
+   ifeq ($(ARCH),aarch64)
+     CPU_TYPE ?= generic
+-    CPU_CFLAGS_generic = -mcpu=generic
++    CPU_CFLAGS_generic = -march=armv8-a+crypto+crc -mcpu=cortex-a72.cortex-a53+crypto+crc -mtune=cortex-a72.cortex-a53
+     CPU_CFLAGS_cortex-a53 = -mcpu=cortex-a53
+   endif
+   ifeq ($(ARCH),arc)

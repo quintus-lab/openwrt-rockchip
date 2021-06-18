@@ -1,0 +1,132 @@
+#=================================================
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+# Author: Mod from P3TERX
+# For NanoPi R2S slim
+#=================================================
+
+name: FriendlyWrt R2S tiny
+
+on:
+  release:
+    types: published
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/r2s-tiny.yml'
+      - 'seed/tiny.seed'
+  schedule:
+    - cron: 30 20 * * *
+  watch:
+    types: started
+
+env:
+  REPO_BRANCH: master
+  CONFIG_FILE: seed/tiny.seed
+  SSH_ACTIONS: false
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: false
+  UPLOAD_RELEASE: true
+  TZ: Asia/Shanghai
+
+jobs:
+    build:
+      runs-on: ubuntu-18.04
+      if: github.event.repository.owner.id == github.event.sender.id
+
+      steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: free disk space
+        run: |
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+          /bin/bash ./script/free_disk_space.sh
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          /bin/bash r2s_step/00_init_env.sh
+
+      - name: Install friendlywrt source
+        run: |
+          /bin/bash r2s_step/01_friendlywrt.sh
+
+      - name: Install openwrt source
+        run: |
+          /bin/bash r2s_step/02_rebase2lean.sh
+      - name: install kernel
+        run: |
+          /bin/bash r2s_step/03_kernel.sh
+      - name: Enable Kernel feature
+        run: |
+          /bin/bash r2s_step/04_fullcone_1.5g.sh
+      - name: Enable cpu autocore
+        run: |
+          cd friendlywrt-rk3328/friendlywrt/
+          git apply ../../patches/001-cpu-enable_autocore.patch
+          
+      - name: MOD the OpenWrt
+        run: |
+          /bin/bash r2s_step/06_mod_slim.sh
+      - name: Load config
+        run: |
+          /bin/bash r2s_step/09_load_config.sh
+      
+      - name: Build OpenWrt
+        run: |
+          cd friendlywrt-rk3328
+          ./build.sh nanopi_r2s.mk
+      
+      - name: Fix Rootfs Owner and Group
+        run: |
+          /bin/bash r2s_step/10_fix_rootfs.sh
+
+      - name: Organize files
+        id: organize
+        run: |
+          rm -rf ./artifact/
+          mkdir -p ./artifact/
+          mv friendlywrt-rk3328/out/*img* ./artifact/
+          cd ./artifact/
+          gzip *.img
+          zip R2S-tiny-$(date +%Y-%m-%d).zip *.img.gz
+          rm *.img.gz
+          echo "::set-env name=FIRMWARE::$PWD"
+          echo "::set-output name=status::success"
+          echo "::set-env name=DATE::$(date "+%Y-%m-%d %H:%M:%S")"
+          release_tag="NanoPi-R2S-tiny ${{ env.DATE }}"
+          echo "##[set-output name=release_tag;]$release_tag"
+          cd ../friendlywrt-rk3328/friendlywrt
+          cp .config ../../artifact/config-tiny-full
+          ./scripts/diffconfig.sh > ../../artifact/config-tiny.seed
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        with:
+          name: OpenWrt_R2S_tiny_firmware
+          path: ${{ env.FIRMWARE }}
+
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1.6.1
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          name: FriendlyWrt-R2S固件
+          allowUpdates: true
+          tag: FriendlyWrt
+          commit: master
+          replacesArtifacts: true
+          token: ${{ secrets.RELEASES_TOKEN }}
+          body: |
+            基于FriendlyWrt架构编译，自用固件，风险自负
+            最新编译时间:${{ env.DATE }}          
+            最新编译版本: ${{ steps.organize.outputs.release_tag }}
+          artifacts: ${{ env.FIRMWARE }}/*.zip,${{ env.FIRMWARE }}/config*

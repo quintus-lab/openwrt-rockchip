@@ -1,0 +1,393 @@
+From 8c841a734925e412a343d6ddf21bc22b2c850c5a Mon Sep 17 00:00:00 2001
+From: Tianling Shen <cnsztl@gmail.com>
+Date: Fri, 25 Dec 2020 20:03:14 +0800
+Subject: [PATCH] rockchip: add NanoPi R4S support
+ 	modified:   target/linux/rockchip/Makefile
+  	modified:   target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
+   	modified:   target/linux/rockchip/armv8/base-files/etc/board.d/02_network
+   	modified:   target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity 
+   	modified:   target/linux/rockchip/image/armv8.mk 	
+   	new file:   target/linux/rockchip/image/nanopi-r4s.bootscript 	
+   	new file:   target/linux/rockchip/patches-5.4/200-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
+
+Hardware
+--------
+RockChip RK3399 ARM64 (6 cores)
+1GB DDR3 or 4GB LPDDR4 RAM
+2x 1000 Base-T
+3 LEDs (LAN / WAN / SYS)
+1 Button (Reset)
+Micro-SD slot
+2x USB 3.0 Port
+
+Installation
+------------
+Uncompress the OpenWrt sysupgrade and write it to a micro SD card using
+dd.
+
+Signed-off-by: Tianling Shen <cnsztl@gmail.com>
+Co-authored-by: Jensen Huang <jensenhuang@friendlyarm.com>
+Signed-off-by: Jensen Huang <jensenhuang@friendlyarm.com>
+Co-authored-by: Marty Jones <mj8263788@gmail.com>
+Signed-off-by: Marty Jones <mj8263788@gmail.com>
+
+---
+ target/linux/rockchip/Makefile                |   2 +-
+ .../armv8/base-files/etc/board.d/01_leds      |   3 +-
+ .../armv8/base-files/etc/board.d/02_network   |  12 +-
+ .../etc/hotplug.d/net/40-net-smp-affinity     |   4 +
+ target/linux/rockchip/image/armv8.mk          |  10 +
+ .../rockchip/image/nanopi-r4s.bootscript      |   8 +
+ ...Add-support-for-FriendlyARM-NanoPi-R.patch | 225 ++++++++++++++++++
+ 7 files changed, 257 insertions(+), 7 deletions(-)
+ create mode 100644 target/linux/rockchip/image/nanopi-r4s.bootscript
+ create mode 100644 target/linux/rockchip/patches-5.4/200-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
+
+diff --git a/target/linux/rockchip/Makefile b/target/linux/rockchip/Makefile
+index bcc0cc3f8f..4996b434f0 100644
+--- a/target/linux/rockchip/Makefile
++++ b/target/linux/rockchip/Makefile
+@@ -4,7 +4,7 @@ include $(TOPDIR)/rules.mk
+ 
+ BOARD:=rockchip
+ BOARDNAME:=Rockchip
+-FEATURES:=ext4 audio usb usbgadget display gpio fpu rootfs-part boot-part squashfs
++FEATURES:=ext4 audio usb usbgadget display gpio fpu pci pcie rootfs-part boot-part squashfs
+ SUBTARGETS:=armv8
+ 
+ KERNEL_PATCHVER=5.4
+diff --git a/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds b/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
+index bba3e2aa56..77655d426a 100755
+--- a/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
++++ b/target/linux/rockchip/armv8/base-files/etc/board.d/01_leds
+@@ -9,7 +9,8 @@ boardname="${board##*,}"
+ board_config_update
+ 
+ case $board in
+-friendlyarm,nanopi-r2s)
++friendlyarm,nanopi-r2s|\
++friendlyarm,nanopi-r4s)
+ 	ucidef_set_led_netdev "wan" "WAN" "$boardname:green:wan" "eth0"
+ 	ucidef_set_led_netdev "lan" "LAN" "$boardname:green:lan" "eth1"
+ 	;;
+diff --git a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
+index 48133c81a1..d8acaabe27 100755
+--- a/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
++++ b/target/linux/rockchip/armv8/base-files/etc/board.d/02_network
+@@ -8,7 +8,8 @@ rockchip_setup_interfaces()
+ 	local board="$1"
+ 
+ 	case "$board" in
+-	friendlyarm,nanopi-r2s)
++	friendlyarm,nanopi-r2s|\
++	friendlyarm,nanopi-r4s)
+ 		ucidef_set_interfaces_lan_wan 'eth1' 'eth0'
+ 		;;
+ 	*)
+@@ -17,9 +18,9 @@ rockchip_setup_interfaces()
+ 	esac
+ }
+ 
+-nanopi_r2s_generate_mac()
++nanopi_generate_mac()
+ {
+-	local sd_hash=$(sha256sum /sys/devices/platform/ff500000.dwmmc/mmc_host/mmc0/mmc0:*/cid)
++	local sd_hash=$(sha256sum /sys/devices/platform/*.dwmmc/mmc_host/mmc0/mmc0:*/cid)
+ 	local mac_base=$(macaddr_canonicalize "$(echo "${sd_hash}" | dd bs=1 count=12 2>/dev/null)")
+ 	echo "$(macaddr_unsetbit_mc "$(macaddr_setbit_la "${mac_base}")")"
+ }
+@@ -32,8 +33,9 @@ rockchip_setup_macs()
+ 	local label_mac=""
+ 
+ 	case "$board" in
+-	friendlyarm,nanopi-r2s)
+-		wan_mac=$(nanopi_r2s_generate_mac)
++	friendlyarm,nanopi-r2s|\
++	friendlyarm,nanopi-r4s)
++		wan_mac=$(nanopi_generate_mac)
+ 		lan_mac=$(macaddr_add "$wan_mac" +1)
+ 		;;
+ 	esac
+diff --git a/target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity b/target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity
+index 44716258bf..9e4a4cf4fc 100644
+--- a/target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity
++++ b/target/linux/rockchip/armv8/base-files/etc/hotplug.d/net/40-net-smp-affinity
+@@ -26,5 +26,9 @@ friendlyarm,nanopi-r2s)
+ 	set_interface_core 2 "eth0"
+ 	set_interface_core 4 "eth1" "xhci-hcd:usb3"
+ 	;;
++friendlyarm,nanopi-r4s)
++	set_interface_core 10 "eth0"
++	set_interface_core 20 "eth1"
++	;;
+ esac
+ 
+diff --git a/target/linux/rockchip/image/armv8.mk b/target/linux/rockchip/image/armv8.mk
+index 24b1c38137..b1ff32dadb 100644
+--- a/target/linux/rockchip/image/armv8.mk
++++ b/target/linux/rockchip/image/armv8.mk
+@@ -12,6 +12,16 @@ define Device/friendlyarm_nanopi-r2s
+ endef
+ TARGET_DEVICES += friendlyarm_nanopi-r2s
+ 
++define Device/friendlyarm_nanopi-r4s
++  DEVICE_VENDOR := FriendlyARM
++  DEVICE_MODEL := NanoPi R4S
++  SOC := rk3399
++  UBOOT_DEVICE_NAME := nanopi-r4s-rk3399
++  IMAGE/sysupgrade.img.gz := boot-common | boot-script nanopi-r4s | pine64-img | gzip | append-metadata
++  DEVICE_PACKAGES := kmod-r8168
++endef
++TARGET_DEVICES += friendlyarm_nanopi-r4s
++
+ define Device/pine64_rockpro64
+   DEVICE_VENDOR := Pine64
+   DEVICE_MODEL := RockPro64
+diff --git a/target/linux/rockchip/image/nanopi-r4s.bootscript b/target/linux/rockchip/image/nanopi-r4s.bootscript
+new file mode 100644
+index 0000000000..abe9c24ee3
+--- /dev/null
++++ b/target/linux/rockchip/image/nanopi-r4s.bootscript
+@@ -0,0 +1,8 @@
++part uuid mmc ${devnum}:2 uuid
++
++setenv bootargs "console=ttyS2,1500000 earlycon=uart8250,mmio32,0xff1a0000 root=PARTUUID=${uuid} rw rootwait"
++
++load mmc ${devnum}:1 ${fdt_addr_r} rockchip.dtb
++load mmc ${devnum}:1 ${kernel_addr_r} kernel.img
++
++booti ${kernel_addr_r} - ${fdt_addr_r}
+diff --git a/target/linux/rockchip/patches-5.4/200-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch b/target/linux/rockchip/patches-5.4/200-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
+new file mode 100644
+index 0000000000..8bc8024c8d
+--- /dev/null
++++ b/target/linux/rockchip/patches-5.4/200-rockchip-rk3399-Add-support-for-FriendlyARM-NanoPi-R.patch
+@@ -0,0 +1,225 @@
++From 11c2b38cf0a04b0edb3eabae24fb1484489725e2 Mon Sep 17 00:00:00 2001
++From: Tianling Shen <cnsztl@gmail.com>
++Date: Fri, 8 Jan 2021 07:12:30 +0000
++Subject: [PATCH] rockchip: rk3399: Add support for FriendlyARM NanoPi R4S
++
++This adds support for the NanoPi R4S from FriendlyArm.
++
++Rockchip RK3399 SoC
++1GB DDR3 or 4GB LPDDR4 RAM
++Gigabit Ethernet (WAN)
++Gigabit Ethernet (PCIe) (LAN)
++USB 3.0 Host Port x 2
++MicroSD slot
++Reset button
++WAN - LAN - SYS LED
++
++Signed-off-by: Tianling Shen <cnsztl@gmail.com>
++Co-authored-by: Jensen Huang <jensenhuang@friendlyarm.com>
++Signed-off-by: Jensen Huang <jensenhuang@friendlyarm.com>
++Co-authored-by: Marty Jones <mj8263788@gmail.com>
++Signed-off-by: Marty Jones <mj8263788@gmail.com>
++---
++ arch/arm64/boot/dts/rockchip/Makefile         |   1 +
++ .../boot/dts/rockchip/rk3399-nanopi-r4s.dts   | 178 ++++++++++++++++++
++ 2 files changed, 179 insertions(+)
++ create mode 100644 arch/arm64/boot/dts/rockchip/rk3399-nanopi-r4s.dts
++
++--- a/arch/arm64/boot/dts/rockchip/Makefile
+++++ b/arch/arm64/boot/dts/rockchip/Makefile
++@@ -25,6 +25,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-leez-p710.dtb
++ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-nanopc-t4.dtb
++ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-nanopi-m4.dtb
++ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-nanopi-neo4.dtb
+++dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-nanopi-r4s.dtb
++ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-orangepi.dtb
++ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-puma-haikou.dtb
++ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-roc-pc.dtb
++--- /dev/null
+++++ b/arch/arm64/boot/dts/rockchip/rk3399-nanopi-r4s.dts
++@@ -0,0 +1,185 @@
+++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+++/*
+++ * Copyright (c) 2020 Jensen Huang <jensenhuang@friendlyarm.com>
+++ * Copyright (c) 2020 Marty Jones <mj8263788@gmail.com>
+++ * Copyright (c) 2020 Tianling Shen <cnsztl@gmail.com>
+++ */
+++
+++/dts-v1/;
+++#include "rk3399-nanopi4.dtsi"
+++
+++/ {
+++	model = "FriendlyElec NanoPi R4S";
+++	compatible = "friendlyarm,nanopi-r4s", "rockchip,rk3399";
+++
+++	aliases {
+++		led-boot = &sys_led;
+++		led-failsafe = &sys_led;
+++		led-running = &sys_led;
+++		led-upgrade = &sys_led;
+++	};
+++
+++	/delete-node/ gpio-leds;
+++	gpio-leds {
+++		compatible = "gpio-leds";
+++		pinctrl-0 = <&lan_led_pin>, <&sys_led_pin>, <&wan_led_pin>;
+++		pinctrl-names = "default";
+++
+++		lan_led: led-0 {
+++			gpios = <&gpio1 RK_PA1 GPIO_ACTIVE_HIGH>;
+++			label = "nanopi-r4s:green:lan";
+++		};
+++
+++		sys_led: led-1 {
+++			gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
+++			label = "nanopi-r4s:red:sys";
+++		};
+++
+++		wan_led: led-2 {
+++			gpios = <&gpio1 RK_PA0 GPIO_ACTIVE_HIGH>;
+++			label = "nanopi-r4s:green:wan";
+++		};
+++	};
+++
+++	/delete-node/ gpio-keys;
+++	gpio-keys {
+++		compatible = "gpio-keys";
+++		pinctrl-names = "default";
+++		pinctrl-0 = <&reset_button_pin>;
+++
+++		reset {
+++			debounce-interval = <50>;
+++			gpios = <&gpio1 RK_PC6 GPIO_ACTIVE_LOW>;
+++			label = "reset";
+++			linux,code = <KEY_RESTART>;
+++		};
+++	};
+++
+++	vdd_5v: vdd-5v {
+++		compatible = "regulator-fixed";
+++		regulator-name = "vdd_5v";
+++		regulator-always-on;
+++		regulator-boot-on;
+++	};
+++
+++	fan: pwm-fan {
+++		compatible = "pwm-fan";
+++		/*
+++		 * With 20KHz PWM and an EVERCOOL EC4007H12SA fan, these levels
+++		 * work out to 0, ~1200, ~3000, and 5000RPM respectively.
+++		 */
+++		cooling-levels = <0 12 18 255>;
+++		#cooling-cells = <2>;
+++		fan-supply = <&vdd_5v>;
+++		pwms = <&pwm1 0 50000 0>;
+++	};
+++};
+++
+++&cpu_thermal {
+++	trips {
+++		cpu_warm: cpu_warm {
+++			temperature = <55000>;
+++			hysteresis = <2000>;
+++			type = "active";
+++		};
+++
+++		cpu_hot: cpu_hot {
+++			temperature = <65000>;
+++			hysteresis = <2000>;
+++			type = "active";
+++		};
+++	};
+++
+++	cooling-maps {
+++		map2 {
+++			trip = <&cpu_warm>;
+++			cooling-device = <&fan THERMAL_NO_LIMIT 1>;
+++		};
+++
+++		map3 {
+++			trip = <&cpu_hot>;
+++			cooling-device = <&fan 2 THERMAL_NO_LIMIT>;
+++		};
+++	};
+++};
+++
+++&emmc_phy {
+++	status = "disabled";
+++};
+++
+++&fusb0 {
+++	status = "disabled";
+++};
+++
+++&pcie0 {
+++	max-link-speed = <1>;
+++	num-lanes = <1>;
+++	vpcie3v3-supply = <&vcc3v3_sys>;
+++
+++	pcie@0,0 {
+++		reg = <0x00000000 0 0 0 0>;
+++		#address-cells = <3>;
+++		#size-cells = <2>;
+++
+++		pcie-eth@1,0 {
+++			compatible = "realtek,rtl8168";
+++			reg = <0x00010000 0 0 0 0>;
+++
+++			realtek,led-data = <0x870>;
+++		};
+++	};
+++};
+++
+++&pinctrl {
+++	/delete-node/ gpio-leds;
+++	gpio-leds {
+++		lan_led_pin: lan-led-pin {
+++			rockchip,pins = <1 RK_PA1 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++
+++		sys_led_pin: sys-led-pin {
+++			rockchip,pins = <0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++
+++		wan_led_pin: wan-led-pin {
+++			rockchip,pins = <1 RK_PA0 RK_FUNC_GPIO &pcfg_pull_none>;
+++		};
+++	};
+++
+++	/delete-node/ rockchip-key;
+++	rockchip-key {
+++		reset_button_pin: reset-button-pin {
+++			rockchip,pins = <1 RK_PC6 RK_FUNC_GPIO &pcfg_pull_up>;
+++		};
+++	};
+++};
+++
+++&sdhci {
+++	status = "disabled";
+++};
+++
+++&sdio0 {
+++	status = "disabled";
+++};
+++
+++&sdmmc {
+++	sd-uhs-sdr12;
+++	sd-uhs-sdr25;
+++	sd-uhs-sdr50;
+++};
+++
+++&u2phy0_host {
+++	phy-supply = <&vdd_5v>;
+++};
+++
+++&u2phy1_host {
+++	status = "disabled";
+++};
+++
+++&usbdrd_dwc3_0 {
+++	dr_mode = "host";
+++};
+++
+++&vcc3v3_sys {
+++	vin-supply = <&vcc5v0_sys>;
+++};
+-- 
+2.28.0
+
