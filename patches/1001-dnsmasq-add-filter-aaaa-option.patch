@@ -3,17 +3,28 @@ From: quintus-lab<noreply@github.com>
 Date: Thu, 17 Jun 2021 12:44:33 +0800
 Subject: [PATCH] dnsmasq add filter aaaa option
 
+---
+	modified:   feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
 	modified:   package/base-files/files/etc/init.d/boot
 	modified:   package/network/services/dnsmasq/files/dhcp.conf
 	modified:   package/network/services/dnsmasq/files/dnsmasq.init
----
- package/base-files/files/etc/init.d/boot      |   1 +
- .../network/services/dnsmasq/files/dhcp.conf  |   1 +
- .../services/dnsmasq/files/dnsmasq.init       |   2 +
- .../dnsmasq/patches/910-mini-ttl.patch        | 102 ++++++++++++++++++
- .../patches/911-dnsmasq-filter-aaaa.patch     |  68 ++++++++++++
- 5 files changed, 174 insertions(+)
 
+diff --git a/feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js b/feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
+index 541c2fca1b..6aae03e54b 100644
+--- a/feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
++++ b/feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
+@@ -199,6 +199,11 @@ return view.extend({
+ 		s.taboption('files', form.DynamicList, 'addnhosts',
+ 			_('Additional Hosts files')).optional = true;
+ 
++		o = s.taboption('advanced', form.Flag, 'filteraaaa',
++			_('Filter IPv6 Records'),
++			_('Filter IPv6(AAAA) Records during DNS resolution'));
++		o.optional = true;
++
+ 		o = s.taboption('advanced', form.Flag, 'quietdhcp',
+ 			_('Suppress logging'),
+ 			_('Suppress logging of the routine operation of these protocols'));
 diff --git a/package/base-files/files/etc/init.d/boot b/package/base-files/files/etc/init.d/boot
 index a1e8e828dd..974b68860f 100755
 --- a/package/base-files/files/etc/init.d/boot
