@@ -2575,7 +2575,7 @@ index 0000000000..8a5222da22
 +
 +--- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
 ++++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
-+@@ -1022,6 +1022,13 @@
++@@ -1041,6 +1041,13 @@
 + 		};
 + 	};
 + 
