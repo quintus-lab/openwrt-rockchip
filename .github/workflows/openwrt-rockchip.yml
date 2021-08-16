@@ -175,7 +175,7 @@ jobs:
 
 
       - name: Compile OpenWRT for kernel 5.14
-        id: compile5.14
+        id: compile514
         run: |
           cd openwrt
           /bin/bash 04-k5.14.sh
