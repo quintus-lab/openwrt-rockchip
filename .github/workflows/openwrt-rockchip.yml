@@ -192,7 +192,7 @@ jobs:
           cd openwrt && make -j1 V=s
 
       - name: Organize k5.14 files
-        id: organize
+        id: organize514
         run: |
           rm -rf ./artifact514/
           mkdir -p ./artifact514/
