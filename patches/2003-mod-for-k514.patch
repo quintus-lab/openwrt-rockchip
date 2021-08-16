@@ -1,0 +1,144 @@
+From 612fec9271b6dcffe2ff2e6a60c5fbb3fbd9f7c4 Mon Sep 17 00:00:00 2001
+From: Quintus Chu <ardanzhu@gmail.com>
+Date: Tue, 20 Jul 2021 19:56:44 +0800
+Subject: [PATCH 3/3] mod for k514
+
+---
+ feeds/packages/net/xtables-addons/Makefile |   6 +++---
+ package/kernel/linux/modules/fs.mk         |   6 +-
+ package/kernel/linux/modules/lib.mk        |  19 +-
+ package/kernel/linux/modules/netsupport.mk |   2 +-
+ package/kernel/linux/modules/other.mk      |   3 +-
+ package/lean/luci-app-ssr-plus/Makefile    |   2 +-
+ target/linux/generic/config-5.14           |   2 +
+ 7 files changed, 35 insertions(+), 8 deletions(-)
+ create mode 100644 feeds/packages/net/xtables-addons/Makefile
+
+diff --git a/feeds/packages/net/xtables-addons/Makefile b/feeds/packages/net/xtables-addons/Makefile
+index c5e2c3f8a3f0..297082710b80 100644
+--- a/feeds/packages/net/xtables-addons/Makefile
++++ b/feeds/packages/net/xtables-addons/Makefile
+@@ -9,9 +9,9 @@ include $(TOPDIR)/rules.mk
+ include $(INCLUDE_DIR)/kernel.mk
+ 
+ PKG_NAME:=xtables-addons
+-PKG_VERSION:=3.13
+-PKG_RELEASE:=4
+-PKG_HASH:=893c0c4ea09759cda1ab7e68f1281d125e59270f7b59e446204ce686c6a76d65
++PKG_VERSION:=3.18
++PKG_RELEASE:=1
++PKG_HASH:=a77914a483ff381663f52120577e5e9355ca07cca73958b038e09d91247458d5
+ 
+ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+ PKG_SOURCE_URL:=https://inai.de/files/xtables-addons/
+diff --git a/package/kernel/linux/modules/fs.mk b/package/kernel/linux/modules/fs.mk
+index 7de1a0673c..10a18d4034 100644
+--- a/package/kernel/linux/modules/fs.mk
++++ b/package/kernel/linux/modules/fs.mk
+@@ -105,7 +105,11 @@ define KernelPackage/fs-cifs
+     +kmod-crypto-aead \
+     +kmod-crypto-ccm \
+     +kmod-crypto-ecb \
+-    +kmod-crypto-des
++    +kmod-crypto-des \
++    +kmod-asn1-decoder \
++    +kmod-asn1-encoder \
++    +kmod-oid_registry \
++    +kmod-dnsresolver
+ endef
+ 
+ define KernelPackage/fs-cifs/description
+diff --git a/package/kernel/linux/modules/lib.mk b/package/kernel/linux/modules/lib.mk
+index 9a341932bd..8a9bf3878e 100644
+--- a/package/kernel/linux/modules/lib.mk
++++ b/package/kernel/linux/modules/lib.mk
+@@ -267,8 +267,25 @@ define KernelPackage/asn1-decoder
+   SUBMENU:=$(LIB_MENU)
+   TITLE:=Simple ASN1 decoder
+   KCONFIG:= CONFIG_ASN1
+-  HIDDEN:=1
+   FILES:=$(LINUX_DIR)/lib/asn1_decoder.ko
+ endef
+ 
+ $(eval $(call KernelPackage,asn1-decoder))
++
++define KernelPackage/asn1-encoder
++  SUBMENU:=$(LIB_MENU)
++  TITLE:=Simple ASN1 encoder
++  KCONFIG:= CONFIG_ASN1
++  FILES:=$(LINUX_DIR)/lib/asn1_encoder.ko
++endef
++
++$(eval $(call KernelPackage,asn1-encoder))
++
++define KernelPackage/oid_registry
++  SUBMENU:=$(LIB_MENU)
++  TITLE:=OID registry
++  KCONFIG:= CONFIG_OID_REGISTRY
++  FILES:=$(LINUX_DIR)/lib/oid_registry.ko
++endef
++
++$(eval $(call KernelPackage,oid_registry))
+diff --git a/package/kernel/linux/modules/netsupport.mk b/package/kernel/linux/modules/netsupport.mk
+index 1eec9f9b63..091aae28c3 100644
+--- a/package/kernel/linux/modules/netsupport.mk
++++ b/package/kernel/linux/modules/netsupport.mk
+@@ -1075,7 +1075,7 @@ define KernelPackage/sctp
+      CONFIG_SCTP_DEFAULT_COOKIE_HMAC_MD5=y
+   FILES:= $(LINUX_DIR)/net/sctp/sctp.ko
+   AUTOLOAD:= $(call AutoLoad,32,sctp)
+-  DEPENDS:=+kmod-lib-crc32c +kmod-crypto-md5 +kmod-crypto-hmac
++  DEPENDS:=+kmod-lib-crc32c +kmod-crypto-md5 +kmod-crypto-hmac +kmod-udptunnel6 +kmod-udptunnel4
+ endef
+ 
+ define KernelPackage/sctp/description
+diff --git a/package/kernel/linux/modules/other.mk b/package/kernel/linux/modules/other.mk
+index 926fc67386..909dc3ea6f 100644
+--- a/package/kernel/linux/modules/other.mk
++++ b/package/kernel/linux/modules/other.mk
+@@ -1123,7 +1123,8 @@ $(eval $(call KernelPackage,keys-encrypted))
+ define KernelPackage/keys-trusted
+   SUBMENU:=$(OTHER_MENU)
+   TITLE:=TPM trusted keys on kernel keyring
+-  DEPENDS:=@KERNEL_KEYS +kmod-crypto-hash +kmod-crypto-hmac +kmod-crypto-sha1 +kmod-tpm
++  DEPENDS:=@KERNEL_KEYS +kmod-crypto-hash +kmod-crypto-hmac +kmod-crypto-sha1 +kmod-tpm \
++	  +kmod-asn1-decoder +kmod-asn1-encoder +kmod-oid_registry
+   KCONFIG:=CONFIG_TRUSTED_KEYS
+   FILES:= \
+ 	  $(LINUX_DIR)/security/keys/trusted.ko@lt5.10 \
+diff --git a/package/lean/luci-app-ssr-plus/Makefile b/package/lean/luci-app-ssr-plus/Makefile
+index 6a5912d739..1f88e787db 100644
+--- a/package/lean/luci-app-ssr-plus/Makefile
++++ b/package/lean/luci-app-ssr-plus/Makefile
+@@ -22,7 +22,7 @@ PKG_CONFIG_DEPENDS:= \
+ LUCI_TITLE:=SS/SSR/V2Ray/Trojan/NaiveProxy/Socks5/Tun LuCI interface
+ LUCI_PKGARCH:=all
+ LUCI_DEPENDS:=+coreutils +coreutils-base64 +dns2socks +dnsmasq-full +ipset \
+-	+ip-full +iptables-mod-tproxy +lua +libuci-lua +microsocks +pdnsd-alt \
++	+ip-full +iptables-mod-tproxy +lua +libuci-lua +microsocks \
+ 	+tcping +resolveip +shadowsocksr-libev-ssr-check +uclient-fetch \
+ 	+libustream-openssl \
+ 	+PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun:kcptun-client \
+diff --git a/target/linux/generic/config-5.14 b/target/linux/generic/config-5.14
+index ee74833fc8..7ee656af97 100644
+--- a/target/linux/generic/config-5.14
++++ b/target/linux/generic/config-5.14
+@@ -416,6 +416,7 @@ CONFIG_ARM_GIC_MAX_NR=1
+ # CONFIG_AS3935 is not set
+ # CONFIG_AS73211 is not set
+ # CONFIG_ASM9260_TIMER is not set
++# CONFIG_ASN1 is not set
+ # CONFIG_ASUS_LAPTOP is not set
+ # CONFIG_ASUS_WIRELESS is not set
+ # CONFIG_ASYMMETRIC_KEY_TYPE is not set
+@@ -4220,6 +4221,7 @@ CONFIG_NMI_LOG_BUF_SHIFT=13
+ # CONFIG_OF_OVERLAY is not set
+ CONFIG_OF_RESERVED_MEM=y
+ # CONFIG_OF_UNITTEST is not set
++# CONFIG_OID_REGISTRY is not set
+ # CONFIG_OMAP2_DSS_DEBUG is not set
+ # CONFIG_OMAP2_DSS_DEBUGFS is not set
+ # CONFIG_OMAP2_DSS_SDI is not set
+-- 
+2.25.1
+

@@ -21,7 +21,7 @@ on:
     types: started
 
 jobs:
-    build:
+    openwrt-master:
       runs-on: ubuntu-18.04
       if: github.event.repository.owner.id == github.event.sender.id
 
@@ -166,14 +166,57 @@ jobs:
           cp ../openwrt/*.config ./
           ls -Ahl
 
-      - name: Upload artifact
+      - name: Upload artifact master
         uses: actions/upload-artifact@main
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
           name: OpenWRT_NanoPi_firmware
-          path: ./artifact/
+          path: ./artifact/*.zip
 
-      - name: Create release
+
+      - name: Compile OpenWRT for kernel 5.14
+        id: compile5.14
+        run: |
+          cd openwrt
+          /bin/bash 04-k5.14.sh
+          mv ../seed/k514.seed .config
+          make defconfig
+          let make_process=$(nproc)+1
+          make -j${make_process} V=s || make -j${make_process} V=s
+
+      - name: If compile openwrt 5.14 Error
+        if: steps.compileopenwrt.outcome == 'failure'
+        run: |
+          cat openwrt/.config
+          echo '================================================================'
+          cd openwrt && make -j1 V=s
+
+      - name: Organize k5.14 files
+        id: organize
+        run: |
+          rm -rf ./artifact514/
+          mkdir -p ./artifact514/
+          mv openwrt/bin/targets/rockchip/armv8/*sysupgrade.img* ./artifact514/
+          cd ./artifact514/
+          ls -Ahl
+          gzip -d *.gz && exit 0
+          gzip *.img
+          sha256sum openwrt*r2s* | tee R2S-QC-k514.sha256sum
+          sha256sum openwrt*r4s* | tee R4S-QC-k514.sha256sum
+          sha256sum openwrt*r1-plus* | tee R1-plus-QC-k514.sha256sum
+          ls -Ahl
+          zip R2S-QC-$(date +%Y-%m-%d)-k514.zip *r2s* R2S*.sha256sum
+          zip R4S-QC-$(date +%Y-%m-%d)-k514.zip *r4s* R4S*.sha256sum
+          zip R1-plus-QC-$(date +%Y-%m-%d)-k514.zip *r1-plus* R1-plus*.sha256sum        
+          ls -Ahl
+
+      - name: Upload k5.14 firmware
+        uses: actions/upload-artifact@main
+        with:
+          name: openwrt kernel 5.14 firmware
+          path: ./artifact514/*.zip
+
+      - name: Create release for master
         id: create_release
         uses: ncipollo/release-action@v1.8.0
         if: env.UPLOAD_RELEASE == 'true' && !cancelled()
@@ -186,3 +229,23 @@ jobs:
           token: ${{ secrets.RELEASES_TOKEN }}
           bodyFile: "body-origin.md"
           artifacts: ./artifact/*.zip,./artifact/*.config
+
+    Cleanup-Old-Artifacts:
+      needs: [openwrt-master]
+      runs-on: ubuntu-18.04
+      steps:
+      - name: Cleanup Old Action Artifacts
+        uses: kolpav/purge-artifacts-action@v1
+        with:
+          token: ${{ github.token }}
+          expire-in: 7d
+    Cleanup-Workflow-Runs:
+      needs: Cleanup-Old-Artifacts
+      runs-on: ubuntu-18.04
+      steps:
+      - name: Cleanup Workflow Runs
+        uses: GitRML/delete-workflow-runs@v1.2.1
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 7
