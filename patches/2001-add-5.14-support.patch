@@ -248,13 +248,13 @@ index 013ee6ac4d..7d6e485dce 100644
  endif
  
  LINUX_VERSION-5.4 = .140
--LINUX_VERSION-5.10 = .58
-+LINUX_VERSION-5.14 = -rc5
+-LINUX_VERSION-5.10 = .59
++LINUX_VERSION-5.14 = -rc6
  
  LINUX_KERNEL_HASH-5.4.140 = 2c657a2df4f2e805ac50aeb39ecf5d1e4cb1501e7fcf15eafd14486b587f7e43
--LINUX_KERNEL_HASH-5.10.58 = 732cc56be539e65894621c3b6b2640597d8cf5da17319b82da6e7b4f7828f210
-+LINUX_KERNEL_HASH-5.14-rc5 = 6c491268e3a941bfb5618c19960fd9797d7c5ff81187c0b2440be92c85293601
- 
+-LINUX_KERNEL_HASH-5.10.59 = 333cadc15f23e2060bb9701dbd9c23cfb196c528cded797329a0c369c2b6ea80
++LINUX_KERNEL_HASH-5.14-rc6 = d8f0bfe8d595445a20352de9f6a0de370f6699ca1342861fcbd975c2184158f8
+
  remove_uri_prefix=$(subst git://,,$(subst http://,,$(subst https://,,$(1))))
  sanitize_uri=$(call qstrip,$(subst @,_,$(subst :,_,$(subst .,_,$(subst -,_,$(subst /,_,$(1)))))))
 diff --git a/include/netfilter.mk b/include/netfilter.mk
