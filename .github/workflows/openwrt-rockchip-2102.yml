@@ -21,7 +21,7 @@ on:
     types: started
 
 jobs:
-    build:
+    openwrt-2102:
       runs-on: ubuntu-18.04
       if: github.event.repository.owner.id == github.event.sender.id
 
@@ -164,7 +164,7 @@ jobs:
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         with:
           name: OpenWRT_21.02
-          path: ./artifact/
+          path: ./artifact/*.zip
 
       - name: Create release
         id: create_release
@@ -179,3 +179,23 @@ jobs:
           token: ${{ secrets.RELEASES_TOKEN }}
           bodyFile: "body-origin-21.02.md"
           artifacts: ./artifact/*.zip,./artifact/*.config
+
+    Cleanup-Old-Artifacts:
+      needs: [openwrt-2102]
+      runs-on: ubuntu-18.04
+      steps:
+      - name: Cleanup Old Action Artifacts
+        uses: kolpav/purge-artifacts-action@v1
+        with:
+          token: ${{ github.token }}
+          expire-in: 14d
+    Cleanup-Workflow-Runs:
+      needs: Cleanup-Old-Artifacts
+      runs-on: ubuntu-18.04
+      steps:
+      - name: Cleanup Workflow Runs
+        uses: GitRML/delete-workflow-runs@v1.2.1
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 14
