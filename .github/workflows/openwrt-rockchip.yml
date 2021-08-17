@@ -238,7 +238,7 @@ jobs:
         uses: kolpav/purge-artifacts-action@v1
         with:
           token: ${{ github.token }}
-          expire-in: 7d
+          expire-in: 14d
     Cleanup-Workflow-Runs:
       needs: Cleanup-Old-Artifacts
       runs-on: ubuntu-18.04
@@ -248,4 +248,4 @@ jobs:
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
-          retain_days: 7
+          retain_days: 14
