@@ -185,7 +185,7 @@ jobs:
           make -j${make_process} V=s || make -j${make_process} V=s
 
       - name: If compile openwrt 5.14 Error
-        if: steps.compileopenwrt.outcome == 'failure'
+        if: steps.compile514.outcome == 'failure'
         run: |
           cat openwrt/.config
           echo '================================================================'
