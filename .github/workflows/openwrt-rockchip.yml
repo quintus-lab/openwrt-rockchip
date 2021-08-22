@@ -96,14 +96,14 @@ jobs:
           make defconfig
           cp .config  rockchip_multi.config
 
-      - name: Download package
-        id: package
-        run: |
-          cd openwrt
-          make download -j10
-          find dl -size -1024c -exec ls -l {} \;
-          find dl -size -1024c -exec rm -f {} \;
-
+#      - name: Download package
+#        id: package
+#        run: |
+#          cd openwrt
+#          make download -j10
+#          find dl -size -1024c -exec ls -l {} \;
+#          find dl -size -1024c -exec rm -f {} \;
+#
 #      - name: Make toolchain-aarch64
 #        id: compiletoolchain
 #        continue-on-error: true
@@ -123,29 +123,17 @@ jobs:
         id: compileopenwrt
         continue-on-error: true
         run: |
-          cd openwrt && make -j1 V=s
-#          let make_process=$(nproc)+1
-#          make -j${make_process} V=s || make -j${make_process} V=s
+          cd openwrt
+          let make_process=$(nproc)+1
+          make -j${make_process} V=s || make -j${make_process} V=s
 
-#      - name: If compile openwrt Error
-#        if: steps.compileopenwrt.outcome == 'failure'
-#        run: |
-#          cat openwrt/.config
-#          echo '================================================================'
-#          cd openwrt && make -j1 V=s
-#      - name: Load R4S Config
-#        run: |
-#          cd openwrt
-#          mv ../seed/r4s.seed .config
-#          make defconfig
-#          cp .config  r4s.config
-#
-#      - name: Compile OpenWRT for R4S
-#        run: |
-#          cd openwrt
-#          let make_process=$(nproc)+1
-#          make -j${make_process} V=s || make -j${make_process} V=s
-#
+      - name: If compile openwrt Error
+        if: steps.compileopenwrt.outcome == 'failure'
+        run: |
+          cat openwrt/.config
+          echo '================================================================'
+          cd openwrt && make -j1 V=s
+
       - name: Organize files
         id: organize
         run: |
