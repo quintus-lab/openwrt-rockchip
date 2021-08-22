@@ -172,12 +172,12 @@ jobs:
           let make_process=$(nproc)+1
           make -j${make_process} V=s || make -j${make_process} V=s
 
-#      - name: If compile openwrt 5.14 Error
-#        if: steps.compile514.outcome == 'failure'
-#        run: |
-#          cat openwrt/.config
-#          echo '================================================================'
-#          cd openwrt && make -j1 V=s
+      - name: If compile openwrt 5.14 Error
+        if: steps.compile514.outcome == 'failure'
+        run: |
+          cat openwrt/.config
+          echo '================================================================'
+          cd openwrt && make -j1 V=s
 
       - name: Organize k5.14 files
         id: organize514
