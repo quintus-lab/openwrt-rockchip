@@ -218,7 +218,7 @@ jobs:
 
       - name: Create release for master
         id: create_release
-        uses: ncipollo/release-action@v1.8.0
+        uses: ncipollo/release-action@v1.8.8
         if: env.UPLOAD_RELEASE == 'true' && !cancelled()
         with:
           name: OpenWRT-rockchip-kernel 5.10 daily update
