@@ -16,7 +16,7 @@ on:
       - 'step/01-prepare_package.sh'
       - 'seed/rockchip.seed'
   schedule:
-    - cron: 34 20 * * *
+    - cron: 31 20 * * *
   watch:
     types: started
 
