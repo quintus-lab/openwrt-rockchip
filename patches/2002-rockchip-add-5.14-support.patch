@@ -1,7 +1,7 @@
-From 779e642d3bd85cb6469726b84c8661a815f88649 Mon Sep 17 00:00:00 2001
+From 3a419788675208f5e9938f61210fbcf56518d3ae Mon Sep 17 00:00:00 2001
 From: quintus-lab<noreply@github.com>
-Date: Mon, 16 Aug 2021 14:28:28 +0800
-Subject: [PATCH 2/3] rockchip add 5.14 support
+Date: Fri, 17 Sep 2021 19:29:45 +0800
+Subject: [PATCH] rockchip add 5.14 support
 
 ---
  package/firmware/linux-firmware/realtek.mk    |  15 +-
@@ -851,7 +851,7 @@ index 0000000000..f6e7710a01
 +};
 diff --git a/target/linux/rockchip/patches-5.14/002-net-usb-r8152-add-LED-configuration-from-OF.patch b/target/linux/rockchip/patches-5.14/002-net-usb-r8152-add-LED-configuration-from-OF.patch
 new file mode 100644
-index 0000000000..bad1bcbe53
+index 0000000000..a4ac009d59
 --- /dev/null
 +++ b/target/linux/rockchip/patches-5.14/002-net-usb-r8152-add-LED-configuration-from-OF.patch
 @@ -0,0 +1,74 @@
@@ -879,7 +879,7 @@ index 0000000000..bad1bcbe53
 + #include <linux/crc32.h>
 + #include <linux/if_vlan.h>
 + #include <linux/uaccess.h>
-+@@ -6781,6 +6782,22 @@ static void rtl_tally_reset(struct r8152
++@@ -6808,6 +6809,22 @@ static void rtl_tally_reset(struct r8152
 + 	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RSTTALLY, ocp_data);
 + }
 + 
@@ -902,7 +902,7 @@ index 0000000000..bad1bcbe53
 + static void r8152b_init(struct r8152 *tp)
 + {
 + 	u32 ocp_data;
-+@@ -6822,6 +6839,8 @@ static void r8152b_init(struct r8152 *tp
++@@ -6849,6 +6866,8 @@ static void r8152b_init(struct r8152 *tp
 + 	ocp_data = ocp_read_word(tp, MCU_TYPE_USB, USB_USB_CTRL);
 + 	ocp_data &= ~(RX_AGG_DISABLE | RX_ZERO_EN);
 + 	ocp_write_word(tp, MCU_TYPE_USB, USB_USB_CTRL, ocp_data);
@@ -911,7 +911,7 @@ index 0000000000..bad1bcbe53
 + }
 + 
 + static void r8153_init(struct r8152 *tp)
-+@@ -6962,6 +6981,8 @@ static void r8153_init(struct r8152 *tp)
++@@ -6989,6 +7008,8 @@ static void r8153_init(struct r8152 *tp)
 + 		tp->coalesce = COALESCE_SLOW;
 + 		break;
 + 	}
@@ -920,7 +920,7 @@ index 0000000000..bad1bcbe53
 + }
 + 
 + static void r8153b_init(struct r8152 *tp)
-+@@ -7044,6 +7065,8 @@ static void r8153b_init(struct r8152 *tp
++@@ -7071,6 +7092,8 @@ static void r8153b_init(struct r8152 *tp
 + 	rtl_tally_reset(tp);
 + 
 + 	tp->coalesce = 15000;	/* 15 us */
