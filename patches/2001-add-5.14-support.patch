@@ -1,7 +1,7 @@
-From dab4f3ac07ea2e615c9c4fb148fe7eb079ebc0fd Mon Sep 17 00:00:00 2001
+From 10457b4413d1d2e619a91902db2755d80350fc0c Mon Sep 17 00:00:00 2001
 From: quintus-lab<noreply@github.com>
-Date: Tue, 24 Aug 2021 00:16:28 +0800
-Subject: [PATCH 1/3] add 5.14 support
+Date: Fri, 17 Sep 2021 19:18:22 +0800
+Subject: [PATCH] add 5.14 support
 
 ---
  include/kernel-version.mk                     |    4 +-
@@ -115,14 +115,14 @@ Subject: [PATCH 1/3] add 5.14 support
  ...760-net-dsa-mv88e6xxx-fix-vlan-setup.patch |   27 +
  ...-net-dsa-mt7530-Support-EEE-features.patch |  103 +
  ...equest-assisted-learning-on-CPU-port.patch |   27 +
- ...ice-struct-copy-its-DMA-params-to-th.patch |   70 +
+ ...ice-struct-copy-its-DMA-params-to-th.patch |   71 +
  .../810-pci_disable_common_quirks.patch       |   62 +
  .../811-pci_disable_usb_common_quirks.patch   |  115 +
  ...problem-with-platfom-data-in-w1-gpio.patch |   26 +
  .../pending-5.14/834-ledtrig-libata.patch     |  149 +
  ...40-hwrng-bcm2835-set-quality-to-1000.patch |   26 +
  .../pending-5.14/920-mangle_bootargs.patch    |   71 +
- 118 files changed, 26226 insertions(+), 7 deletions(-)
+ 118 files changed, 26227 insertions(+), 7 deletions(-)
  create mode 100644 target/linux/generic/backport-5.14/011-kbuild-export-SUBARCH.patch
  create mode 100644 target/linux/generic/backport-5.14/343-netfilter-nft_flow_offload-handle-netdevice-events-f.patch
  create mode 100644 target/linux/generic/config-5.14
@@ -241,7 +241,7 @@ Subject: [PATCH 1/3] add 5.14 support
  create mode 100644 target/linux/generic/pending-5.14/920-mangle_bootargs.patch
 
 diff --git a/include/kernel-version.mk b/include/kernel-version.mk
-index 6e7ad9d1a9..f6300eff64 100644
+index 00f7c90313..7c2bfc13c6 100644
 --- a/include/kernel-version.mk
 +++ b/include/kernel-version.mk
 @@ -7,10 +7,10 @@ ifdef CONFIG_TESTING_KERNEL
@@ -254,7 +254,7 @@ index 6e7ad9d1a9..f6300eff64 100644
  LINUX_KERNEL_HASH-5.4.145 = 5cf7782ec2e91417edf0d5e6555da6d556962c8985e33ba9e7dadba5cbdc68f9
 -LINUX_KERNEL_HASH-5.10.64 = 3eb84bd24a2de2b4749314e34597c02401c5d6831b055ed5224adb405c35e30a
 +LINUX_KERNEL_HASH-5.14.4 = 42e279e0d022ed702bc59b4548b60d1bd526b32caf6bc146421d53a9f17132b6
-
+ 
  remove_uri_prefix=$(subst git://,,$(subst http://,,$(subst https://,,$(1))))
  sanitize_uri=$(call qstrip,$(subst @,_,$(subst :,_,$(subst .,_,$(subst -,_,$(subst /,_,$(1)))))))
 diff --git a/include/netfilter.mk b/include/netfilter.mk
@@ -15080,7 +15080,7 @@ index 0000000000..08fb551af6
 + 
 diff --git a/target/linux/generic/hack-5.14/904-debloat_dma_buf.patch b/target/linux/generic/hack-5.14/904-debloat_dma_buf.patch
 new file mode 100644
-index 0000000000..90330cc43c
+index 0000000000..ad4e7bcb6b
 --- /dev/null
 +++ b/target/linux/generic/hack-5.14/904-debloat_dma_buf.patch
 @@ -0,0 +1,82 @@
@@ -15148,7 +15148,7 @@ index 0000000000..90330cc43c
 ++MODULE_LICENSE("GPL");
 +--- a/kernel/sched/core.c
 ++++ b/kernel/sched/core.c
-+@@ -3912,6 +3912,7 @@ int wake_up_state(struct task_struct *p,
++@@ -3939,6 +3939,7 @@ int wake_up_state(struct task_struct *p,
 + {
 + 	return try_to_wake_up(p, state, 0);
 + }
@@ -25860,7 +25860,7 @@ index 0000000000..45c95c219d
 + static struct rtnl_link_ops ip6_link_ops __read_mostly = {
 diff --git a/target/linux/generic/pending-5.14/670-ipv6-allow-rejecting-with-source-address-failed-policy.patch b/target/linux/generic/pending-5.14/670-ipv6-allow-rejecting-with-source-address-failed-policy.patch
 new file mode 100644
-index 0000000000..73dee4baf6
+index 0000000000..450bc1bde6
 --- /dev/null
 +++ b/target/linux/generic/pending-5.14/670-ipv6-allow-rejecting-with-source-address-failed-policy.patch
 @@ -0,0 +1,263 @@
@@ -25976,7 +25976,7 @@ index 0000000000..73dee4baf6
 + 		return -EINVAL;
 +--- a/net/ipv6/route.c
 ++++ b/net/ipv6/route.c
-+@@ -96,6 +96,8 @@ static int		ip6_pkt_discard(struct sk_bu
++@@ -97,6 +97,8 @@ static int		ip6_pkt_discard(struct sk_bu
 + static int		ip6_pkt_discard_out(struct net *net, struct sock *sk, struct sk_buff *skb);
 + static int		ip6_pkt_prohibit(struct sk_buff *skb);
 + static int		ip6_pkt_prohibit_out(struct net *net, struct sock *sk, struct sk_buff *skb);
@@ -25985,7 +25985,7 @@ index 0000000000..73dee4baf6
 + static void		ip6_link_failure(struct sk_buff *skb);
 + static void		ip6_rt_update_pmtu(struct dst_entry *dst, struct sock *sk,
 + 					   struct sk_buff *skb, u32 mtu,
-+@@ -311,6 +313,18 @@ static const struct rt6_info ip6_prohibi
++@@ -312,6 +314,18 @@ static const struct rt6_info ip6_prohibi
 + 	.rt6i_flags	= (RTF_REJECT | RTF_NONEXTHOP),
 + };
 + 
@@ -26004,7 +26004,7 @@ index 0000000000..73dee4baf6
 + static const struct rt6_info ip6_blk_hole_entry_template = {
 + 	.dst = {
 + 		.__refcnt	= ATOMIC_INIT(1),
-+@@ -1032,6 +1046,7 @@ static const int fib6_prop[RTN_MAX + 1]
++@@ -1033,6 +1047,7 @@ static const int fib6_prop[RTN_MAX + 1]
 + 	[RTN_BLACKHOLE]	= -EINVAL,
 + 	[RTN_UNREACHABLE] = -EHOSTUNREACH,
 + 	[RTN_PROHIBIT]	= -EACCES,
@@ -26012,7 +26012,7 @@ index 0000000000..73dee4baf6
 + 	[RTN_THROW]	= -EAGAIN,
 + 	[RTN_NAT]	= -EINVAL,
 + 	[RTN_XRESOLVE]	= -EINVAL,
-+@@ -1067,6 +1082,10 @@ static void ip6_rt_init_dst_reject(struc
++@@ -1068,6 +1083,10 @@ static void ip6_rt_init_dst_reject(struc
 + 		rt->dst.output = ip6_pkt_prohibit_out;
 + 		rt->dst.input = ip6_pkt_prohibit;
 + 		break;
@@ -26023,7 +26023,7 @@ index 0000000000..73dee4baf6
 + 	case RTN_THROW:
 + 	case RTN_UNREACHABLE:
 + 	default:
-+@@ -4548,6 +4567,17 @@ static int ip6_pkt_prohibit_out(struct n
++@@ -4559,6 +4578,17 @@ static int ip6_pkt_prohibit_out(struct n
 + 	return ip6_pkt_drop(skb, ICMPV6_ADM_PROHIBITED, IPSTATS_MIB_OUTNOROUTES);
 + }
 + 
@@ -26041,7 +26041,7 @@ index 0000000000..73dee4baf6
 + /*
 +  *	Allocate a dst for local (unicast / anycast) address.
 +  */
-+@@ -5028,7 +5058,8 @@ static int rtm_to_fib6_config(struct sk_
++@@ -5039,7 +5069,8 @@ static int rtm_to_fib6_config(struct sk_
 + 	if (rtm->rtm_type == RTN_UNREACHABLE ||
 + 	    rtm->rtm_type == RTN_BLACKHOLE ||
 + 	    rtm->rtm_type == RTN_PROHIBIT ||
@@ -26051,7 +26051,7 @@ index 0000000000..73dee4baf6
 + 		cfg->fc_flags |= RTF_REJECT;
 + 
 + 	if (rtm->rtm_type == RTN_LOCAL)
-+@@ -6251,6 +6282,8 @@ static int ip6_route_dev_notify(struct n
++@@ -6262,6 +6293,8 @@ static int ip6_route_dev_notify(struct n
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
 + 		net->ipv6.ip6_prohibit_entry->dst.dev = dev;
 + 		net->ipv6.ip6_prohibit_entry->rt6i_idev = in6_dev_get(dev);
@@ -26060,7 +26060,7 @@ index 0000000000..73dee4baf6
 + 		net->ipv6.ip6_blk_hole_entry->dst.dev = dev;
 + 		net->ipv6.ip6_blk_hole_entry->rt6i_idev = in6_dev_get(dev);
 + #endif
-+@@ -6262,6 +6295,7 @@ static int ip6_route_dev_notify(struct n
++@@ -6273,6 +6306,7 @@ static int ip6_route_dev_notify(struct n
 + 		in6_dev_put_clear(&net->ipv6.ip6_null_entry->rt6i_idev);
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
 + 		in6_dev_put_clear(&net->ipv6.ip6_prohibit_entry->rt6i_idev);
@@ -26068,7 +26068,7 @@ index 0000000000..73dee4baf6
 + 		in6_dev_put_clear(&net->ipv6.ip6_blk_hole_entry->rt6i_idev);
 + #endif
 + 	}
-+@@ -6453,6 +6487,8 @@ static int __net_init ip6_route_net_init
++@@ -6464,6 +6498,8 @@ static int __net_init ip6_route_net_init
 + 
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
 + 	net->ipv6.fib6_has_custom_rules = false;
@@ -26077,7 +26077,7 @@ index 0000000000..73dee4baf6
 + 	net->ipv6.ip6_prohibit_entry = kmemdup(&ip6_prohibit_entry_template,
 + 					       sizeof(*net->ipv6.ip6_prohibit_entry),
 + 					       GFP_KERNEL);
-+@@ -6463,11 +6499,21 @@ static int __net_init ip6_route_net_init
++@@ -6474,11 +6510,21 @@ static int __net_init ip6_route_net_init
 + 			 ip6_template_metrics, true);
 + 	INIT_LIST_HEAD(&net->ipv6.ip6_prohibit_entry->rt6i_uncached);
 + 
@@ -26100,7 +26100,7 @@ index 0000000000..73dee4baf6
 + 	net->ipv6.ip6_blk_hole_entry->dst.ops = &net->ipv6.ip6_dst_ops;
 + 	dst_init_metrics(&net->ipv6.ip6_blk_hole_entry->dst,
 + 			 ip6_template_metrics, true);
-+@@ -6494,6 +6540,8 @@ out:
++@@ -6505,6 +6551,8 @@ out:
 + 	return ret;
 + 
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
@@ -26109,7 +26109,7 @@ index 0000000000..73dee4baf6
 + out_ip6_prohibit_entry:
 + 	kfree(net->ipv6.ip6_prohibit_entry);
 + out_ip6_null_entry:
-+@@ -6513,6 +6561,7 @@ static void __net_exit ip6_route_net_exi
++@@ -6524,6 +6572,7 @@ static void __net_exit ip6_route_net_exi
 + 	kfree(net->ipv6.ip6_null_entry);
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
 + 	kfree(net->ipv6.ip6_prohibit_entry);
@@ -26117,7 +26117,7 @@ index 0000000000..73dee4baf6
 + 	kfree(net->ipv6.ip6_blk_hole_entry);
 + #endif
 + 	dst_entries_destroy(&net->ipv6.ip6_dst_ops);
-+@@ -6590,6 +6639,9 @@ void __init ip6_route_init_special_entri
++@@ -6601,6 +6650,9 @@ void __init ip6_route_init_special_entri
 + 	init_net.ipv6.ip6_prohibit_entry->rt6i_idev = in6_dev_get(init_net.loopback_dev);
 + 	init_net.ipv6.ip6_blk_hole_entry->dst.dev = init_net.loopback_dev;
 + 	init_net.ipv6.ip6_blk_hole_entry->rt6i_idev = in6_dev_get(init_net.loopback_dev);
@@ -26506,7 +26506,7 @@ index 0000000000..23a3479411
 + 
 diff --git a/target/linux/generic/pending-5.14/761-net-dsa-mt7530-Support-EEE-features.patch b/target/linux/generic/pending-5.14/761-net-dsa-mt7530-Support-EEE-features.patch
 new file mode 100644
-index 0000000000..8572dd5776
+index 0000000000..302ebf6d02
 --- /dev/null
 +++ b/target/linux/generic/pending-5.14/761-net-dsa-mt7530-Support-EEE-features.patch
 @@ -0,0 +1,103 @@
@@ -26521,7 +26521,7 @@ index 0000000000..8572dd5776
 +Signed-off-by: René van Dorst <opensource@vdorst.com>
 +--- a/drivers/net/dsa/mt7530.c
 ++++ b/drivers/net/dsa/mt7530.c
-+@@ -2764,9 +2764,13 @@ static void mt753x_phylink_mac_link_up(s
++@@ -2752,9 +2752,13 @@ static void mt753x_phylink_mac_link_up(s
 + 	switch (speed) {
 + 	case SPEED_1000:
 + 		mcr |= PMCR_FORCE_SPEED_1000;
@@ -26535,7 +26535,7 @@ index 0000000000..8572dd5776
 + 		break;
 + 	}
 + 	if (duplex == DUPLEX_FULL) {
-+@@ -3043,6 +3047,54 @@ static int mt753x_set_mac_eee(struct dsa
++@@ -3031,6 +3035,54 @@ static int mt753x_set_mac_eee(struct dsa
 + 
 + 	return 0;
 + }
@@ -26615,7 +26615,7 @@ index 0000000000..8572dd5776
 + 	/* protect among processes for registers access*/
 diff --git a/target/linux/generic/pending-5.14/768-net-dsa-mv88e6xxx-Request-assisted-learning-on-CPU-port.patch b/target/linux/generic/pending-5.14/768-net-dsa-mv88e6xxx-Request-assisted-learning-on-CPU-port.patch
 new file mode 100644
-index 0000000000..971f2f6427
+index 0000000000..31dd77443f
 --- /dev/null
 +++ b/target/linux/generic/pending-5.14/768-net-dsa-mv88e6xxx-Request-assisted-learning-on-CPU-port.patch
 @@ -0,0 +1,27 @@
@@ -26638,7 +26638,7 @@ index 0000000000..971f2f6427
 +
 +--- a/drivers/net/dsa/mv88e6xxx/chip.c
 ++++ b/drivers/net/dsa/mv88e6xxx/chip.c
-+@@ -6147,6 +6147,7 @@ static int mv88e6xxx_register_switch(str
++@@ -6129,6 +6129,7 @@ static int mv88e6xxx_register_switch(str
 + 	ds->ops = &mv88e6xxx_switch_ops;
 + 	ds->ageing_time_min = chip->info->age_time_coeff;
 + 	ds->ageing_time_max = chip->info->age_time_coeff * U8_MAX;
@@ -26648,10 +26648,10 @@ index 0000000000..971f2f6427
 + 	 * 5-bit port mode, which we do not support. 640k^W16 ought to
 diff --git a/target/linux/generic/pending-5.14/800-bcma-get-SoC-device-struct-copy-its-DMA-params-to-th.patch b/target/linux/generic/pending-5.14/800-bcma-get-SoC-device-struct-copy-its-DMA-params-to-th.patch
 new file mode 100644
-index 0000000000..cb02c71829
+index 0000000000..8ea307ea36
 --- /dev/null
 +++ b/target/linux/generic/pending-5.14/800-bcma-get-SoC-device-struct-copy-its-DMA-params-to-th.patch
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,71 @@
 +From: =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>
 +Subject: [PATCH] bcma: get SoC device struct & copy its DMA params to the
 + subdevices
@@ -26704,12 +26704,13 @@ index 0000000000..cb02c71829
 + 	if (err)
 +--- a/drivers/bcma/main.c
 ++++ b/drivers/bcma/main.c
-+@@ -236,12 +236,16 @@ EXPORT_SYMBOL(bcma_core_irq);
++@@ -236,13 +236,17 @@ EXPORT_SYMBOL(bcma_core_irq);
 + 
 + void bcma_prepare_core(struct bcma_bus *bus, struct bcma_device *core)
 + {
 ++	struct device *dev = &core->dev;
 ++
++ 	device_initialize(&core->dev);
 + 	core->dev.release = bcma_release_core_dev;
 + 	core->dev.bus = &bcma_bus_type;
 + 	dev_set_name(&core->dev, "bcma%d:%d", bus->num, core->core_index);
