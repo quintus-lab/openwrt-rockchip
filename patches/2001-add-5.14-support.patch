@@ -19322,31 +19322,22 @@ new file mode 100644
 index 0000000000..9aad0f3e6c
 --- /dev/null
 +++ b/target/linux/generic/pending-5.14/498-mtd-mtdconcat-select-readwrite-function.patch
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,14 @@
 +--- a/drivers/mtd/mtdconcat.c
 ++++ b/drivers/mtd/mtdconcat.c
-+@@ -683,8 +683,12 @@ struct mtd_info *mtd_concat_create(struc
++@@ -686,8 +686,12 @@ struct mtd_info *mtd_concat_create(struc
 + 		concat->mtd._writev = concat_writev;
-+ 	if (subdev[0]->_read_oob)
++ 	if (subdev_master->_read_oob)
 + 		concat->mtd._read_oob = concat_read_oob;
 ++	else
 ++		concat->mtd._read = concat_read;
-+ 	if (subdev[0]->_write_oob)
++ 	if (subdev_master->_write_oob)
 + 		concat->mtd._write_oob = concat_write_oob;
 ++	else
 ++		concat->mtd._write = concat_write;
-+ 	if (subdev[0]->_block_isbad)
++ 	if (subdev_master->_block_isbad)
 + 		concat->mtd._block_isbad = concat_block_isbad;
-+ 	if (subdev[0]->_block_markbad)
-+@@ -744,8 +748,6 @@ struct mtd_info *mtd_concat_create(struc
-+ 	concat->mtd.name = name;
-+ 
-+ 	concat->mtd._erase = concat_erase;
-+-	concat->mtd._read = concat_read;
-+-	concat->mtd._write = concat_write;
-+ 	concat->mtd._sync = concat_sync;
-+ 	concat->mtd._lock = concat_lock;
-+ 	concat->mtd._unlock = concat_unlock;
++ 	if (subdev_master->_block_markbad)
 diff --git a/target/linux/generic/pending-5.14/500-fs_cdrom_dependencies.patch b/target/linux/generic/pending-5.14/500-fs_cdrom_dependencies.patch
 new file mode 100644
 index 0000000000..0a5a3aae5d
