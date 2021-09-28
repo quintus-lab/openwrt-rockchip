@@ -1,6 +1,6 @@
-From 10457b4413d1d2e619a91902db2755d80350fc0c Mon Sep 17 00:00:00 2001
+From fd430497db1890db1566f39d5cc8f9118e35eecf Mon Sep 17 00:00:00 2001
 From: quintus-lab<noreply@github.com>
-Date: Fri, 17 Sep 2021 19:18:22 +0800
+Date: Wed, 29 Sep 2021 02:12:17 +0800
 Subject: [PATCH] add 5.14 support
 
 ---
@@ -93,7 +93,7 @@ Subject: [PATCH] add 5.14 support
  ...-mtd-core-add-get_mtd_device_by_node.patch |   75 +
  ...-add-bindings-for-mtd-concat-devices.patch |   52 +
  ...cat-add-dt-driver-for-concat-devices.patch |  216 +
- ...-mtdconcat-select-readwrite-function.patch |   24 +
+ ...-mtdconcat-select-readwrite-function.patch |   14 +
  .../500-fs_cdrom_dependencies.patch           |   40 +
  .../530-jffs2_make_lzma_available.patch       | 5180 ++++++++++++
  .../pending-5.14/532-jffs2_eofdetect.patch    |   65 +
@@ -122,7 +122,7 @@ Subject: [PATCH] add 5.14 support
  .../pending-5.14/834-ledtrig-libata.patch     |  149 +
  ...40-hwrng-bcm2835-set-quality-to-1000.patch |   26 +
  .../pending-5.14/920-mangle_bootargs.patch    |   71 +
- 118 files changed, 26227 insertions(+), 7 deletions(-)
+ 118 files changed, 26217 insertions(+), 7 deletions(-)
  create mode 100644 target/linux/generic/backport-5.14/011-kbuild-export-SUBARCH.patch
  create mode 100644 target/linux/generic/backport-5.14/343-netfilter-nft_flow_offload-handle-netdevice-events-f.patch
  create mode 100644 target/linux/generic/config-5.14
@@ -241,7 +241,7 @@ Subject: [PATCH] add 5.14 support
  create mode 100644 target/linux/generic/pending-5.14/920-mangle_bootargs.patch
 
 diff --git a/include/kernel-version.mk b/include/kernel-version.mk
-index 00f7c90313..7c2bfc13c6 100644
+index 00f7c90313..aa777370cd 100644
 --- a/include/kernel-version.mk
 +++ b/include/kernel-version.mk
 @@ -7,10 +7,10 @@ ifdef CONFIG_TESTING_KERNEL
@@ -14078,7 +14078,7 @@ index 0000000000..0639ad4e48
 + #  define LL_MAX_HEADER 96
 diff --git a/target/linux/generic/hack-5.14/660-fq_codel_defaults.patch b/target/linux/generic/hack-5.14/660-fq_codel_defaults.patch
 new file mode 100644
-index 0000000000..6794349e26
+index 0000000000..5541c0bc89
 --- /dev/null
 +++ b/target/linux/generic/hack-5.14/660-fq_codel_defaults.patch
 @@ -0,0 +1,27 @@
@@ -14097,7 +14097,7 @@ index 0000000000..6794349e26
 +
 +--- a/net/sched/sch_fq_codel.c
 ++++ b/net/sched/sch_fq_codel.c
-+@@ -461,7 +461,11 @@ static int fq_codel_init(struct Qdisc *s
++@@ -469,7 +469,11 @@ static int fq_codel_init(struct Qdisc *s
 + 
 + 	sch->limit = 10*1024;
 + 	q->flows_cnt = 1024;
@@ -14111,7 +14111,7 @@ index 0000000000..6794349e26
 + 	INIT_LIST_HEAD(&q->new_flows);
 diff --git a/target/linux/generic/hack-5.14/661-use_fq_codel_by_default.patch b/target/linux/generic/hack-5.14/661-use_fq_codel_by_default.patch
 new file mode 100644
-index 0000000000..dd085b211b
+index 0000000000..c4168e2abd
 --- /dev/null
 +++ b/target/linux/generic/hack-5.14/661-use_fq_codel_by_default.patch
 @@ -0,0 +1,100 @@
@@ -14172,7 +14172,7 @@ index 0000000000..dd085b211b
 + 	register_qdisc(&pfifo_head_drop_qdisc_ops);
 +--- a/net/sched/sch_fq_codel.c
 ++++ b/net/sched/sch_fq_codel.c
-+@@ -701,7 +701,7 @@ static const struct Qdisc_class_ops fq_c
++@@ -709,7 +709,7 @@ static const struct Qdisc_class_ops fq_c
 + 	.walk		=	fq_codel_walk,
 + };
 + 
@@ -14181,7 +14181,7 @@ index 0000000000..dd085b211b
 + 	.cl_ops		=	&fq_codel_class_ops,
 + 	.id		=	"fq_codel",
 + 	.priv_size	=	sizeof(struct fq_codel_sched_data),
-+@@ -716,6 +716,7 @@ static struct Qdisc_ops fq_codel_qdisc_o
++@@ -724,6 +724,7 @@ static struct Qdisc_ops fq_codel_qdisc_o
 + 	.dump_stats =	fq_codel_dump_stats,
 + 	.owner		=	THIS_MODULE,
 + };
@@ -19319,7 +19319,7 @@ index 0000000000..3f23622830
 ++MODULE_DESCRIPTION("Virtual concat MTD device driver");
 diff --git a/target/linux/generic/pending-5.14/498-mtd-mtdconcat-select-readwrite-function.patch b/target/linux/generic/pending-5.14/498-mtd-mtdconcat-select-readwrite-function.patch
 new file mode 100644
-index 0000000000..9aad0f3e6c
+index 0000000000..9e55e37161
 --- /dev/null
 +++ b/target/linux/generic/pending-5.14/498-mtd-mtdconcat-select-readwrite-function.patch
 @@ -0,0 +1,14 @@
@@ -19337,7 +19337,6 @@ index 0000000000..9aad0f3e6c
 ++		concat->mtd._write = concat_write;
 + 	if (subdev_master->_block_isbad)
 + 		concat->mtd._block_isbad = concat_block_isbad;
-+ 	if (subdev_master->_block_markbad)
 diff --git a/target/linux/generic/pending-5.14/500-fs_cdrom_dependencies.patch b/target/linux/generic/pending-5.14/500-fs_cdrom_dependencies.patch
 new file mode 100644
 index 0000000000..0a5a3aae5d
