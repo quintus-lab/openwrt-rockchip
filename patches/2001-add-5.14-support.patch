@@ -1,7 +1,7 @@
-From 56c2dbe8b1722d5e073fd06966f7ca0ba1e91ef2 Mon Sep 17 00:00:00 2001
+From 5be80c495087e46eb087bf9b963e51be69adca44 Mon Sep 17 00:00:00 2001
 From: quintus-lab<noreply@github.com>
-Date: Mon, 4 Oct 2021 03:45:43 +0800
-Subject: [PATCH] add-5.14-support
+Date: Sat, 9 Oct 2021 17:50:41 +0800
+Subject: [PATCH] add 5.14 support
 
 ---
  include/kernel-version.mk                     |    4 +-
@@ -123,7 +123,8 @@ Subject: [PATCH] add-5.14-support
  .../pending-5.14/834-ledtrig-libata.patch     |  149 +
  ...40-hwrng-bcm2835-set-quality-to-1000.patch |   26 +
  .../pending-5.14/920-mangle_bootargs.patch    |   71 +
- 119 files changed, 26228 insertions(+), 7 deletions(-)
+ ...ac-rk-add-pd_gmac-support-for-rk3399.patch |   55 +
+ 120 files changed, 26283 insertions(+), 7 deletions(-)
  create mode 100644 target/linux/generic/backport-5.14/011-kbuild-export-SUBARCH.patch
  create mode 100644 target/linux/generic/backport-5.14/343-netfilter-nft_flow_offload-handle-netdevice-events-f.patch
  create mode 100644 target/linux/generic/config-5.14
@@ -241,9 +242,10 @@ Subject: [PATCH] add-5.14-support
  create mode 100644 target/linux/generic/pending-5.14/834-ledtrig-libata.patch
  create mode 100644 target/linux/generic/pending-5.14/840-hwrng-bcm2835-set-quality-to-1000.patch
  create mode 100644 target/linux/generic/pending-5.14/920-mangle_bootargs.patch
+ create mode 100644 target/linux/generic/pending-5.14/988-net-stmmac-dwmac-rk-add-pd_gmac-support-for-rk3399.patch
 
 diff --git a/include/kernel-version.mk b/include/kernel-version.mk
-index 75a1f5f313..870ed0f151 100644
+index 75a1f5f313..92f0756acb 100644
 --- a/include/kernel-version.mk
 +++ b/include/kernel-version.mk
 @@ -7,10 +7,10 @@ ifdef CONFIG_TESTING_KERNEL
@@ -251,11 +253,11 @@ index 75a1f5f313..870ed0f151 100644
  
  LINUX_VERSION-5.4 = .150
 -LINUX_VERSION-5.10 = .70
-+LINUX_VERSION-5.14 = .9
++LINUX_VERSION-5.14 = .10
  
  LINUX_KERNEL_HASH-5.4.150 = f424a9bbb05007f04c17f96a2e4f041a8001554a9060d2c291606e8a97c62aa2
 -LINUX_KERNEL_HASH-5.10.70 = 75736c33711d7f298889ee4981b18774882045323e5c46af9ad3b022082db232
-+LINUX_KERNEL_HASH-5.14.9 = ba8f07db92d514a2636e882bcd646f79f1c8ab83f5ad82910732dd0ec83c87e6
++LINUX_KERNEL_HASH-5.14.10 = 45ce25e0abd1b46b273c804a00cd3513cd2a5bbcd89180e2e2a5dc8d062085d8
  
  remove_uri_prefix=$(subst git://,,$(subst http://,,$(subst https://,,$(1))))
  sanitize_uri=$(call qstrip,$(subst @,_,$(subst :,_,$(subst .,_,$(subst -,_,$(subst /,_,$(1)))))))
@@ -14500,7 +14502,7 @@ index 0000000000..cc6eddbf2d
 + struct bgmac *bgmac_alloc(struct device *dev);
 diff --git a/target/linux/generic/hack-5.14/901-debloat_sock_diag.patch b/target/linux/generic/hack-5.14/901-debloat_sock_diag.patch
 new file mode 100644
-index 0000000000..fc0c742ca9
+index 0000000000..34e73831f1
 --- /dev/null
 +++ b/target/linux/generic/hack-5.14/901-debloat_sock_diag.patch
 @@ -0,0 +1,162 @@
@@ -14583,7 +14585,7 @@ index 0000000000..fc0c742ca9
 + INDIRECT_CALLABLE_DECLARE(struct dst_entry *ip6_dst_check(struct dst_entry *,
 + 							  u32));
 + INDIRECT_CALLABLE_DECLARE(struct dst_entry *ipv4_dst_check(struct dst_entry *,
-+@@ -1949,9 +1963,11 @@ static void __sk_free(struct sock *sk)
++@@ -1967,9 +1981,11 @@ static void __sk_free(struct sock *sk)
 + 	if (likely(sk->sk_net_refcnt))
 + 		sock_inuse_add(sock_net(sk), -1);
 + 
@@ -14668,7 +14670,7 @@ index 0000000000..fc0c742ca9
 + 	  Support for UNIX socket monitoring interface used by the ss tool.
 diff --git a/target/linux/generic/hack-5.14/902-debloat_proc.patch b/target/linux/generic/hack-5.14/902-debloat_proc.patch
 new file mode 100644
-index 0000000000..08fb551af6
+index 0000000000..349a2c02b9
 --- /dev/null
 +++ b/target/linux/generic/hack-5.14/902-debloat_proc.patch
 @@ -0,0 +1,408 @@
@@ -15004,7 +15006,7 @@ index 0000000000..08fb551af6
 + 
 +--- a/net/core/sock.c
 ++++ b/net/core/sock.c
-+@@ -3819,6 +3819,8 @@ static __net_initdata struct pernet_oper
++@@ -3839,6 +3839,8 @@ static __net_initdata struct pernet_oper
 + 
 + static int __init proto_init(void)
 + {
@@ -25869,7 +25871,7 @@ index 0000000000..45c95c219d
 + static struct rtnl_link_ops ip6_link_ops __read_mostly = {
 diff --git a/target/linux/generic/pending-5.14/670-ipv6-allow-rejecting-with-source-address-failed-policy.patch b/target/linux/generic/pending-5.14/670-ipv6-allow-rejecting-with-source-address-failed-policy.patch
 new file mode 100644
-index 0000000000..450bc1bde6
+index 0000000000..9a398de64d
 --- /dev/null
 +++ b/target/linux/generic/pending-5.14/670-ipv6-allow-rejecting-with-source-address-failed-policy.patch
 @@ -0,0 +1,263 @@
@@ -26060,7 +26062,7 @@ index 0000000000..450bc1bde6
 + 		cfg->fc_flags |= RTF_REJECT;
 + 
 + 	if (rtm->rtm_type == RTN_LOCAL)
-+@@ -6262,6 +6293,8 @@ static int ip6_route_dev_notify(struct n
++@@ -6263,6 +6294,8 @@ static int ip6_route_dev_notify(struct n
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
 + 		net->ipv6.ip6_prohibit_entry->dst.dev = dev;
 + 		net->ipv6.ip6_prohibit_entry->rt6i_idev = in6_dev_get(dev);
@@ -26069,7 +26071,7 @@ index 0000000000..450bc1bde6
 + 		net->ipv6.ip6_blk_hole_entry->dst.dev = dev;
 + 		net->ipv6.ip6_blk_hole_entry->rt6i_idev = in6_dev_get(dev);
 + #endif
-+@@ -6273,6 +6306,7 @@ static int ip6_route_dev_notify(struct n
++@@ -6274,6 +6307,7 @@ static int ip6_route_dev_notify(struct n
 + 		in6_dev_put_clear(&net->ipv6.ip6_null_entry->rt6i_idev);
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
 + 		in6_dev_put_clear(&net->ipv6.ip6_prohibit_entry->rt6i_idev);
@@ -26077,7 +26079,7 @@ index 0000000000..450bc1bde6
 + 		in6_dev_put_clear(&net->ipv6.ip6_blk_hole_entry->rt6i_idev);
 + #endif
 + 	}
-+@@ -6464,6 +6498,8 @@ static int __net_init ip6_route_net_init
++@@ -6465,6 +6499,8 @@ static int __net_init ip6_route_net_init
 + 
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
 + 	net->ipv6.fib6_has_custom_rules = false;
@@ -26086,7 +26088,7 @@ index 0000000000..450bc1bde6
 + 	net->ipv6.ip6_prohibit_entry = kmemdup(&ip6_prohibit_entry_template,
 + 					       sizeof(*net->ipv6.ip6_prohibit_entry),
 + 					       GFP_KERNEL);
-+@@ -6474,11 +6510,21 @@ static int __net_init ip6_route_net_init
++@@ -6475,11 +6511,21 @@ static int __net_init ip6_route_net_init
 + 			 ip6_template_metrics, true);
 + 	INIT_LIST_HEAD(&net->ipv6.ip6_prohibit_entry->rt6i_uncached);
 + 
@@ -26109,7 +26111,7 @@ index 0000000000..450bc1bde6
 + 	net->ipv6.ip6_blk_hole_entry->dst.ops = &net->ipv6.ip6_dst_ops;
 + 	dst_init_metrics(&net->ipv6.ip6_blk_hole_entry->dst,
 + 			 ip6_template_metrics, true);
-+@@ -6505,6 +6551,8 @@ out:
++@@ -6506,6 +6552,8 @@ out:
 + 	return ret;
 + 
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
@@ -26118,7 +26120,7 @@ index 0000000000..450bc1bde6
 + out_ip6_prohibit_entry:
 + 	kfree(net->ipv6.ip6_prohibit_entry);
 + out_ip6_null_entry:
-+@@ -6524,6 +6572,7 @@ static void __net_exit ip6_route_net_exi
++@@ -6525,6 +6573,7 @@ static void __net_exit ip6_route_net_exi
 + 	kfree(net->ipv6.ip6_null_entry);
 + #ifdef CONFIG_IPV6_MULTIPLE_TABLES
 + 	kfree(net->ipv6.ip6_prohibit_entry);
@@ -26126,7 +26128,7 @@ index 0000000000..450bc1bde6
 + 	kfree(net->ipv6.ip6_blk_hole_entry);
 + #endif
 + 	dst_entries_destroy(&net->ipv6.ip6_dst_ops);
-+@@ -6601,6 +6650,9 @@ void __init ip6_route_init_special_entri
++@@ -6602,6 +6651,9 @@ void __init ip6_route_init_special_entri
 + 	init_net.ipv6.ip6_prohibit_entry->rt6i_idev = in6_dev_get(init_net.loopback_dev);
 + 	init_net.ipv6.ip6_blk_hole_entry->dst.dev = init_net.loopback_dev;
 + 	init_net.ipv6.ip6_blk_hole_entry->rt6i_idev = in6_dev_get(init_net.loopback_dev);
@@ -26482,7 +26484,7 @@ index 0000000000..33a994a943
 + 	 *   after HW reset: RX delay enabled and TX delay disabled
 diff --git a/target/linux/generic/pending-5.14/760-net-dsa-mv88e6xxx-fix-vlan-setup.patch b/target/linux/generic/pending-5.14/760-net-dsa-mv88e6xxx-fix-vlan-setup.patch
 new file mode 100644
-index 0000000000..23a3479411
+index 0000000000..ecc3a3848a
 --- /dev/null
 +++ b/target/linux/generic/pending-5.14/760-net-dsa-mv88e6xxx-fix-vlan-setup.patch
 @@ -0,0 +1,27 @@
@@ -26505,7 +26507,7 @@ index 0000000000..23a3479411
 +
 +--- a/drivers/net/dsa/mv88e6xxx/chip.c
 ++++ b/drivers/net/dsa/mv88e6xxx/chip.c
-+@@ -3024,6 +3024,7 @@ static int mv88e6xxx_setup(struct dsa_sw
++@@ -3027,6 +3027,7 @@ static int mv88e6xxx_setup(struct dsa_sw
 + 
 + 	chip->ds = ds;
 + 	ds->slave_mii_bus = mv88e6xxx_default_mdio_bus(chip);
@@ -26624,7 +26626,7 @@ index 0000000000..302ebf6d02
 + 	/* protect among processes for registers access*/
 diff --git a/target/linux/generic/pending-5.14/768-net-dsa-mv88e6xxx-Request-assisted-learning-on-CPU-port.patch b/target/linux/generic/pending-5.14/768-net-dsa-mv88e6xxx-Request-assisted-learning-on-CPU-port.patch
 new file mode 100644
-index 0000000000..31dd77443f
+index 0000000000..83171f2418
 --- /dev/null
 +++ b/target/linux/generic/pending-5.14/768-net-dsa-mv88e6xxx-Request-assisted-learning-on-CPU-port.patch
 @@ -0,0 +1,27 @@
@@ -26647,7 +26649,7 @@ index 0000000000..31dd77443f
 +
 +--- a/drivers/net/dsa/mv88e6xxx/chip.c
 ++++ b/drivers/net/dsa/mv88e6xxx/chip.c
-+@@ -6129,6 +6129,7 @@ static int mv88e6xxx_register_switch(str
++@@ -6144,6 +6144,7 @@ static int mv88e6xxx_register_switch(str
 + 	ds->ops = &mv88e6xxx_switch_ops;
 + 	ds->ageing_time_min = chip->info->age_time_coeff;
 + 	ds->ageing_time_max = chip->info->age_time_coeff * U8_MAX;
@@ -27217,6 +27219,67 @@ index 0000000000..840d35c0c9
 + 	setup_boot_config();
 + 	setup_command_line(command_line);
 + 	setup_nr_cpu_ids();
+diff --git a/target/linux/generic/pending-5.14/988-net-stmmac-dwmac-rk-add-pd_gmac-support-for-rk3399.patch b/target/linux/generic/pending-5.14/988-net-stmmac-dwmac-rk-add-pd_gmac-support-for-rk3399.patch
+new file mode 100644
+index 0000000000..afabd8ff2f
+--- /dev/null
++++ b/target/linux/generic/pending-5.14/988-net-stmmac-dwmac-rk-add-pd_gmac-support-for-rk3399.patch
+@@ -0,0 +1,55 @@
++From aec3f415f7244b7747a7952596971adb0df2f568 Mon Sep 17 00:00:00 2001
++From: Punit Agrawal <punitagrawal@gmail.com>
++Date: Wed, 29 Sep 2021 22:50:49 +0900
++Subject: net: stmmac: dwmac-rk: Fix ethernet on rk3399 based devices
++
++Commit 2d26f6e39afb ("net: stmmac: dwmac-rk: fix unbalanced pm_runtime_enable warnings")
++while getting rid of a runtime PM warning ended up breaking ethernet
++on rk3399 based devices. By dropping an extra reference to the device,
++the commit ends up enabling suspend / resume of the ethernet device -
++which appears to be broken.
++
++While the issue with runtime pm is being investigated, partially
++revert commit 2d26f6e39afb to restore the network on rk3399.
++
++Fixes: 2d26f6e39afb ("net: stmmac: dwmac-rk: fix unbalanced pm_runtime_enable warnings")
++Suggested-by: Heiko Stuebner <heiko@sntech.de>
++Signed-off-by: Punit Agrawal <punitagrawal@gmail.com>
++Cc: Michael Riesch <michael.riesch@wolfvision.net>
++Tested-by: Heiko Stuebner <heiko@sntech.de>
++Link: https://lore.kernel.org/r/20210929135049.3426058-1-punitagrawal@gmail.com
++Signed-off-by: Jakub Kicinski <kuba@kernel.org>
++---
++ drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c | 5 +++++
++ 1 file changed, 5 insertions(+)
++
++(limited to 'drivers/net/ethernet/stmicro')
++
++--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++@@ -21,6 +21,7 @@
++ #include <linux/delay.h>
++ #include <linux/mfd/syscon.h>
++ #include <linux/regmap.h>
+++#include <linux/pm_runtime.h>
++ 
++ #include "stmmac_platform.h"
++ 
++@@ -1528,6 +1529,8 @@ static int rk_gmac_powerup(struct rk_pri
++ 		return ret;
++ 	}
++ 
+++	pm_runtime_get_sync(dev);
+++
++ 	if (bsp_priv->integrated_phy)
++ 		rk_gmac_integrated_phy_powerup(bsp_priv);
++ 
++@@ -1539,6 +1542,8 @@ static void rk_gmac_powerdown(struct rk_
++ 	if (gmac->integrated_phy)
++ 		rk_gmac_integrated_phy_powerdown(gmac);
++ 
+++	pm_runtime_put_sync(&gmac->pdev->dev);
+++
++ 	phy_power_on(gmac, false);
++ 	gmac_clk_enable(gmac, false);
++ }
 -- 
 2.25.1
 
