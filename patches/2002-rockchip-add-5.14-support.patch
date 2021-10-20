@@ -1,6 +1,6 @@
-From 3a419788675208f5e9938f61210fbcf56518d3ae Mon Sep 17 00:00:00 2001
+From f1d636e628e5b30517d07902d67410d532139e79 Mon Sep 17 00:00:00 2001
 From: quintus-lab<noreply@github.com>
-Date: Fri, 17 Sep 2021 19:29:45 +0800
+Date: Thu, 21 Oct 2021 02:10:42 +0800
 Subject: [PATCH] rockchip add 5.14 support
 
 ---
@@ -95,15 +95,15 @@ index 3249b854d6..96f8672f19 100644
    FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/r8152.ko
    AUTOLOAD:=$(call AutoProbe,r8152)
 diff --git a/target/linux/rockchip/Makefile b/target/linux/rockchip/Makefile
-index f7b6995911..44d362569e 100644
+index 0245f02eac..45198d755e 100644
 --- a/target/linux/rockchip/Makefile
 +++ b/target/linux/rockchip/Makefile
-@@ -8,7 +8,7 @@ FEATURES:=ext4 audio usb usbgadget display gpio fpu pci pcie rootfs-part boot-pa
+@@ -7,7 +7,7 @@ BOARDNAME:=Rockchip
+ FEATURES:=ext4 audio usb usbgadget display gpio fpu pci pcie rootfs-part boot-part squashfs
  SUBTARGETS:=armv8
  
- KERNEL_PATCHVER=5.4
--KERNEL_TESTING_PATCHVER=5.10
-+KERNEL_TESTING_PATCHVER=5.14
+-KERNEL_PATCHVER=5.10
++KERNEL_PATCHVER=5.14
  
  define Target/Description
  	Build firmware image for Rockchip SoC devices.
