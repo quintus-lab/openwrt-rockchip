@@ -23,8 +23,8 @@ svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/srelay package/le
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks package/lean/microsocks
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/dns2socks package/lean/dns2socks
 svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks package/lean/ipt2socks
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs package/lean/simple-obfs
-svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan package/lean/trojan
+svn co https://github.com/fw876/helloworld/trunk/simple-obfs package/lean/simple-obfs
+svn co https://github.com/fw876/helloworld/trunk/trojan package/lean/trojan
 #svn co https://github.com/immortalwrt/packages/trunk/net/naiveproxy package/new/naiveproxy
 #wrt bw monitor
 git clone -b master --single-branch https://github.com/brvphoenix/wrtbwmon package/new/wrtbwmon
