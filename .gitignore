@@ -1,4 +1,6 @@
-
-*/.DS_Store
 .DS_Store
-
+openwrt/
+artifact/
+*.img
+*.img.gz
+*.bin
