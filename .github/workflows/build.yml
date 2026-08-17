@@ -14,24 +14,34 @@ on:
 permissions:
   contents: write
   actions: write
-  attestations: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: immortalwrt-rockchip-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 360
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@fc881a613ad2a34aca9c9624518214ebc21dfc0c
+        with:
+          root-reserve-mb: 8192
+          swap-size-mb: 8192
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Free disk space
+      - name: Show runner
         run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
-            /opt/hostedtoolcache/CodeQL || true
-          sudo docker image prune --all --force || true
+          echo -e "CPU\t: $(nproc)"
+          lscpu | awk -F: '/Model name/ {print "Model\t:" $2}'
+          free -h
           df -h
 
       - name: Install build dependencies
@@ -39,11 +49,16 @@ jobs:
           sudo apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
             build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
-            gettext git libncurses-dev libssl-dev python3-setuptools rsync swig \
-            unzip zlib1g-dev file wget libelf-dev qemu-utils ccache
+            gettext git libncurses-dev libssl-dev python3-setuptools python3-dev \
+            rsync swig unzip zlib1g-dev file wget libelf-dev qemu-utils ccache
 
       - name: Clone ImmortalWrt 25.12
-        run: git clone --depth 1 -b openwrt-25.12 https://github.com/immortalwrt/immortalwrt.git openwrt
+        run: |
+          git clone --depth 1 -b openwrt-25.12 \
+            https://github.com/immortalwrt/immortalwrt.git openwrt
+          echo "IWRT_REV=$(git -C openwrt rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          echo "BUILD_DATE=$(date -u +%Y.%m.%d)" >> "$GITHUB_ENV"
+          git -C openwrt log -1 --oneline
 
       - name: Update ImmortalWrt feeds
         run: |
@@ -55,12 +70,38 @@ jobs:
           cd openwrt
           cp ../seed/rockchip.seed .config
           make defconfig
+          ./scripts/diffconfig.sh | tee ../artifact-config.diff || true
+
+      - name: Verify required packages
+        run: |
+          set -euo pipefail
+          cfg=openwrt/.config
+          missing=0
+          for sym in \
+            CONFIG_PACKAGE_luci \
+            CONFIG_PACKAGE_luci-app-homeproxy \
+            CONFIG_PACKAGE_luci-app-passwall \
+            CONFIG_PACKAGE_luci-app-smartdns \
+            CONFIG_PACKAGE_tailscale \
+            CONFIG_PACKAGE_luci-app-tailscale-community \
+            CONFIG_PACKAGE_odhcp6c \
+            CONFIG_PACKAGE_odhcpd-ipv6only \
+            CONFIG_PACKAGE_luci-proto-ipv6
+          do
+            if ! grep -q "^${sym}=y" "$cfg"; then
+              echo "MISSING ${sym}"
+              missing=1
+            else
+              echo "OK ${sym}"
+            fi
+          done
+          exit "$missing"
 
       - name: Download sources
         run: |
           cd openwrt
           make download -j$(nproc)
-          find dl -size -1024c -exec rm -f {} + || true
+          find dl -type f -size -1024c -print -delete || true
 
       - name: Compile
         run: |
@@ -71,20 +112,35 @@ jobs:
         run: |
           mkdir -p artifact
           shopt -s nullglob
-          cp -v openwrt/bin/targets/rockchip/armv8/*sysupgrade* artifact/ || true
-          cp -v openwrt/bin/targets/rockchip/armv8/*.img* artifact/ || true
+          dest=openwrt/bin/targets/rockchip/armv8
+          cp -v "$dest"/*sysupgrade* artifact/ || true
+          cp -v "$dest"/sha256sums artifact/ || true
+          cp openwrt/.config artifact/full.config
           (cd openwrt && ./scripts/diffconfig.sh > ../artifact/config.diff)
           ls -lah artifact
-          test -n "$(ls -A artifact/*sysupgrade* 2>/dev/null)"
+          test -n "$(echo artifact/*sysupgrade*)"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: immortalwrt-rockchip-25.12
           path: artifact/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Write release notes
+        run: |
+          {
+            echo "ImmortalWrt 25.12 firmware — ${BUILD_DATE}"
+            echo
+            cat body-origin.md
+            echo
+            echo "ImmortalWrt revision: ${IWRT_REV}"
+            echo "Builder: ${GITHUB_SHA}"
+          } > release-body.md
 
       - name: Publish release
-        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/master'
         uses: ncipollo/release-action@v1
         with:
           tag: immortalwrt-25.12
@@ -93,4 +149,4 @@ jobs:
           replacesArtifacts: true
           makeLatest: true
           artifacts: artifact/*
-          bodyFile: body-origin.md
+          bodyFile: release-body.md

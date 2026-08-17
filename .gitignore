@@ -4,3 +4,10 @@ artifact/
 *.img
 *.img.gz
 *.bin
+.config
+.config.old
+dl/
+build_dir/
+staging_dir/
+tmp/
+*.swp
