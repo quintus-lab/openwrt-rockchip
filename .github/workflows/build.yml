@@ -1,4 +1,4 @@
-name: Build OpenWrt 24.10 (Rockchip)
+name: Build OpenWrt 24.10
 
 on:
   workflow_dispatch:

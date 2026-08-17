@@ -1,9 +1,13 @@
 # openwrt-rockchip
 
-GitHub Actions builder for Rockchip rk3328/rk3399 boards:
+Single OpenWrt firmware builder for the Rockchip boards this repo used to
+split across `openwrt-rockchip` and `NanoPi-R4S-OpenWRT` / `openwrt-r4s`.
+One workflow, one seed, no R4S-only tree.
+
+Boards in `seed/rockchip.seed`:
 
 - FriendlyARM NanoPi R2S
-- FriendlyARM NanoPi R4S
+- FriendlyARM NanoPi R4S / R4S Enterprise
 - Xunlong Orange Pi R1 Plus / R1 Plus LTS
 
 This replaces the 2021 builder that cloned OpenWrt `master`, stacked custom
@@ -23,7 +27,7 @@ login.
 
 ## Build
 
-Actions → **Build OpenWrt 24.10 (Rockchip)** → Run workflow.
+Actions → **Build OpenWrt 24.10** → Run workflow.
 
 Or locally:
 
