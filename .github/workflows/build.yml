@@ -1,4 +1,4 @@
-name: Build OpenWrt 25.12
+name: Build ImmortalWrt 25.12
 
 on:
   workflow_dispatch:
@@ -42,10 +42,10 @@ jobs:
             gettext git libncurses-dev libssl-dev python3-setuptools rsync swig \
             unzip zlib1g-dev file wget libelf-dev qemu-utils ccache
 
-      - name: Clone OpenWrt 25.12
-        run: git clone --depth 1 -b openwrt-25.12 https://github.com/openwrt/openwrt.git openwrt
+      - name: Clone ImmortalWrt 25.12
+        run: git clone --depth 1 -b openwrt-25.12 https://github.com/immortalwrt/immortalwrt.git openwrt
 
-      - name: Prepare tree and extra packages
+      - name: Update ImmortalWrt feeds
         run: |
           cd openwrt
           bash ../scripts/prepare.sh
@@ -80,15 +80,15 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-rockchip-25.12
+          name: immortalwrt-rockchip-25.12
           path: artifact/
 
       - name: Publish release
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         uses: ncipollo/release-action@v1
         with:
-          tag: openwrt-25.12
-          name: OpenWrt 25.12
+          tag: immortalwrt-25.12
+          name: ImmortalWrt 25.12
           allowUpdates: true
           replacesArtifacts: true
           makeLatest: true

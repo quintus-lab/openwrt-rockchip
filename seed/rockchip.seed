@@ -1,4 +1,4 @@
-# OpenWrt 25.12 — Rockchip multi-board
+# ImmortalWrt 25.12 — Rockchip multi-board
 CONFIG_TARGET_rockchip=y
 CONFIG_TARGET_rockchip_armv8=y
 CONFIG_TARGET_MULTI_PROFILE=y
@@ -10,13 +10,19 @@ CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4s=y
 CONFIG_TARGET_DEVICE_PACKAGES_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4s=""
 CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4s-enterprise=y
 CONFIG_TARGET_DEVICE_PACKAGES_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4s-enterprise=""
+CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4se=y
+CONFIG_TARGET_DEVICE_PACKAGES_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4se=""
 CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_xunlong_orangepi-r1-plus=y
 CONFIG_TARGET_DEVICE_PACKAGES_rockchip_armv8_DEVICE_xunlong_orangepi-r1-plus=""
 CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_xunlong_orangepi-r1-plus-lts=y
 CONFIG_TARGET_DEVICE_PACKAGES_rockchip_armv8_DEVICE_xunlong_orangepi-r1-plus-lts=""
 
+CONFIG_IPV6=y
+CONFIG_KERNEL_IPV6=y
+
 CONFIG_PACKAGE_luci=y
 CONFIG_PACKAGE_luci-ssl=y
+CONFIG_LUCI_LANG_zh_Hans=y
 CONFIG_PACKAGE_luci-app-firewall=y
 CONFIG_PACKAGE_luci-app-package-manager=y
 CONFIG_PACKAGE_luci-app-attendedsysupgrade=y
@@ -26,11 +32,25 @@ CONFIG_PACKAGE_luci-app-wol=y
 CONFIG_PACKAGE_luci-app-sqm=y
 CONFIG_PACKAGE_luci-app-ttyd=y
 CONFIG_PACKAGE_luci-proto-wireguard=y
-CONFIG_PACKAGE_luci-app-ssr-plus=y
-CONFIG_PACKAGE_luci-app-wrtbwmon=y
-CONFIG_PACKAGE_luci-app-diskman=y
+CONFIG_PACKAGE_luci-proto-ipv6=y
+
+# Proxy / DNS from ImmortalWrt luci + packages only
+CONFIG_PACKAGE_luci-app-homeproxy=y
+CONFIG_PACKAGE_luci-app-passwall=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Haproxy=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_Rust_Client=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_SingBox=y
+CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Xray=y
+CONFIG_PACKAGE_luci-app-smartdns=y
+CONFIG_PACKAGE_smartdns=y
+CONFIG_PACKAGE_sing-box=y
+CONFIG_PACKAGE_xray-core=y
+
+# Tailscale from ImmortalWrt packages
+CONFIG_PACKAGE_tailscale=y
+CONFIG_PACKAGE_luci-app-tailscale-community=y
+
 CONFIG_PACKAGE_wireguard-tools=y
-CONFIG_PACKAGE_zerotier=y
 CONFIG_PACKAGE_ddns-scripts=y
 CONFIG_PACKAGE_ddns-scripts-cloudflare=y
 CONFIG_PACKAGE_ddns-scripts-services=y
@@ -40,6 +60,7 @@ CONFIG_PACKAGE_ethtool=y
 CONFIG_PACKAGE_socat=y
 CONFIG_PACKAGE_curl=y
 CONFIG_PACKAGE_wget-ssl=y
+CONFIG_PACKAGE_ip-full=y
 CONFIG_PACKAGE_cfdisk=y
 CONFIG_PACKAGE_lsblk=y
 CONFIG_PACKAGE_block-mount=y
@@ -57,4 +78,27 @@ CONFIG_PACKAGE_kmod-fs-exfat=y
 CONFIG_PACKAGE_kmod-fs-ntfs3=y
 CONFIG_PACKAGE_kmod-mt76x2u=y
 CONFIG_PACKAGE_openssh-sftp-server=y
-CONFIG_TARGET_ROOTFS_PARTSIZE=256
+
+# IPv6: WAN client, LAN RA/DHCPv6, tunnels, NAT64/464XLAT, nft IPv6
+# CONFIG_PACKAGE_dnsmasq is not set
+CONFIG_PACKAGE_dnsmasq-full=y
+CONFIG_PACKAGE_dnsmasq_full_dhcp=y
+CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
+CONFIG_PACKAGE_dnsmasq_full_dnssec=y
+CONFIG_PACKAGE_odhcp6c=y
+CONFIG_PACKAGE_odhcpd-ipv6only=y
+CONFIG_PACKAGE_464xlat=y
+CONFIG_PACKAGE_6in4=y
+CONFIG_PACKAGE_6rd=y
+CONFIG_PACKAGE_6to4=y
+CONFIG_PACKAGE_ds-lite=y
+CONFIG_PACKAGE_map=y
+CONFIG_PACKAGE_kmod-sit=y
+CONFIG_PACKAGE_kmod-ip6-tunnel=y
+CONFIG_PACKAGE_kmod-iptunnel6=y
+CONFIG_PACKAGE_kmod-nft-nat=y
+CONFIG_PACKAGE_kmod-nft-tproxy=y
+CONFIG_PACKAGE_kmod-nf-reject6=y
+CONFIG_PACKAGE_kmod-wireguard=y
+
+CONFIG_TARGET_ROOTFS_PARTSIZE=384
